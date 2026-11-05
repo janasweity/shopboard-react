@@ -195,7 +195,27 @@ Last run on 2026-11-06:
   - Navigation stops the intro, and no timer is left running.
   - Reduced motion, both from the start and switched on mid-intro, disables the motion.
   - There is no replay within the same session.
-- React DevTools Components tab: the user inspected the Home page (HomePage), ProductsPage and ProductCard. The other components, and the full state ownership table above, have not yet been inspected in DevTools.
+- React DevTools Components tab: the user inspected these components:
+  - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).
+  - The Home page (HomePage), ProductsPage and ProductCard.
+  - RoomSlider. It receives `slides` from HomePage. Its `activeId` state started as `"living"` and changed when another room was selected.
+  - RegistrationSection. It showed three local state hooks with the values `true`, `""` and `0`, and two refs. In the code, these are, in order:
+    - `open` (`true`): the demo form is shown. A valid submit sets it to `false`, and Reopen sets it back to `true`.
+    - `status` (`""`): the demo message, empty until a valid submit. Reopen clears it again.
+    - `formKey` (`0`): the form key. Each valid submit increases it by one, which remounts the form and clears its fields.
+    - `reopenButton`: after a valid submit, focus moves to the Reopen button.
+    - `emailInput`: after Reopen, focus moves to the email field.
+  - CartDialog and its child components.
+  - ProductDetailsPage with ProductGallery and VariantSelector. ProductGallery showed its `viewId` state as `"detail"`. In the code, `viewId` starts as `"product"` and changes when a gallery thumbnail is selected.
+  - InspirationPage with RoomSection and RoomCalculator. RoomCalculator showed three local state hooks with the values `"4"`, `"3"` and `12`. In the code, these are, in order:
+    - `width` (`"4"`) and `length` (`"3"`): the controlled input values, stored as text.
+    - `area` (`12`): the result of the Day 3 `calculateRoomArea` after a valid submit. It is `null` until then.
+  - NotFoundPage with StatusMessage.
+  - AboutPage with ContactForm. ContactForm showed two local state hooks with the values `""` and `0`. In the code, these are, in order:
+    - `status`: the demo message, empty until a valid submit.
+    - `formKey`: the form key. Each valid submit increases it by one, which remounts the form and clears its fields.
+- EntranceOverlay could not be captured in DevTools. It is rendered only while the intro is playing.
+- Components not listed above, and the rest of the state ownership table, have not been inspected in DevTools.
 
 ## Known gaps
 
