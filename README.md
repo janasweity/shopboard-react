@@ -202,8 +202,7 @@ Last run on 2026-11-06:
 - The dormant room-hotspot feature from Day 3 (`shop-room.ts`, `room-beacon` CSS) was not active in the original UI and is not migrated.
 - The React DevTools inspection covers only the components listed under Verification status.
 
-## Project status and documents
+## Project documents
 
-- Stages 3-5 (API catalogue, cart, product details, forms, rooms, about, entrance) are saved in commit 49fd304.
-- `debug-lab-log.md` records the five course debug-lab bugs with AI disclosure. Bug 5 (CartRow) showed no visible problem in the user's test and was identified through a source review. The fixes in the log are suggestions and were not applied to the lab. The file is not committed yet.
+- `debug-lab-log.md` records the five course debug-lab bugs with AI disclosure. Bug 5 (CartRow) showed no visible problem in the user's test and was identified through a source review. The fixes in the log are suggestions and were not applied to the lab.
 - CLAUDE.md now lists three learning rules taken from the debug-lab bugs: stable data keys instead of the array index, copying an array before sorting it, and updating props and state without mutating them.

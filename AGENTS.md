@@ -4,7 +4,7 @@
 
 - Original project C:/Users/morjm/OneDrive/Desktop/shopboard is read-only. Preserve its user-owned untracked docs/ directory.
 - Verified React root: C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react; package.json is here, not in its parent.
-- Current status: Stages 3-5 (API catalogue, cart, product details, forms, rooms, about, entrance) are saved in commit 49fd304. debug-lab-log.md exists but is not committed. Make only review fixes the user asks for.
+- Stages 3-5 (API catalogue, cart, product details, forms, rooms, about, entrance) are implemented. Make only review fixes the user asks for.
 - Do not modify the original, stage/commit, configure remotes, push, deploy or upload without explicit authorization. Do not delete files without explicit approval. Preserve protected Day 3 files; report any proposed exception first.
 - Inspect both projects and Git status before work. The original retains its pre-existing untracked docs/ directory.
 
