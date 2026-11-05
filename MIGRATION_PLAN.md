@@ -1,6 +1,6 @@
 # RAHA React migration plan (temporary)
 
-Status: Stage 0 is saved in b8fccdf and Stage 1 in e50b287. Stage 2 is implemented locally and awaits review, with changes unstaged/uncommitted. Stages 3-6 are not authorized. This temporary plan must be removed before final submission after approved cleanup.
+Status: Stage 0 is saved in b8fccdf, Stage 1 in e50b287 and Stage 2 in 07d4702. Stage 3 (API catalogue) is authorized and implemented locally, awaiting review with changes unstaged/uncommitted. Stages 4-6 are not authorized. This temporary plan must be removed before final submission after approved cleanup.
 Inspection date: 2026-11-05 (Europe/Istanbul).
 
 ## Stage 2 execution record

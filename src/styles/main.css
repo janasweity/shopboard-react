@@ -1667,25 +1667,11 @@ button:disabled {
 .add-to-cart:disabled {
   opacity: 0.65;
 }
-.cart-toggle:disabled {
-  color: var(--warm-slate);
-}
-.preview-label {
-  font-size: 0.6rem;
-}
 .status-action {
   background: transparent;
   border-inline: 0;
   border-top: 0;
   cursor: pointer;
-}
-.registration-preview {
-  align-self: center;
-  font-size: 0.85rem;
-  color: var(--charcoal-brown);
-}
-.registration-preview p + p {
-  margin-top: 1rem;
 }
 .button-secondary {
   color: var(--color-ink);
@@ -1694,4 +1680,15 @@ button:disabled {
 }
 .button-secondary:hover {
   background: var(--silver-mist);
+}
+
+/* React catalogue feedback sits outside the busy grid for immediate announcements. */
+#catalogue-status {
+  margin-block: 0 1.5rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.catalogue-reset {
+  align-self: end;
 }

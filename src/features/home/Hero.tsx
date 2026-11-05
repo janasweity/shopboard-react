@@ -1,4 +1,8 @@
 import { handleRouteClick } from '../../app/navigation.ts'
+import {
+  entranceDelay,
+  useEntranceMotion,
+} from '../entrance/entrance-motion.ts'
 
 interface Props {
   readonly image: string
@@ -6,11 +10,17 @@ interface Props {
 }
 
 export default function Hero({ image, alt }: Props) {
+  const imageMotion = useEntranceMotion('hero', entranceDelay.hero)
+  const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
   return (
     <section className="hero home-hero" id="hero" aria-labelledby="hero-title">
       <div className="hero-copy">
         <p className="eyebrow">RAHA / THE CONSIDERED HOME</p>
-        <h1 id="hero-title">
+        <h1
+          id="hero-title"
+          className={titleMotion.className}
+          style={titleMotion.style}
+        >
           Beautiful pieces.
           <br />A home that
           <br />
@@ -37,6 +47,8 @@ export default function Hero({ image, alt }: Props) {
           height={1000}
           fetchPriority="high"
           decoding="async"
+          className={imageMotion.className}
+          style={imageMotion.style}
         />
         <figcaption>RAHA / HOME &amp; LIVING</figcaption>
       </figure>

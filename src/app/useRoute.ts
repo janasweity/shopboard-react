@@ -20,8 +20,19 @@ export function useRoute() {
   useEffect(() => {
     const url = canonicalizeUrl(href)
     if (url.href !== location.href) history.replaceState(null, '', url)
+    const previous = new URL(previousHref.current)
+    const previousRoute = readRoute(previousHref.current)
+    const nextRoute = readRoute(href)
     const changed = previousHref.current !== href
     previousHref.current = href
+    // Updating catalogue controls or a product finish must not steal focus or
+    // scroll the page.
+    const sameView =
+      (previousRoute.page === 'products' && nextRoute.page === 'products') ||
+      (previousRoute.page === 'product' &&
+        nextRoute.page === 'product' &&
+        previousRoute.productId === nextRoute.productId)
+    if (changed && sameView && previous.hash === url.hash) return
     const frame = requestAnimationFrame(() => {
       let anchorId = url.hash.slice(1)
       try {

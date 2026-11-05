@@ -2,21 +2,33 @@ import type { Product } from '../../../modules/products/products.types.ts'
 import {
   categoryName,
   collectionName,
+  getVariant,
   money,
   productURL,
 } from '../../../data.ts'
 import { handleRouteClick } from '../../../app/navigation.ts'
 import Button from '../../../components/Button.tsx'
+import type { AddHandler } from '../../cart/cart-store.ts'
+import {
+  entranceDelay,
+  joinClasses,
+  useEntranceMotion,
+} from '../../entrance/entrance-motion.ts'
 
 interface Props {
   readonly product: Product
+  readonly position: number
+  onAdd: AddHandler
 }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product, position, onAdd }: Props) {
   const href = productURL(product.id)
+  const variant = getVariant(product)
+  const motion = useEntranceMotion('card', entranceDelay.card(position))
   return (
     <article
-      className="product-card"
+      className={joinClasses('product-card', motion.className)}
+      style={motion.style}
       data-id={product.id}
       data-category={product.category}
       data-collection={product.collection}
@@ -59,8 +71,9 @@ export default function ProductCard({ product }: Props) {
         </p>
         <Button
           className="add-to-cart"
-          disabled
-          title="The cart is not available in this preview."
+          disabled={!variant.available}
+          aria-label={'Add ' + product.name + ' to cart'}
+          onClick={() => onAdd(product.id, variant.id)}
         >
           Add to cart <span aria-hidden="true">+</span>
         </Button>

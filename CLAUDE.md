@@ -2,9 +2,11 @@
 
 ## Requirements and workflow
 
-The user's attached RAHA React Architecture and Migration Planning requirements resolve the earlier uncertainty about tool names, skills, delivery filenames and stages. They do not include the five exact debug-lab bug descriptions. The original is read-only; the verified React root is C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react.
+The user's attached RAHA React Architecture and Migration Planning requirements resolve the earlier uncertainty about tool names, skills, delivery filenames and stages. The original is read-only; the verified React root is C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react.
 
-Current authorization is Stage 2 only: React foundation, layout, reusable components, styles/assets and Home presentation. Stage 1 is saved in e50b287. Recompare protected modules after the pre-commit hook; do not change them. Keep later features deferred, leave changes unstaged/uncommitted and stop before Stage 3. The original remains read-only; no remotes, push, deletion, deployment or upload.
+Current status: Stages 3-5 (API catalogue, cart, product details, forms, rooms, about, entrance) are implemented and browser-verified, and are under the user's review. All of this work stays unstaged and uncommitted until the user approves commits. Do not configure a remote, push, deploy or upload. Keep MIGRATION_PLAN.md until the review is complete. Recompare protected modules after any pre-commit hook; do not change them.
+
+Architecture source of truth: README.md describes the implemented component tree, props and state ownership. Where MIGRATION_PLAN.md proposed different files (for example CartProvider, cart.context.ts, CartSummary or NotificationRegion), the implemented README architecture supersedes the plan.
 
 ## Shared React rules
 
@@ -31,7 +33,8 @@ Current authorization is Stage 2 only: React foundation, layout, reusable compon
 - Keep English language, semantic landmarks, one h1 per active route, logical headings, labels, alt handling, keyboard access, visible focus, accessible contrast, and route title/focus updates.
 - Keep cart Escape handling, focus containment/return and action focus recovery; registration is non-modal and must not trap focus.
 - Keep tokens in src/styles/tokens.css and active styles in src/styles/main.css, mobile-first min-width layout breakpoints at 768px/1280px, no !important or max-width layout queries, and no overflow at 360/768/1280px.
-- Preserve entrance skip/Escape/session/replay behavior and reduced motion; clean up timers, frames, media-query listeners and route listeners.
+- Preserve entrance skip/Escape/session/replay behavior and reduced motion; clean up timers, frames, media-query listeners and route listeners. The entrance may play on the first page of a session and stops on navigation. Content arrival motion (hero image, h1, search field, staggered cards) uses the original classes and timings through EntranceContext and useEntranceMotion. It applies only to content mounted before the intro started.
+- The cart is owned by the preserved src/state.ts. React reads it only through src/features/cart/cart-store.ts (cached snapshot plus notifications) and useCart (derived lines/count/subtotal). Every cart change goes through cart-store.ts; never call state.ts mutations directly from components.
 
 ## Day 3 reuse and conflict policy
 
@@ -41,13 +44,13 @@ Stage 1 reported TS1294 for the original ApiError parameter-property syntax befo
 
 ## Course setup and submission
 
-- Stage 0 created a separate React repository at the verified target root; no parent Git repository was inherited. Stage 0 files are saved in b8fccdf; Stage 1 is saved in e50b287; Stage 2 changes remain unstaged/uncommitted and no remote is configured.
+- Stage 0 created a separate React repository at the verified target root; no parent Git repository was inherited. Stage 0 files are saved in b8fccdf; Stage 1 in e50b287; Stage 2 in 07d4702. Stage 3-5 changes remain unstaged/uncommitted and no remote is configured.
 - Require successful production build and lint with zero warnings, Prettier, Husky, lint-staged, strict typing without prohibited shortcuts, and no React warnings in the Console.
 - Both required skills are installed as real copies under .claude/skills: vercel-react-best-practices and vercel-composition-patterns. Source hashes are in skills-lock.json. These installed skill files are tracked in Stage 0 commit b8fccdf. Do not create another commit now.
 - Require at least six reusable TSX components, each in its own file with a typed Props interface and actual reuse.
 - Final README.md must include the actual App-rooted tree, exact files, props, state owners, commands and API hosting limitations. Verify tree and ownership with React DevTools Components.
-- Deliver DESIGN.md and debug-lab-log.md. The log must cover the five course bugs with real reproduction, expected/actual behavior, diagnosis tools, cause, fix, verification and AI disclosure. Specific tasks remain missing; do not invent replacements or count the old two-bug log as completion.
-- Final repository must be clean with current documents and no unused templates, backups, screenshots, prompts or AI planning files. MIGRATION_PLAN.md must be removed before final submission after approved deletion; no files are deleted now. Retain AGENTS.md and CLAUDE.md.
+- Deliver DESIGN.md and debug-lab-log.md. The log must cover the five course bugs from shopboard-api.vercel.app/debug-lab: what was seen, the component, how it was found, the cause and the fix, plus AI disclosure. The debug lab is pending for the user's own practice: do not perform it, write its findings or create debug-lab-log.md on the user's behalf. Do not invent replacements or count the old two-bug log as completion.
+- Final repository must be clean with current documents and no unused templates, backups, screenshots, prompts or AI planning files. The unused Vite starter files (App.css, index.css, src/assets, public/icons.svg, public/favicon.svg) were removed with the user's approval. MIGRATION_PLAN.md stays until the review is complete, then must be removed before final submission. Retain AGENTS.md and CLAUDE.md.
 
 ## Rules based on observed mistakes — pending personal learning
 

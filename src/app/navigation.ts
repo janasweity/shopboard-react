@@ -7,8 +7,38 @@ import {
 } from '../data.ts'
 import { isPriceSort } from '../modules/products/products.logic.ts'
 import type { Route } from './route.types.ts'
+import type { ProductSelection } from '../modules/products/products.types.ts'
 
 export const navigationEvent = 'raha:navigate'
+
+export function replaceProductSelection(selection: ProductSelection): void {
+  const url = new URL(window.location.href)
+  url.searchParams.set('page', 'products')
+  url.searchParams.delete('collection')
+  if (!selection.category || selection.category === 'all') {
+    url.searchParams.delete('category')
+  } else {
+    url.searchParams.set('category', selection.category)
+  }
+  if (selection.query) url.searchParams.set('q', selection.query)
+  else url.searchParams.delete('q')
+  if (!selection.sort || selection.sort === 'default') {
+    url.searchParams.delete('sort')
+  } else {
+    url.searchParams.set('sort', selection.sort)
+  }
+  if (url.href === window.location.href) return
+  history.replaceState(null, '', url)
+  window.dispatchEvent(new Event(navigationEvent))
+}
+
+export function replaceProductColor(variantId: string): void {
+  const url = new URL(window.location.href)
+  url.searchParams.set('color', variantId)
+  if (url.href === window.location.href) return
+  history.replaceState(null, '', url)
+  window.dispatchEvent(new Event(navigationEvent))
+}
 
 export function canonicalizeUrl(input: string): URL {
   const url = new URL(input)
