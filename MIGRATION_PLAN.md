@@ -1,9 +1,57 @@
 # RAHA React migration plan (temporary)
 
-Status: Stage 0 approved and implemented; verification recorded below. All files remain unstaged/uncommitted. Stages 1?6 are not authorized. This is temporary development documentation and must be removed before final submission after deletion approval.
+Status: Stage 0 saved in commit b8fccdf. Stage 1 copied and verified; changes remain unstaged/uncommitted for review. Stages 2-6 are not authorized. This temporary plan must be removed before final submission after approved cleanup.
 Inspection date: 2026-11-05 (Europe/Istanbul).
 
-## Stage 0 execution record
+## Stage 1 execution record
+
+- Verified the target root, independent Git repository and clean starting commit b8fccdf. The two skills contain 90 tracked files in that commit. The original project status remains its pre-existing untracked docs/ directory.
+- Copied exactly 23 TypeScript files at their original relative paths. Recursive inspection of relative import/export references found no missing file dependencies beyond the planned set. No original files were edited.
+- All 23 copies match source bytes and SHA-256 hashes. No import type corrections or other copied-file changes were necessary.
+- Initial typecheck and build failed with TS1294 at src/shared/api/api-client.ts:3 because erasableSyntaxOnly=true rejects the original constructor parameter property. Reported the conflict before applying the target-only configuration adjustment already listed in Stage 1: erasableSyntaxOnly=false in tsconfig.app.json. strict remains true; no copied module was changed. The node config retains erasableSyntaxOnly=true.
+- After the configuration change, typecheck and build passed. Lint passed with zero warnings and format:check passed. Final comparisons/checks are recorded at handoff; no runtime/UI behavior validation is claimed.
+- The React entry, App component, styles and assets are unchanged. No old DOM UI, page templates, middleware, React components, store adapters or API hosting integration were copied or implemented. Copying API modules does not expose /api/products in this target; that integration is Stage 3.
+- No installation, staging, commit, remote change, push, deletion, deployment or upload. Stop before Stage 2.
+
+### Explicit approval of the TypeScript compatibility setting
+
+The user explicitly approved erasableSyntaxOnly=false in tsconfig.app.json after reviewing the TS1294 cause and the configuration change. The earlier Stage 1 approval referenced the plan but did not separately approve this option; this follow-up provides that explicit approval.
+
+Reason: src/shared/api/api-client.ts:3 declares public readonly status as a constructor parameter property. It requires a runtime assignment and cannot be handled by type erasure alone, so erasableSyntaxOnly=true reports TS1294. Disabling this restriction preserves the original ApiError implementation byte-for-byte and avoids changes beyond the permitted import type corrections. strict remains true. Vite 8 uses Oxc to transform the parameter property into ordinary JavaScript, including this.status = status, before browser execution; this was verified with an in-memory transformation. The node TypeScript configuration is unchanged.
+
+This approval covers only the documented compatibility setting. This follow-up changes only MIGRATION_PLAN.md; no additional implementation, configuration, installation or Git changes are authorized or performed. Stop here and await further instructions.
+
+### Copied files and responsibilities
+
+| Files (all relative to the React root)     | Responsibility                                                                                 |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| src/shared/api/api-client.ts               | HTTP status/content-type handling and decoded JSON requests                                    |
+| src/modules/products/products.types.ts     | Product, finish, catalogue selection, room and gallery domain types                            |
+| src/modules/products/products.api.types.ts | API envelope/product/variant types with integer cent prices                                    |
+| src/modules/products/products.api.ts       | Catalogue serializer converting dollar prices to integer cents                                 |
+| src/modules/products/products.client.ts    | Runtime validation, cents-to-dollars mapping and loadProducts                                  |
+| src/modules/products/products.logic.ts     | Combined case-insensitive search, category/collection filtering and non-mutating price sorting |
+| src/modules/cart/cart.types.ts             | Cart entries/actions and derived line/summary types                                            |
+| src/modules/cart/cart.logic.ts             | Product/finish identity, saved-cart validation and totals                                      |
+| src/modules/rooms/rooms.logic.ts           | Pure floor-area calculation                                                                    |
+| src/modules/state/session.ts               | Once-per-tab entrance-session marker                                                           |
+| src/state.ts                               | Cart mutation, restore/save under raha-cart and session re-export                              |
+| src/data.ts                                | Original public catalogue exports, required by cart logic                                      |
+| src/data/catalog.ts                        | Combined product catalogue, categories, collections and helper exports                         |
+| src/data/retained-products.ts              | Retained catalogue records                                                                     |
+| src/data/curated-products.ts               | Curated catalogue records                                                                      |
+| src/data/expanded-products.ts              | Expanded catalogue records                                                                     |
+| src/data/additional-variants.ts            | Additional product finishes/variants                                                           |
+| src/data/kitchen.ts                        | Kitchen product/collection/room data                                                           |
+| src/data/page-imagery.ts                   | Original image URLs and descriptive metadata used by data modules                              |
+| src/data/product-gallery-images.ts         | Product-specific alternate gallery image metadata                                              |
+| src/data/inspiration.ts                    | Room scenes and exact product/finish links                                                     |
+| src/data/hero-slides.ts                    | Original manual slider data                                                                    |
+| src/product-gallery.ts                     | Pure selection of images appropriate to a product/finish                                       |
+
+No image assets or styling were copied in Stage 1; existing image URLs remain data references for a later asset stage. Dormant shop-room.ts was not copied.
+
+## Stage 0 execution record (historical; saved in b8fccdf)
 
 This record supersedes the historical missing-setup observations in the initial inspection and compliance audit below.
 
@@ -410,7 +458,7 @@ No protected source change beyond import type is currently proposed. Target conf
 
 ## 8. Migration stages — Stage 0 through Stage 6
 
-Stage 0 alone is approved; Stages 1?6 remain pending implementation approval. Each stage report must explain: **what changed, exact files/locations, why, visible behavior, validation results, and what the user should understand**. State failures/remaining risks honestly. Exact component paths and Props are in Section 4; references to those sets below mean those exact files, not arbitrary new abstractions.
+Stages 0 and 1 are approved; Stages 2?6 remain pending implementation approval. Each stage report must explain: **what changed, exact files/locations, why, visible behavior, validation results, and what the user should understand**. State failures/remaining risks honestly. Exact component paths and Props are in Section 4; references to those sets below mean those exact files, not arbitrary new abstractions.
 
 ### Stage 0 — Setup and Git audit
 
@@ -521,6 +569,6 @@ At least three mistake-based CLAUDE.md rules remain pending until the user actua
 
 Reviewed this revision against all numbered sections in the supplied detailed requirements: verified nested root and Git/copy audit; consistent React rules in both instruction files; full file/Props/state/callback/replacement registry; original API and protected modules; corrected cart/registration dialog behavior; source-confirmed active room features; Stage 0–6 file/result/check/risk/learning records; exact tool/skill names; final deliverables; and honest pending lab/personal learning status.
 
-The original documentation-only boundary was superseded by explicit Stage 0 approval. Development-tool/configuration changes, local repository initialization and skill installation are now completed as recorded above. All later migration stages remain unauthorized. No Day 3 copying, UI migration, original changes, remote configuration, staging, commit, push, deletion, deployment or upload occurred. No browser/coursework completion is claimed.
+The original documentation-only boundary was superseded by Stage 0 approval and then Stage 1 approval. Stage 0 is committed as b8fccdf; Stage 1 copying, comparisons and checks are recorded above. No React UI implementation, original-project modification, staging, new commit, remote change, push, deletion, deployment or upload occurred in Stage 1.
 
-Stop after Stage 0 and wait for the user's review before Stage 1. Any protected-file exception, Git/commit operation or deletion must have the applicable explicit authorization before it occurs. The unresolved exact lab prompts are a gate for the lab, not a reason to fabricate a result.
+Stop after Stage 1 and wait for the user's review before Stage 2. Any protected-file exception, Git/commit operation or deletion must have the applicable explicit authorization before it occurs. The unresolved exact lab prompts are a gate for the lab, not a reason to fabricate a result.

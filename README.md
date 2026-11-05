@@ -1,10 +1,10 @@
 # RAHA React
 
-Stage 0 development setup for RAHA's planned React migration. The current UI is still the Vite starter; no Day 3 modules or storefront components have been migrated. The original shopboard project is read-only.
+Stages 0 and 1 of RAHA's planned React migration: development tools are configured and 23 original Day 3 modules/data dependencies have been copied unchanged. The UI is still the Vite starter; no storefront components have been migrated. The original shopboard project is read-only.
 
 ## Project root
 
-Run commands from C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react, where package.json lives. This directory has its own local Git repository, independent of parent directories and Day 3. No remote or initial commit has been created; all files are left unstaged for review.
+Run commands from C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react, where package.json lives. This directory has its own local Git repository, independent of parent directories and Day 3. Stage 0 is saved in commit b8fccdf. No remote is configured; Stage 1 changes are left unstaged/uncommitted for review.
 
 Use Node.js 22.22.1 or newer (also required by the installed lint-staged version) and npm. Stage 0 was verified with Node 26.13.0 and npm 11.20.0. On PowerShell use npm.cmd if execution policy blocks npm.ps1.
 
@@ -36,7 +36,7 @@ Both required skills are installed as real copied files, including their rules a
 - .claude/skills/vercel-react-best-practices/
 - .claude/skills/vercel-composition-patterns/
 
-Source: [Vercel agent-skills](https://github.com/vercel-labs/agent-skills). skills-lock.json records source paths, content hashes and copy mode. These files are eligible for tracking and must be included in a later approved commit; they are not committed yet. Installation alone does not claim the skills' migration reviews were completed.
+Source: [Vercel agent-skills](https://github.com/vercel-labs/agent-skills). skills-lock.json records source paths, content hashes and copy mode. All 90 skill files are tracked in Stage 0 commit b8fccdf. Installation alone does not claim the skills' migration reviews were completed.
 
 ## Migration documentation
 
@@ -44,4 +44,12 @@ AGENTS.md contains Codex instructions; CLAUDE.md contains course rules. MIGRATIO
 
 ## Stage 0 verification
 
-Build, lint (zero warnings), typecheck and format:check passed. Both skills contain 90 physical files in total, none ignored by Git and none symlinks. All project files remain unstaged/uncommitted; no remote was configured. No Stage 1 work was performed.
+Build, lint (zero warnings), typecheck and format:check passed. Both skills contain 90 physical files in total, none ignored by Git and none symlinks. Stage 0 is saved in commit b8fccdf; no remote was configured.
+
+## Stage 1 module reuse
+
+Copied 23 TypeScript files with original paths: shared API client; product/API types, serializer, decoder/client and selection logic; cart types/validation/totals; cart persistence; room-area and session helpers; catalogue data dependencies and pure gallery selection. MIGRATION_PLAN.md lists every exact path and responsibility. All copies are byte-identical to the original; no import type changes were needed.
+
+The copied ApiError uses a constructor parameter property. After reporting TS1294, the planned target configuration adjustment disabled erasableSyntaxOnly in tsconfig.app.json while keeping strict enabled. This preserves the protected client without rewriting it. Typecheck, lint, formatting and build pass.
+
+The API modules are not connected to the React UI or a local API endpoint yet. No original DOM code, React components, middleware or asset migration was implemented. Stage 1 changes remain uncommitted for review.

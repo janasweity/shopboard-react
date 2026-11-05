@@ -4,7 +4,7 @@
 
 The user's attached RAHA React Architecture and Migration Planning requirements resolve the earlier uncertainty about tool names, skills, delivery filenames and stages. They do not include the five exact debug-lab bug descriptions. The original is read-only; the verified React root is C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react.
 
-Current authorization is Stage 0 only: independent local Git setup, strict TypeScript, development tools and the two project-local skills. Leave all changes unstaged and uncommitted for review. No Day 3 copying, UI migration, original-project modification, remote configuration, push, deletion, deployment or upload. Stop after Stage 0; later stages need approval.
+Current authorization is Stage 1 only: copy the planned Day 3 modules and required dependencies, preserve their original paths, compare their contents and run checks. Stage 0 is saved in b8fccdf. Leave Stage 1 changes unstaged/uncommitted; do not implement React UI components, modify the original, configure remotes, push, delete, deploy or upload. Later stages need approval.
 
 ## Shared React rules
 
@@ -37,13 +37,13 @@ Current authorization is Stage 0 only: independent local Git setup, strict TypeS
 
 Preserve types, API, pure logic and state modules at their original paths with their dependency closure. Only necessary import type corrections are allowed in protected copies. React rendering, events, routing and integration belong in new files; do not copy old DOM templates/initializers into the React UI. Any proposed exception requires explanation and explicit approval before the protected change; approval alone does not certify course compliance.
 
-The target's erasableSyntaxOnly setting conflicts with ApiError's original parameter-property syntax. Prefer a reviewed target configuration adjustment while retaining strict typing over rewriting the protected client. The products endpoint is Vite middleware, so deployed static assets require a functioning API route/backend.
+Stage 1 reported TS1294 for the original ApiError parameter-property syntax before changing configuration. The planned target-only adjustment sets erasableSyntaxOnly=false in tsconfig.app.json while strict remains true; the protected API client is byte-identical to its original. The products endpoint is Vite middleware, so deployed static assets require a functioning API route/backend.
 
 ## Course setup and submission
 
-- Stage 0 created a separate React repository at the verified target root; no parent Git repository was inherited. All project files are still unstaged/uncommitted and no remote is configured.
+- Stage 0 created a separate React repository at the verified target root; no parent Git repository was inherited. Stage 0 files are saved in b8fccdf; Stage 1 changes remain unstaged/uncommitted and no remote is configured.
 - Require successful production build and lint with zero warnings, Prettier, Husky, lint-staged, strict typing without prohibited shortcuts, and no React warnings in the Console.
-- Both required skills are installed as real copies under .claude/skills: vercel-react-best-practices and vercel-composition-patterns. Source hashes are in skills-lock.json. Committing them remains a course requirement for a later explicitly approved step; do not commit now.
+- Both required skills are installed as real copies under .claude/skills: vercel-react-best-practices and vercel-composition-patterns. Source hashes are in skills-lock.json. These installed skill files are tracked in Stage 0 commit b8fccdf. Do not create another commit now.
 - Require at least six reusable TSX components, each in its own file with a typed Props interface and actual reuse.
 - Final README.md must include the actual App-rooted tree, exact files, props, state owners, commands and API hosting limitations. Verify tree and ownership with React DevTools Components.
 - Deliver DESIGN.md and debug-lab-log.md. The log must cover the five course bugs with real reproduction, expected/actual behavior, diagnosis tools, cause, fix, verification and AI disclosure. Specific tasks remain missing; do not invent replacements or count the old two-bug log as completion.
