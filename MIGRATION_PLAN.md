@@ -1,9 +1,23 @@
 # RAHA React migration plan (temporary)
 
-Status: Stage 0 saved in commit b8fccdf. Stage 1 copied and verified; changes remain unstaged/uncommitted for review. Stages 2-6 are not authorized. This temporary plan must be removed before final submission after approved cleanup.
+Status: Stage 0 is saved in b8fccdf and Stage 1 in e50b287. Stage 2 is implemented locally and awaits review, with changes unstaged/uncommitted. Stages 3-6 are not authorized. This temporary plan must be removed before final submission after approved cleanup.
 Inspection date: 2026-11-05 (Europe/Istanbul).
 
-## Stage 1 execution record
+## Stage 2 execution record
+
+- Verified the nested React root and clean starting commit e50b287. Recompared all 23 protected Day 3 modules/data dependencies against the original after its pre-commit Prettier run: all 23 are byte-identical; zero import type corrections, formatting differences or behavioral/type changes were found. No protected file was edited during Stage 2.
+- Copied original src/styles/tokens.css and main.css, 457 files under public/images, public/raha.svg and public/botanical.svg (required by the original stylesheet). Preserved source image bytes and URLs. Added a small clearly marked CSS section for safe title lines, disabled preview controls and the shared component styles. No source-project files changed.
+- Replaced Vite UI in src/App.tsx; src/main.tsx now imports RAHA tokens/main styles. Updated index.html with RAHA language/theme/description/favicon metadata. The old starter CSS/images remain unreferenced files pending separately approved cleanup; no files were deleted.
+- Created the planned app route types/navigation/useRoute/AppRoute; Button, FormField and StatusMessage; SiteHeader/SiteFooter; Hero, HomePage, FeaturedProducts, RoomSlider and a presentation-only slide-title.ts; ProductCard/ProductGrid; NotFoundPage. Each component with input Props has an own-file typed Props interface. Static App has no external props. Current exact interfaces/ownership are documented in README.
+- Homepage uses original copy, hero photography and the six original featured IDs in source order. RoomSlider has local active-ID state and original living/burgundy/kitchen scene data; title lines use explicit stable IDs and React text/emphasis, not HTML injection. Lists use product/slide/link/title IDs, never array indexes or random keys.
+- Navigation preserves original query URLs, legacy category/collection aliases, retired-product redirects, real link destinations, modified clicks, Back/Forward and refresh. useRoute subscribes to browser history/location with cleanup and a stable string snapshot; focus/frame cleanup and titles are handled as external effects. No router package was added.
+- Current Home registration section is presentation only, without form inputs. Cart/Add controls are disabled with honest availability text; no false counts or success feedback. Other valid routes show a shared shell and an explicit preview-unavailable state. No API middleware/client loading, product-details UI, cart provider/adapter, contact/registration interaction, room calculator or entrance animation was implemented.
+- Applied the installed Vercel skills: derived featured/active content without mirrored state; stable subscriptions and IDs; native Button props; FormField children composition; no speculative memoization, compound context or new packages. Site work used the local-only Sites workflow, with no hosted project/registration/upload/deployment.
+- Browser checks via existing Playwright and axe installations (read-only original node_modules, no new dependencies) passed at 360/768/1280px: one h1, six expected cards, all eight visible-page images decoded, no horizontal overflow, zero axe WCAG 2 A/AA and 2.1 A/AA violations. All three slider selections, direct links, refresh, Back/Forward, legacy aliases, retired/invalid IDs, modified clicks, skip link, route focus and registration anchor were checked. No Console warnings/errors or failed HTTP responses were observed. These checks do not replace final human/React DevTools/course-lab verification.
+- Accessibility inspection caught a label-content-name mismatch on the inherited brand links. New React links now use their full visible brand text as their accessible name. This is an actual implementation correction, not a claim that the user observed a personal mistake or completed a course lab. Diagnostic screenshots were saved outside the repository.
+- Local dev server: http://127.0.0.1:5173/ (npm run dev -- --host 127.0.0.1 --port 5173 --strictPort). No remote configured or Git writes performed. Final typecheck, lint (zero warnings), format:check, build and git diff --check all passed. The final audit confirms all 23 protected files remain unchanged, all 459 copied public asset files match source bytes and design tokens are byte-identical. No files are staged. Stop after Stage 2.
+
+## Stage 1 execution record (historical; saved in e50b287)
 
 - Verified the target root, independent Git repository and clean starting commit b8fccdf. The two skills contain 90 tracked files in that commit. The original project status remains its pre-existing untracked docs/ directory.
 - Copied exactly 23 TypeScript files at their original relative paths. Recursive inspection of relative import/export references found no missing file dependencies beyond the planned set. No original files were edited.
@@ -458,7 +472,7 @@ No protected source change beyond import type is currently proposed. Target conf
 
 ## 8. Migration stages — Stage 0 through Stage 6
 
-Stages 0 and 1 are approved; Stages 2?6 remain pending implementation approval. Each stage report must explain: **what changed, exact files/locations, why, visible behavior, validation results, and what the user should understand**. State failures/remaining risks honestly. Exact component paths and Props are in Section 4; references to those sets below mean those exact files, not arbitrary new abstractions.
+Stages 0, 1 and 2 are approved; Stages 3?6 remain pending implementation approval. Each stage report must explain: **what changed, exact files/locations, why, visible behavior, validation results, and what the user should understand**. State failures/remaining risks honestly. Exact component paths and Props are in Section 4; references to those sets below mean those exact files, not arbitrary new abstractions.
 
 ### Stage 0 — Setup and Git audit
 
@@ -569,6 +583,6 @@ At least three mistake-based CLAUDE.md rules remain pending until the user actua
 
 Reviewed this revision against all numbered sections in the supplied detailed requirements: verified nested root and Git/copy audit; consistent React rules in both instruction files; full file/Props/state/callback/replacement registry; original API and protected modules; corrected cart/registration dialog behavior; source-confirmed active room features; Stage 0–6 file/result/check/risk/learning records; exact tool/skill names; final deliverables; and honest pending lab/personal learning status.
 
-The original documentation-only boundary was superseded by Stage 0 approval and then Stage 1 approval. Stage 0 is committed as b8fccdf; Stage 1 copying, comparisons and checks are recorded above. No React UI implementation, original-project modification, staging, new commit, remote change, push, deletion, deployment or upload occurred in Stage 1.
+Current approval covers Stage 2 only. Stage 0 is saved in b8fccdf and Stage 1 in e50b287; Stage 2 React foundation, asset reuse and verification are recorded above and remain uncommitted. Stage 3 and later implementation are not authorized. No original-project changes, staging, new commit, remote configuration, push, deletion, deployment or upload occurred during Stage 2.
 
-Stop after Stage 1 and wait for the user's review before Stage 2. Any protected-file exception, Git/commit operation or deletion must have the applicable explicit authorization before it occurs. The unresolved exact lab prompts are a gate for the lab, not a reason to fabricate a result.
+Stop after Stage 2 and wait for the user's review before Stage 3. Any protected-file exception, Git/commit operation or deletion must have the applicable explicit authorization before it occurs. The unresolved exact lab prompts are a gate for the lab, not a reason to fabricate a result.

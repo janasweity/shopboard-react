@@ -4,7 +4,7 @@
 
 The user's attached RAHA React Architecture and Migration Planning requirements resolve the earlier uncertainty about tool names, skills, delivery filenames and stages. They do not include the five exact debug-lab bug descriptions. The original is read-only; the verified React root is C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react.
 
-Current authorization is Stage 1 only: copy the planned Day 3 modules and required dependencies, preserve their original paths, compare their contents and run checks. Stage 0 is saved in b8fccdf. Leave Stage 1 changes unstaged/uncommitted; do not implement React UI components, modify the original, configure remotes, push, delete, deploy or upload. Later stages need approval.
+Current authorization is Stage 2 only: React foundation, layout, reusable components, styles/assets and Home presentation. Stage 1 is saved in e50b287. Recompare protected modules after the pre-commit hook; do not change them. Keep later features deferred, leave changes unstaged/uncommitted and stop before Stage 3. The original remains read-only; no remotes, push, deletion, deployment or upload.
 
 ## Shared React rules
 
@@ -41,7 +41,7 @@ Stage 1 reported TS1294 for the original ApiError parameter-property syntax befo
 
 ## Course setup and submission
 
-- Stage 0 created a separate React repository at the verified target root; no parent Git repository was inherited. Stage 0 files are saved in b8fccdf; Stage 1 changes remain unstaged/uncommitted and no remote is configured.
+- Stage 0 created a separate React repository at the verified target root; no parent Git repository was inherited. Stage 0 files are saved in b8fccdf; Stage 1 is saved in e50b287; Stage 2 changes remain unstaged/uncommitted and no remote is configured.
 - Require successful production build and lint with zero warnings, Prettier, Husky, lint-staged, strict typing without prohibited shortcuts, and no React warnings in the Console.
 - Both required skills are installed as real copies under .claude/skills: vercel-react-best-practices and vercel-composition-patterns. Source hashes are in skills-lock.json. These installed skill files are tracked in Stage 0 commit b8fccdf. Do not create another commit now.
 - Require at least six reusable TSX components, each in its own file with a typed Props interface and actual reuse.

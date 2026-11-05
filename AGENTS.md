@@ -4,9 +4,9 @@
 
 - Original project C:/Users/morjm/OneDrive/Desktop/shopboard is read-only. Preserve its user-owned untracked docs/ directory.
 - Verified React root: C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react; package.json is here, not in its parent.
-- Current authorization: Stage 1 only. Copy the planned Day 3 modules and their dependency closure at original paths; compare copies and run checks. Stage 0 is saved in commit b8fccdf. Leave Stage 1 changes unstaged/uncommitted and stop before React UI implementation.
-- Do not implement or migrate React UI components, modify the original, stage files, commit, configure a remote, push, delete files, deploy or upload. Copied modules may receive only necessary import type corrections; report any other proposed protected-file change before applying it.
-- Inspect both projects and Git status before work. Stage 1 started from clean commit b8fccdf in the independent React repository. The original remains read-only with its existing untracked docs/ directory.
+- Current authorization: Stage 2 only. Build the approved React foundation/layout/design and Home presentation from read-only original assets/styles. Stage 1 is saved in e50b287. Leave changes unstaged/uncommitted and stop before Stage 3.
+- Do not implement API catalogue loading, product details, cart integration, live forms, room planning or entrance animation before their approved stages. Do not modify the original, stage/commit, configure remotes, push, delete, deploy or upload. Preserve protected Day 3 files; report any proposed exception first.
+- Inspect both projects and Git status before work. Stage 2 started from clean e50b287. All 23 copied Day 3 files were rechecked after the previous pre-commit formatting and match the original bytes exactly. The original retains its pre-existing untracked docs/ directory.
 
 ## Shared React rules
 
@@ -35,10 +35,10 @@
 
 - Stage 0 initialized the independent React repository with no remotes. Do not commit or push without further authorization.
 - Configure Prettier, Husky, lint-staged, strict typing, and build/lint checks with zero warnings. Verify with React DevTools Components and browser Console/Network/Sources.
-- Both vercel-react-best-practices and vercel-composition-patterns are installed as real files under .claude/skills with source hashes in skills-lock.json. Keep them eligible for Git tracking; do not reformat vendored content. Their installation was saved in Stage 0 commit b8fccdf; do not modify vendored skills during Stage 1.
+- Both vercel-react-best-practices and vercel-composition-patterns are installed as real files under .claude/skills with source hashes in skills-lock.json. Keep them eligible for Git tracking; do not reformat vendored content. Their installation was saved in Stage 0 commit b8fccdf; do not modify vendored skills during Stage 2.
 - Keep README.md's App-rooted tree, props and state ownership aligned with source; deliver DESIGN.md and debug-lab-log.md.
 - Obtain the five exact course debug-lab bug descriptions before doing the lab; they have not been supplied. Keep completion pending and record only actual work.
 - Add at least three mistake-based rules to CLAUDE.md only after the user actually observes the relevant mistakes. Keep personal learning pending; do not manufacture examples.
 - Run relevant checks and report real outcomes; never disable checks to pass or claim an unmeasured Lighthouse score.
 - MIGRATION_PLAN.md is temporary development documentation and must be removed before final submission. Plan cleanup of unused starter files, backups, screenshots, prompts and AI planning files; preview exact deletions and obtain deletion approval first. No deletions now.
-- Do not commit or push unless explicitly authorized. Stop after Stage 1 and wait for review; do not start Stage 2.
+- Do not commit or push unless explicitly authorized. Stop after Stage 2 and wait for review; do not start Stage 3.
