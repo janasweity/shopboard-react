@@ -1,0 +1,9 @@
+# Generated files and dependencies
+node_modules/
+dist/
+dist-ssr/
+.husky/_/
+package-lock.json
+
+# Keep third-party skill contents identical to upstream
+.claude/skills/
