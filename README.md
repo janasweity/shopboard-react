@@ -195,9 +195,15 @@ Last run on 2026-11-06:
   - Navigation stops the intro, and no timer is left running.
   - Reduced motion, both from the start and switched on mid-intro, disables the motion.
   - There is no replay within the same session.
-- Not yet done: inspection with the React DevTools Components tab.
+- React DevTools Components tab: the user inspected the Home page (HomePage), ProductsPage and ProductCard. The other components, and the full state ownership table above, have not yet been inspected in DevTools.
 
 ## Known gaps
 
 - The dormant room-hotspot feature from Day 3 (`shop-room.ts`, `room-beacon` CSS) was not active in the original UI and is not migrated.
-- `debug-lab-log.md`, `DESIGN.md` and the personal mistake-based rules in CLAUDE.md are still pending.
+- The React DevTools inspection covers only the components listed under Verification status.
+
+## Project status and documents
+
+- Stages 3-5 (API catalogue, cart, product details, forms, rooms, about, entrance) are saved in commit 49fd304.
+- `debug-lab-log.md` records the five course debug-lab bugs with AI disclosure. Bug 5 (CartRow) showed no visible problem in the user's test and was identified through a source review. The fixes in the log are suggestions and were not applied to the lab. The file is not committed yet.
+- CLAUDE.md now lists three learning rules taken from the debug-lab bugs: stable data keys instead of the array index, copying an array before sorting it, and updating props and state without mutating them.
