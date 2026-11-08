@@ -116,7 +116,7 @@ Preserve the copied Day 3 types, API, pure logic, data and state modules at thei
 
 ## Evidence and learning rules
 
-Keep these three kinds of evidence separate, and never claim more than the evidence shows.
+Keep these four kinds of evidence separate, and never claim more than the evidence shows.
 
 1. **Course debug-lab bugs.** The user observed bugs 1-4 in the running lab. Bug 5 (CartRow mutating `item.qty`, then `setCart` with the same array) showed no visible problem in the user's test; it was identified through Claude's source review. Never describe bug 5 as visually observed.
 2. **Bugs found by Claude's automated checks or review.** These are listed below. The user did not observe them before they were fixed.
@@ -129,8 +129,17 @@ Keep these three kinds of evidence separate, and never claim more than the evide
    - React DevTools inspections, as recorded in README.
    - Trying `VITE_API_BASE` with `/delay/3000`, `/fail/500` and `/empty`.
    - The checkout: empty submit, success, and the cart kept afterwards.
+4. **The user's own mistakes.** These are reported by the user in their own words. Record only what the user reports, and add a new one only after the user reports a real mistake.
+   - **Delay test setup (reported by the user).** This was a problem with how the test was set up, not a bug in the app code.
+     - What happened:
+       - The user tried to start the dev server on port 5173, but the port was busy.
+       - They opened a server on 5174, but the loading message did not appear, even after refreshing and opening a new tab.
+       - With ChatGPT's help, they checked the `VITE_API_BASE` environment variable in the terminal they were using. It was empty.
+       - They set it and tried to start the server on 5174 again, but that port was now busy.
+       - Finally they set `VITE_API_BASE=/delay/3000`, started the server in the same terminal on port 5175 and opened the matching URL. The loading message appeared.
+     - Why: Vite reads `VITE_` variables only when the dev server starts, and only from the terminal that starts it. The server on 5174 had been started without the variable, so it still sent normal requests.
 
-The course asks for rules from the user's own mistakes. None have been recorded yet; add one only after the user reports a real mistake.
+The rules below come from these kinds of evidence. Each rule names its source.
 
 1. **Use stable data IDs as list keys, never the array index.** (Lab bug, observed by the user.) With `key={index}`, a saved heart moved from Leather Tote Bag to Wool Scarf after sorting.
 2. **Copy an array before sorting it.** (Lab bug, observed by the user.) Sorting the shared array in place kept Wool Scarf first after returning to Featured.
@@ -138,3 +147,11 @@ The course asks for rules from the user's own mistakes. None have been recorded 
 4. **Do not reset state with a `key` on a component that renders focusable children.** (Found by an automated focus check.) Reset only that state, derived or adjusted during render, and check keyboard focus after such a change.
 5. **Make effects safe to run twice.** (Found by an automated dev-mode check.) StrictMode re-runs effects when Suspense reveals content. Do not update refs in a way that changes the second run's result.
 6. **Put an Error Boundary around lazy pages, and recover from a failed `React.lazy` with a reload.** (Found by a review check.) Without it, one failed page file blanks the whole app, and resetting the boundary alone does not reload the file.
+7. **Before testing an API state, check the environment, the server and the URL together.** (The user's own mistake in the delay test setup.) Follow these steps in order:
+   1. Set `VITE_API_BASE` in the terminal that will start the server, and print it to confirm the value.
+   2. Start a new dev server from that same terminal. A server that is already running keeps the value it started with, and refreshing the browser does not change it.
+   3. Read the port Vite prints. If the port is busy, choose a free one with `--port`.
+   4. Open the URL with exactly that port.
+   5. In the Network tab, confirm the request path starts with the prefix, for example `/delay/3000/api/products`.
+
+   If the expected state does not appear, check these setup steps before suspecting the app code.

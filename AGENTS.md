@@ -48,10 +48,15 @@
 
 ## Evidence
 
-Keep three kinds of evidence separate, as CLAUDE.md describes:
+Keep four kinds of evidence separate, as CLAUDE.md describes:
 
 1. **Course debug-lab bugs:** the user observed bugs 1-4, and bug 5 came from source review.
 2. **Bugs found by Claude's automated checks or review:** the user did not observe these before the fix.
 3. **The user's own manual verification after fixes.**
+4. **The user's own mistakes, in the user's words.** Add one only after the user reports a real mistake.
 
-The course asks for rules from the user's own mistakes. None are recorded yet; add one only after the user reports a real mistake.
+The first user-reported mistake was in the delay test setup, not in the app code. The loading state did not appear because the dev server had been started without `VITE_API_BASE`. Ports 5173 and 5174 were also busy. The resulting rule (CLAUDE.md rule 7):
+
+- Before testing an API state, set and print `VITE_API_BASE` in the terminal that starts the server.
+- Start a new server from that terminal, use the port Vite prints (a free one if needed), and open exactly that URL.
+- Confirm the prefixed request path in the Network tab before suspecting the code.
