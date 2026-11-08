@@ -34,14 +34,16 @@ export default function AppRoute({ route, onReady }: Props) {
       return <HomePage products={products} />
     case 'products':
       return <ProductsPage selection={route.selection} />
-    case 'product': {
-      const product = products.find((item) => item.id === route.productId)
-      return product ? (
-        <ProductDetailsPage product={product} colorId={route.colorId} />
+    case 'product':
+      // The page loads this one product from GET /api/products/:id.
+      return route.productId ? (
+        <ProductDetailsPage
+          productId={route.productId}
+          colorId={route.colorId}
+        />
       ) : (
         <NotFoundPage heading="We couldn't find that product." />
       )
-    }
     case 'inspiration':
       return <InspirationPage />
     case 'about':
