@@ -1,6 +1,5 @@
 import type { Route } from './route.types.ts'
 import { products } from '../data.ts'
-import type { AddHandler } from '../features/cart/cart-store.ts'
 import HomePage from '../features/home/HomePage.tsx'
 import ProductsPage from '../features/products/pages/ProductsPage.tsx'
 import ProductDetailsPage from '../features/products/pages/ProductDetailsPage.tsx'
@@ -10,23 +9,18 @@ import NotFoundPage from '../pages/NotFoundPage.tsx'
 
 interface Props {
   readonly route: Route
-  onAdd: AddHandler
 }
 
-export default function AppRoute({ route, onAdd }: Props) {
+export default function AppRoute({ route }: Props) {
   switch (route.page) {
     case 'home':
-      return <HomePage products={products} onAdd={onAdd} />
+      return <HomePage products={products} />
     case 'products':
-      return <ProductsPage selection={route.selection} onAdd={onAdd} />
+      return <ProductsPage selection={route.selection} />
     case 'product': {
       const product = products.find((item) => item.id === route.productId)
       return product ? (
-        <ProductDetailsPage
-          product={product}
-          colorId={route.colorId}
-          onAdd={onAdd}
-        />
+        <ProductDetailsPage product={product} colorId={route.colorId} />
       ) : (
         <NotFoundPage heading="We couldn't find that product." />
       )

@@ -10,7 +10,7 @@ import {
   replaceProductColor,
 } from '../../../app/navigation.ts'
 import Button from '../../../components/Button.tsx'
-import type { AddHandler } from '../../cart/cart-store.ts'
+import { useCartContext } from '../../cart/cart-context.ts'
 import {
   entranceDelay,
   useEntranceMotion,
@@ -21,7 +21,6 @@ import VariantSelector from '../components/VariantSelector.tsx'
 interface Props {
   readonly product: Product
   readonly colorId: string | null
-  onAdd: AddHandler
 }
 
 const defaultCare = {
@@ -31,7 +30,8 @@ const defaultCare = {
     'Wipe gently with a soft, slightly damp cloth and dry promptly. Avoid abrasive cleaners.',
 }
 
-export default function ProductDetailsPage({ product, colorId, onAdd }: Props) {
+export default function ProductDetailsPage({ product, colorId }: Props) {
+  const { add } = useCartContext()
   // The selected finish is derived from the URL, so refresh and links keep it.
   const variant = getVariant(product, colorId)
   const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
@@ -86,7 +86,7 @@ export default function ProductDetailsPage({ product, colorId, onAdd }: Props) {
             className="detail-add"
             aria-describedby="variant-availability"
             disabled={!variant.available}
-            onClick={() => onAdd(product.id, variant.id)}
+            onClick={() => add(product.id, variant.id)}
           >
             Add {product.name} to cart <span aria-hidden="true">+</span>
           </Button>

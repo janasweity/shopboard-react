@@ -6,7 +6,7 @@ The user's attached RAHA React Architecture and Migration Planning requirements 
 
 Stages 3-5 (API catalogue, cart, product details, forms, rooms, about, entrance) are implemented and browser-verified. DESIGN.md is not a confirmed requirement in the course text. MIGRATION_PLAN.md was removed with the user's approval. Create commits only after the user approves them. Do not configure a remote, push, deploy or upload. Recompare protected modules after any pre-commit hook; do not change them.
 
-Architecture source of truth: README.md describes the implemented component tree, props and state ownership. The removed MIGRATION_PLAN.md proposed some files that were not built (for example CartProvider, cart.context.ts, CartSummary or NotificationRegion). Do not add them; the implemented README architecture is the reference.
+Architecture source of truth: README.md describes the implemented component tree, props and state ownership. The implemented README architecture is the reference. Do not add parallel cart modules such as CartSummary or NotificationRegion.
 
 ## Shared React rules
 
@@ -34,7 +34,11 @@ Architecture source of truth: README.md describes the implemented component tree
 - Keep cart Escape handling, focus containment/return and action focus recovery; registration is non-modal and must not trap focus.
 - Keep tokens in src/styles/tokens.css and active styles in src/styles/main.css, mobile-first min-width layout breakpoints at 768px/1280px, no !important or max-width layout queries, and no overflow at 360/768/1280px.
 - Preserve entrance skip/Escape/session/replay behavior and reduced motion; clean up timers, frames, media-query listeners and route listeners. The entrance may play on the first page of a session and stops on navigation. Content arrival motion (hero image, h1, search field, staggered cards) uses the original classes and timings through EntranceContext and useEntranceMotion. It applies only to content mounted before the intro started.
-- The cart is owned by the preserved src/state.ts. React reads it only through src/features/cart/cart-store.ts (cached snapshot plus notifications) and useCart (derived lines/count/subtotal). Every cart change goes through cart-store.ts; never call state.ts mutations directly from components.
+- Shared cart state uses a React Context provider, not Zustand. The preserved src/state.ts stays the only owner of cart entries and raha-cart storage.
+  - src/features/cart/cart-store.ts gives a cached snapshot and change notifications.
+  - Only CartProvider (src/features/cart/CartProvider.tsx) calls useCart, which derives lines, count and subtotal.
+  - CartProvider shares the cart, the page-scoped add announcement and the actions add, change and clear through CartContext (src/features/cart/cart-context.ts).
+- Components read the cart only with useCartContext and change it only through those Context actions. Never import cart-store.ts or state.ts mutations in components, copy cart entries into Context or component state, or pass cart callbacks through components that do not use them.
 
 ## Day 3 reuse and conflict policy
 

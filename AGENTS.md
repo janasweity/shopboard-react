@@ -25,9 +25,13 @@
 
 ## Architecture after approval
 
-- Follow CLAUDE.md. README.md is the source of truth for the implemented tree, props and state ownership. Do not add the unbuilt files from the removed migration plan (CartProvider, cart.context.ts, CartSummary, NotificationRegion). Keep React features separate from path-preserved Day 3 dependencies.
+- Follow CLAUDE.md. README.md is the source of truth for the implemented tree, props and state ownership. Do not add parallel cart modules such as CartSummary or NotificationRegion. Keep React features separate from path-preserved Day 3 dependencies.
 - Use the original shared API client, runtime decoder and cents-to-dollars mapping. Load Products through the API; do not hide failures with static fallback data. Deployed static assets require a functioning API endpoint.
-- Preserve the native cart dialog and all actions. Original state.ts owns cart/storage; src/features/cart/cart-store.ts supplies stable snapshots and notifications, and useCart derives lines/count/subtotal. All cart changes go through cart-store.ts. Do not add a provider, duplicate persistence effects or mutate snapshots.
+- Preserve the native cart dialog and all actions. Shared cart state uses a React Context provider, not Zustand. Original state.ts owns the cart entries and their storage.
+  - src/features/cart/cart-store.ts supplies stable snapshots and notifications.
+  - Only CartProvider calls useCart to derive lines, count and subtotal.
+  - CartProvider shares them, the add announcement and the add, change and clear actions through CartContext.
+- Components use only useCartContext and those actions. Do not import cart-store.ts in components, copy cart entries into state, duplicate persistence effects, mutate snapshots or pass cart callbacks through components that do not use them.
 - Keep cleanup/stale-response protection and StrictMode. Do not add subscriptions or AbortSignal parameters to protected modules.
 - Preserve forms as non-sending demos, product/finish IDs, route compatibility, images and reduced-motion behavior. Inactive room hotspot code does not justify a new UI without approval.
 

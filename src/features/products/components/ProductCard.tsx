@@ -8,7 +8,7 @@ import {
 } from '../../../data.ts'
 import { handleRouteClick } from '../../../app/navigation.ts'
 import Button from '../../../components/Button.tsx'
-import type { AddHandler } from '../../cart/cart-store.ts'
+import { useCartContext } from '../../cart/cart-context.ts'
 import {
   entranceDelay,
   joinClasses,
@@ -18,10 +18,10 @@ import {
 interface Props {
   readonly product: Product
   readonly position: number
-  onAdd: AddHandler
 }
 
-export default function ProductCard({ product, position, onAdd }: Props) {
+export default function ProductCard({ product, position }: Props) {
+  const { add } = useCartContext()
   const href = productURL(product.id)
   const variant = getVariant(product)
   const motion = useEntranceMotion('card', entranceDelay.card(position))
@@ -73,7 +73,7 @@ export default function ProductCard({ product, position, onAdd }: Props) {
           className="add-to-cart"
           disabled={!variant.available}
           aria-label={'Add ' + product.name + ' to cart'}
-          onClick={() => onAdd(product.id, variant.id)}
+          onClick={() => add(product.id, variant.id)}
         >
           Add to cart <span aria-hidden="true">+</span>
         </Button>

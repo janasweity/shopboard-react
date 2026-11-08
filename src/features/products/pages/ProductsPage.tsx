@@ -6,7 +6,6 @@ import StatusMessage from '../../../components/StatusMessage.tsx'
 import CatalogueControls from '../components/CatalogueControls.tsx'
 import ProductGrid from '../components/ProductGrid.tsx'
 import { useProducts } from '../hooks/useProducts.ts'
-import type { AddHandler } from '../../cart/cart-store.ts'
 import {
   entranceDelay,
   useEntranceMotion,
@@ -14,10 +13,9 @@ import {
 
 interface Props {
   readonly selection: ProductSelection
-  onAdd: AddHandler
 }
 
-export default function ProductsPage({ selection, onAdd }: Props) {
+export default function ProductsPage({ selection }: Props) {
   const { state, retry } = useProducts()
   const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
   const statusRegion = useRef<HTMLDivElement>(null)
@@ -85,7 +83,7 @@ export default function ProductsPage({ selection, onAdd }: Props) {
         </div>
         <div id="catalog-grid" aria-busy={state.status === 'loading'}>
           {state.status === 'success' ? (
-            <ProductGrid products={visible} onAdd={onAdd} />
+            <ProductGrid products={visible} />
           ) : null}
         </div>
         <p className="collection-footnote">

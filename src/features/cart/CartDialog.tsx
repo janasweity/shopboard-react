@@ -3,8 +3,7 @@ import { money } from '../../data.ts'
 import type { CartAction } from '../../modules/cart/cart.types.ts'
 import Button from '../../components/Button.tsx'
 import CartLineItem from './CartLineItem.tsx'
-import { changeCart, emptyCart } from './cart-store.ts'
-import { useCart } from './useCart.ts'
+import { useCartContext } from './cart-context.ts'
 
 interface Props {
   readonly open: boolean
@@ -19,7 +18,7 @@ interface PendingFocus {
 export default function CartDialog({ open, onClose }: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const pendingFocus = useRef<PendingFocus | null>(null)
-  const { items, quantity, subtotal } = useCart()
+  const { items, quantity, subtotal, change, clear } = useCartContext()
 
   useEffect(() => {
     const element = dialog.current
@@ -47,12 +46,12 @@ export default function CartDialog({ open, onClose }: Props) {
 
   function handleAction(key: string, action: CartAction): void {
     pendingFocus.current = { key, action }
-    changeCart(key, action)
+    change(key, action)
   }
 
   function handleClear(): void {
     pendingFocus.current = { key: '', action: 'clear' }
-    emptyCart()
+    clear()
   }
 
   return (

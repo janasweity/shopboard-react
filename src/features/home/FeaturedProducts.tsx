@@ -1,11 +1,9 @@
 import type { Product } from '../../modules/products/products.types.ts'
 import { handleRouteClick } from '../../app/navigation.ts'
 import ProductGrid from '../products/components/ProductGrid.tsx'
-import type { AddHandler } from '../cart/cart-store.ts'
 
 interface Props {
   readonly products: readonly Product[]
-  onAdd: AddHandler
 }
 const featuredIds = new Set([
   'arc-sofa',
@@ -16,7 +14,7 @@ const featuredIds = new Set([
   'cadence-lumbar',
 ])
 
-export default function FeaturedProducts({ products, onAdd }: Props) {
+export default function FeaturedProducts({ products }: Props) {
   const featured = products.filter((product) => featuredIds.has(product.id))
   return (
     <section
@@ -37,7 +35,7 @@ export default function FeaturedProducts({ products, onAdd }: Props) {
           View all products <span aria-hidden="true">{'\u2197'}</span>
         </a>
       </div>
-      <ProductGrid products={featured} onAdd={onAdd} />
+      <ProductGrid products={featured} />
       <p className="collection-footnote">
         Concept collection: product specifications and prices are illustrative.
       </p>
