@@ -1,4 +1,30 @@
 ﻿/* Shared foundation and accessible controls. */
+
+/* Tailwind for shadcn/ui only. Preflight (Tailwind's reset) is not imported,
+   and utilities are generated only from src/components/ui. Tailwind output
+   sits in cascade layers, so the unlayered RAHA rules below always win. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@source '../components/ui';
+
+/* RAHA has no dark theme: dark: classes apply only inside a .dark element,
+   which the site never uses, so the OS dark mode cannot restyle components. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* shadcn/ui colour names, mapped to RAHA tokens in tokens.css. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+}
+
 *,
 *::before,
 *::after {

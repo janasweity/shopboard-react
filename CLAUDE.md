@@ -33,6 +33,16 @@ Architecture source of truth: README.md describes the implemented component tree
 - Keep English language, semantic landmarks, one h1 per active route, logical headings, labels, alt handling, keyboard access, visible focus, accessible contrast, and route title/focus updates.
 - Keep cart Escape handling, focus containment/return and action focus recovery; registration is non-modal and must not trap focus.
 - Keep tokens in src/styles/tokens.css and active styles in src/styles/main.css, mobile-first min-width layout breakpoints at 768px/1280px, no !important or max-width layout queries, and no overflow at 360/768/1280px.
+- Tailwind CSS v4 is used only for shadcn/ui components.
+  - main.css imports only tailwindcss/theme.css and utilities.css in cascade layers. Never add preflight, and keep utilities generated only from src/components/ui (and later the checkout feature) through source(none) and @source.
+  - RAHA rules stay unlayered, so they win.
+  - shadcn colour names are defined in tokens.css and point to existing RAHA tokens. Do not add new colours, dark-mode styles, `!` utilities or `max-*` variants.
+  - After any style setup change, compare computed styles of the existing pages with a baseline.
+- shadcn/ui files in src/components/ui are project code and follow every project rule. Add only components a feature uses.
+  - Review everything the shadcn CLI writes before keeping it: package.json, imports, list keys and TypeScript.
+  - Its first run imported `cn` from an unrelated npm package and installed it. It also produced an index list key.
+  - Use the RAHA Button, not a shadcn Button. shadcn files import with the `@/` alias and explicit extensions; RAHA files keep relative imports.
+- Forms use react-hook-form with one Zod schema per form through @hookform/resolvers. They do not transmit or store data, and do not take payment details. Do not invent delivery services, fees or prices.
 - Preserve entrance skip/Escape/session/replay behavior and reduced motion; clean up timers, frames, media-query listeners and route listeners. The entrance may play on the first page of a session and stops on navigation. Content arrival motion (hero image, h1, search field, staggered cards) uses the original classes and timings through EntranceContext and useEntranceMotion. It applies only to content mounted before the intro started.
 - Shared cart state uses a React Context provider, not Zustand. The preserved src/state.ts stays the only owner of cart entries and raha-cart storage.
   - src/features/cart/cart-store.ts gives a cached snapshot and change notifications.

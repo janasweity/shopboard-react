@@ -33,6 +33,12 @@
   - CartProvider shares them, the add announcement and the add, change and clear actions through CartContext.
 - Components use only useCartContext and those actions. Do not import cart-store.ts in components, copy cart entries into state, duplicate persistence effects, mutate snapshots or pass cart callbacks through components that do not use them.
 - Keep cleanup/stale-response protection and StrictMode. Do not add subscriptions or AbortSignal parameters to protected modules.
+- Tailwind CSS v4 serves only the shadcn/ui components in src/components/ui.
+  - It has no preflight, and its utilities are generated only from that folder.
+  - Its colours are mapped to RAHA tokens in tokens.css, and unlayered RAHA rules win.
+  - Add only the shadcn components a feature uses, and review the CLI output. Its first run installed an unrelated `cn` package and wrote an index key.
+  - Compare computed styles of existing pages before and after style setup changes.
+- Forms use react-hook-form with one Zod schema. They never transmit or store data, take payment details or invent delivery services or prices. The checkout page and form are not built yet.
 - Preserve forms as non-sending demos, product/finish IDs, route compatibility, images and reduced-motion behavior. Inactive room hotspot code does not justify a new UI without approval.
 
 ## Course delivery after approval

@@ -22,4 +22,15 @@
   --font-heading:
     'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --gutter: 1.25rem;
+
+  /* shadcn/ui colour names. They reuse RAHA tokens; no new colours. */
+  --background: var(--color-bg);
+  --foreground: var(--color-ink);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--soft-white);
+  --muted-foreground: var(--color-muted);
+  --border: var(--color-line);
+  --input: var(--stone-grey);
+  --ring: var(--charcoal-brown);
+  --destructive: var(--color-ink);
 }

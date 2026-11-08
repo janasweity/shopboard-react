@@ -33,6 +33,37 @@ Both required skills are installed as real files and tracked in Git. `skills-loc
 - `.claude/skills/vercel-react-best-practices/`
 - `.claude/skills/vercel-composition-patterns/`
 
+## Form libraries and shadcn/ui (prepared for checkout)
+
+The checkout page and form are not built yet. This setup only prepares them.
+
+| Package                                              | Purpose                                                        |
+| ---------------------------------------------------- | -------------------------------------------------------------- |
+| `react-hook-form`, `zod`, `@hookform/resolvers`      | Form state, one validation schema, and the bridge between them |
+| `tailwindcss`, `@tailwindcss/vite` (dev)             | Tailwind CSS v4, which shadcn/ui components are styled with    |
+| `class-variance-authority`, `clsx`, `tailwind-merge` | Used by the shadcn/ui components and `cn`                      |
+| `radix-ui`                                           | Accessible primitives under the shadcn Label and Separator     |
+
+shadcn/ui files:
+
+- `components.json`: the shadcn CLI settings. Its CSS file is `src/styles/main.css`.
+- `src/lib/utils.ts`: `cn()`, which joins class names and resolves conflicting Tailwind classes.
+- `src/components/ui/`: only `field.tsx`, `input.tsx` and `label.tsx`, plus `separator.tsx`, which `field.tsx` uses. They were added with `npx shadcn@latest add field input label`. No shadcn Button was added: the RAHA `Button` stays the only button.
+  - Changes from the CLI output, made to follow the project rules:
+    - Imports use `@/lib/utils.ts` and `.tsx` extensions. The CLI had imported `cn` from an unrelated npm package called `cn` and installed it; that package was removed.
+    - `FieldError` keys its list by the error message instead of the array index and uses `===`.
+    - An unused `"use client"` line was removed.
+    - Prettier formatted the files.
+- `@/` points to `src/`. It is set in `tsconfig.json`, `tsconfig.app.json` (`paths`) and `vite.config.ts` (`resolve.alias`). The shadcn files use it; RAHA files keep relative imports.
+
+How RAHA's design is kept:
+
+- `main.css` imports only Tailwind's `theme.css` and `utilities.css`. Preflight, Tailwind's global reset, is not imported, so RAHA's base styles for headings, buttons, links and forms are not reset.
+- Utilities are generated only from `src/components/ui` (`source(none)` and `@source`). Tailwind output sits in cascade layers, so the unlayered RAHA rules always win when both style the same element. For example, RAHA's `input` rule keeps the field look.
+- shadcn colour names (`--background`, `--primary`, `--border`, `--ring` and so on) are defined in `tokens.css` and point to existing RAHA tokens. No new colours were added. `--destructive` uses the RAHA ink colour until the form design chooses an error style.
+- `dark:` classes apply only inside a `.dark` element, which RAHA never uses, so the operating system's dark mode cannot restyle components.
+- Tailwind's `md` (768px) and `xl` (1280px) match RAHA's breakpoints. Do not use `max-*` variants or `!` (important) utilities.
+
 ## Reused Day 3 modules
 
 These 23 files are byte-identical copies of the Day 3 originals, at the same relative paths. No `import type` corrections were needed.
@@ -375,6 +406,14 @@ Last run on 2026-11-06:
   - The empty catalogue.
 
   After removing the setting, the products came back.
+
+- On 2026-11-08, after the form libraries, Tailwind and shadcn/ui were set up, the four commands passed again.
+  - A computed-style snapshot recorded about 40 CSS properties and the position and size of every element. It covered Home, Products, a product page, Room Inspiration, About and the 404 page at 360, 768 and 1280px, which is 18 pages and 4,524 elements.
+  - On the production preview, the snapshot showed 0 differences from the same snapshot taken before the setup. Two snapshots taken before the setup also matched each other exactly.
+  - On the dev server, the only difference was Vite's development `<script>` element.
+  - The built CSS keeps all RAHA rules unchanged. It adds Tailwind theme variables and about 190 utilities from `src/components/ui`, and no preflight.
+  - The catalogue (38/38), product details (40/40), lazy-loading (27/27), cart (21/21) and focus (17/17) runs passed again.
+  - The shadcn components are not used on any page yet.
 
 - React DevTools Components tab (inspected before the cart moved to `CartProvider`; App no longer calls `useCart`, so CartProvider now shows the Cart hook): the user inspected these components:
   - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).
