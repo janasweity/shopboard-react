@@ -72,11 +72,16 @@ App                                        src/App.tsx
     │   │   │       ├── FormField          src/components/FormField.tsx
     │   │   │       └── Button
     │   │   ├── ProductsPage               src/features/products/pages/ProductsPage.tsx
+    │   │   │   ├── ErrorBoundary → Suspense (fallback: "Explore our considered collection.")
+    │   │   │   │   └── CatalogueSummary   src/features/products/components/CatalogueSummary.tsx
     │   │   │   ├── CatalogueControls      src/features/products/components/CatalogueControls.tsx
     │   │   │   │   ├── FormField
     │   │   │   │   └── Button
-    │   │   │   ├── StatusMessage
-    │   │   │   └── ProductGrid → ProductCard → Button
+    │   │   │   └── ErrorBoundary          (error: StatusMessage with Try again)
+    │   │   │       └── Suspense           (fallback: StatusMessage "Loading products...")
+    │   │   │           └── CatalogueResults  src/features/products/components/CatalogueResults.tsx
+    │   │   │               ├── StatusMessage  (empty, no-match or result count)
+    │   │   │               └── EntranceContext (null) → ProductGrid → ProductCard → Button
     │   │   ├── ProductDetailsPage         src/features/products/pages/ProductDetailsPage.tsx
     │   │   │   └── ErrorBoundary          src/components/ErrorBoundary.tsx  (keyed by product ID)
     │   │   │       ├── error: NotFoundPage for 404, or StatusMessage with Try again
@@ -118,13 +123,15 @@ In App, a `Suspense` boundary wraps only AppRoute. While a page file downloads, 
 Two parts of the app wait for the page:
 
 - `useRouteFocus` (`src/app/useRouteFocus.ts`) runs inside AppRoute, so it moves focus and scrolls only after the page is on screen. Hash links such as `/?page=about#returns` therefore find their target on a page that was not loaded yet.
-- The entrance intro starts once the first page is shown. AppRoute calls `onReady`, which sets `pageReady` in App, and `useEntrance` waits for it. The page content is then mounted before the intro starts, so the original arrival motion still applies to it. Content that arrives later from the API is not animated, as in the original. This covers catalogue cards and the product details, including their h1.
+- The entrance intro starts once the first page is shown. AppRoute calls `onReady`, which sets `pageReady` in App, and `useEntrance` waits for it. The page content is then mounted before the intro starts, so the original arrival motion still applies to it.
+  - Catalogue cards never animate, as in the original. CatalogueResults wraps them in `EntranceContext` with the value `null`.
+  - The product details h1 animates only when `/api/products/:id` answers before the page is first shown. React briefly waits before showing a Suspense fallback, so a fast local answer arrives in time, while a slow one (tested with 1500 ms) does not.
 
 ## Product details from the API
 
 ProductDetailsPage gets only `productId` and `colorId` from the route. It does not search the local catalogue, and it never requests the full list to show one product.
 
-- `src/features/products/api/product-resource.ts` requests `GET /api/products/:id` with the Day 3 `fetchJson`, unchanged.
+- `src/features/products/api/products-resource.ts` requests `GET /api/products/:id` with the Day 3 `fetchJson`, unchanged, and the shared base URL (see "API base URL and test switches").
   - The response is checked at run time with the Day 3 `parseProductsResponse`, which receives the product as a one-item list. It is then converted with `mapApiProduct` (cents to dollars).
   - A response for a different ID is rejected.
   - The promise is cached by ID, because `use()` needs the same promise on every render. A failed request stays cached until Try again, so React does not start a new request each time it renders the error.
@@ -144,7 +151,48 @@ ProductDetailsPage gets only `productId` and `colorId` from the route. It does n
 
 - The cart's add action still validates products against the static catalogue, and the page title still comes from it. Both use the same IDs as the API.
 
-`VariantSelector` is written inside `ProductDetailsPage` and passed to `ProductGallery` as `children`, so it renders between the main photo and the thumbnails. `NotFoundPage` is used both for unknown routes and for unknown product IDs.
+## Catalogue loading
+
+The Products page loads the list with Suspense and an Error Boundary. The h1, search, category and collection filters and sort sit outside the boundaries. They stay usable, and keep focus, while results load or fail. The header, footer and cart stay usable too.
+
+- `readCatalogue()` in `products-resource.ts` requests `GET /api/products` once and caches the promise.
+  - Search, filter and sort only change the URL selection. They re-render `CatalogueResults` with the cached list. The visible list is still derived with the Day 3 `selectProducts`, on a copied array.
+  - Leaving and returning to Products uses the cached list, with no new request.
+  - The Day 3 `loadProducts` always requests `/api/products` and cannot take a base URL. So the list is loaded with the same Day 3 `fetchJson`, `parseProductsResponse` and `mapApiProduct`, unchanged.
+- `CatalogueResults` shows "The catalogue is empty..." for an empty list, "No products match..." with Reset for no match, or "N of M products". `CatalogueSummary` shows "N considered pieces..." in the page intro.
+- Two boundaries are used, because the controls sit between the intro and the results. ProductsPage keeps an `attempt` counter as their `key`.
+  - Try again calls `retryCatalogue()`, increases `attempt` so both boundaries remount, and moves focus to `#catalogue-results`.
+  - While loading or after a failure, the summary shows "Explore our considered collection.".
+
+## API base URL and test switches
+
+`src/features/products/api/api-base.ts` reads `VITE_API_BASE` once. Both the catalogue request and the one-product request are built from it.
+
+- It may be empty, a path that starts with `/`, or an `http(s)` URL of a server with the same API. A trailing `/` is removed. Any other value throws an error when a products page loads.
+- Vite reads `VITE_` variables when the server starts or when `npm run build` runs. Restart `npm run dev`, or build again before `npm run preview`, after changing it.
+
+To try each state without editing code, set the variable for one run.
+
+PowerShell:
+
+```powershell
+$env:VITE_API_BASE = '/delay/3000'; npm run dev   # loading for 3 s
+$env:VITE_API_BASE = '/fail/500'; npm run dev     # error with Try again
+$env:VITE_API_BASE = '/empty'; npm run dev        # empty catalogue; one product still loads
+Remove-Item Env:VITE_API_BASE; npm run dev        # normal
+```
+
+Git Bash: add `MSYS_NO_PATHCONV=1`. Otherwise Git Bash rewrites a value that starts with `/` into a Windows path such as `C:/Program Files/Git/delay/3000`, and the app rejects it.
+
+```sh
+MSYS_NO_PATHCONV=1 VITE_API_BASE=/delay/3000 npm run dev
+```
+
+Or put `VITE_API_BASE=/fail/500` in `.env.development.local`. Git ignores `*.local` files. Delete the line or the file to go back to normal.
+
+The switches can also be combined, for example `VITE_API_BASE=/delay/2000/fail/503`. A product that does not exist, for example `/?page=product&id=no-such-product`, shows the 404 view with any base.
+
+`VariantSelector` is written inside `ProductDetails` and passed to `ProductGallery` as `children`, so it renders between the main photo and the thumbnails. `NotFoundPage` is used both for unknown routes and for unknown product IDs.
 
 ## Props
 
@@ -161,6 +209,8 @@ ProductDetailsPage gets only `productId` and `colorId` from the route. It does n
 | RoomSlider          | `slides: readonly (typeof heroSlides)[number][]`                                                                                                            |
 | RegistrationSection | none                                                                                                                                                        |
 | ProductsPage        | `selection: ProductSelection`                                                                                                                               |
+| CatalogueSummary    | none; reads the list with `use(readCatalogue())`                                                                                                            |
+| CatalogueResults    | `selection: ProductSelection`, `onReset: () => void`; reads the list with `use(readCatalogue())`                                                            |
 | CatalogueControls   | `selection: ProductSelection`, `onChange: (selection: ProductSelection) => void`, `onReset: () => void`                                                     |
 | ProductGrid         | `products: readonly Product[]`                                                                                                                              |
 | ProductCard         | `product: Product`, `position: number` (grid position, used only to stagger the intro motion); reads `add` from `useCartContext`                            |
@@ -194,8 +244,9 @@ Reusable components with more than one call site or many data-driven instances: 
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Current page and URL parameters       | Browser URL, read by `useRoute` (`src/app/useRoute.ts`) in App; `useRouteFocus` in AppRoute handles focus and scroll after a route change | Links call `handleRouteClick` (pushState). Search/filter/sort call `replaceProductSelection`, and finish choice calls `replaceProductColor` (both use replaceState). `useSyncExternalStore` re-renders on popstate, hashchange and the app's navigation event.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Search, category/collection, sort     | URL (`q`, `category`/`collection`, `sort`)                                                                                                | `ProductsPage` gets `selection` from the route. The visible list is derived with `selectProducts` (copied array, no mutation) and is never stored in state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Catalogue request                     | `useProducts` hook in ProductsPage                                                                                                        | `loading` / `error` / `success` union state. `retry` sets loading and starts a new request; stale responses are ignored with a request counter.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| One product request                   | Promise cache in `src/features/products/api/product-resource.ts` (one promise per product ID)                                             | `readProduct(id)` starts or reuses the request. Suspense shows loading, and ErrorBoundary shows 404 or the error. `retryProduct(id)` (Try again) forgets a failed request. The product is not copied into React state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Catalogue request                     | Promise cache in `src/features/products/api/products-resource.ts` (one promise)                                                           | `readCatalogue()` starts or reuses the request. Suspense shows loading, and the ErrorBoundary shows the error. `retryCatalogue()` (Try again) forgets a failed request. The list is not copied into React state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Catalogue retry attempt               | ProductsPage (`attempt`)                                                                                                                  | Try again increases it. It is the `key` of both catalogue boundaries, so they remount together.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| One product request                   | Promise cache in `src/features/products/api/products-resource.ts` (one promise per product ID)                                            | `readProduct(id)` starts or reuses the request. Suspense shows loading, and ErrorBoundary shows 404 or the error. `retryProduct(id)` (Try again) forgets a failed request. The product is not copied into React state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Product details error                 | ErrorBoundary in ProductDetailsPage (`failed`, `error`)                                                                                   | Set when loading fails. Try again clears it, and a new product ID remounts the boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Cart entries and `raha-cart` storage  | Day 3 `src/state.ts`                                                                                                                      | Components call only the Context actions `add`, `change` and `clear` from `CartProvider`. They use `src/features/cart/cart-store.ts` (`addToCart`, `changeCart`, `emptyCart`), which keeps a cached snapshot and notifies subscribers. The Context holds no copy of the entries.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Cart lines, count, subtotal           | Derived in `useCart` (`src/features/cart/useCart.ts`), called only by `CartProvider`                                                      | `calculateCart(snapshot)`. Shared through `CartContext` with SiteHeader (count) and CartDialog; never stored as separate state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -230,7 +281,7 @@ Test switches go at the start of the path, before `/api`, as in the course API. 
 | `/fail/500/api/products`   | Answers `500` with `{ "error": "Simulated error 500" }`. Codes 400-599 work; others get `400`.      |
 | `/empty/api/products`      | Returns `{ "items": [] }`. It affects only the list; `/empty/api/products/:id` returns the product. |
 
-The Products page loads through the Day 3 `loadProducts` client, which always requests `/api/products`, validates the payload and converts cents to dollars. There is no static fallback: a failed request shows the error state with Try again. Product details use `GET /api/products/:id` (see "Product details from the API"). The switches can be requested directly; the UI does not add them to its requests.
+The Products page loads the list with the Day 3 `fetchJson`, `parseProductsResponse` and `mapApiProduct`, which validate the payload and convert cents to dollars (see "Catalogue loading"). Product details use `GET /api/products/:id` (see "Product details from the API"). There is no static fallback: a failed request shows the error state with Try again. Both requests use `VITE_API_BASE`, so the switches can be tried in the UI (see "API base URL and test switches").
 
 Home, details, cart validation and inspiration use the same static catalogue as the API, so product and finish IDs always agree.
 
@@ -238,6 +289,7 @@ Hosting limitations:
 
 - The API, including `/api/products/:id` and the `/delay`, `/fail` and `/empty` switches, exists only in `npm run dev` and `npm run preview`. It is Vite middleware, not part of `dist/`.
 - A static deployment of `dist/` alone has no `/api` routes. It needs a real server route or backend that serves the same contract and switches. Without one, the Products page shows its error state.
+- `VITE_API_BASE` is fixed into the build by `npm run build`. A deployment can point it at a real backend URL, but that backend must allow the site's origin (CORS) and serve the RAHA contract.
 - This API serves RAHA products. It is not the course API at `shopboard-api.vercel.app`, which has 12 fixed products with numeric IDs and a different shape.
 
 ## Verification status
@@ -303,6 +355,26 @@ Last run on 2026-11-06:
   - No horizontal overflow at 360px for details and the error state.
 
   The success, delay and product-change parts logged no Console warnings or errors. The intentional 500 and 404 parts logged only the two expected errors described in "Product details from the API". The focus (17/17), lazy-loading (27/27), cart (21/21) and API (24/24) runs passed again.
+
+- On 2026-11-08, after the catalogue moved to Suspense and `VITE_API_BASE` was added, the four commands passed again. These runs passed on both the dev server and the production preview:
+  - Catalogue (38/38):
+    - One list request, StrictMode included, and no new request for search, filter, sort or revisiting.
+    - Case-insensitive search with focus kept, no-match with Reset, category filter and price sort.
+    - Delay: loading, with search and cart usable. Results use the search typed while loading, and focus stays in the field.
+    - Failure: the error message with Try again, the summary fallback, working controls and no repeated requests. Try again made exactly one new request and focused the results.
+    - The empty catalogue, and no overflow at 360px.
+  - The product details (40/40), focus (17/17), lazy-loading (27/27), cart (21/21) and API (24/24) runs.
+  - Each value was set at server start: `VITE_API_BASE=/delay/3000` (6/6), `/fail/500` (5/5) and `/empty` (5/5), plus no value (4/4). The list and product requests used the prefix, with one list request. A preview of a build made with `/fail/500` passed 5/5, and the normal build does not contain the prefix.
+
+  The success, delay and empty runs logged no Console warnings or errors. The intentional catalogue failure logged the browser's 500 line and React's caught-error report once for each of the two boundaries.
+
+- The first catalogue lazy-loading run showed API cards animating. The cause was a fast response arriving before the first page was shown. The fix was `EntranceContext` with `null` around the catalogue grid, as described above.
+- The user also tried the switches manually with `VITE_API_BASE`. They saw:
+  - A 3-second delay.
+  - A 500 error, then Try again.
+  - The empty catalogue.
+
+  After removing the setting, the products came back.
 
 - React DevTools Components tab (inspected before the cart moved to `CartProvider`; App no longer calls `useCart`, so CartProvider now shows the Cart hook): the user inspected these components:
   - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).

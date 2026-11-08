@@ -15,7 +15,7 @@ import {
   entranceDelay,
   useEntranceMotion,
 } from '../../entrance/entrance-motion.ts'
-import { readProduct } from '../api/product-resource.ts'
+import { readProduct } from '../api/products-resource.ts'
 import ProductGallery from './ProductGallery.tsx'
 import VariantSelector from './VariantSelector.tsx'
 

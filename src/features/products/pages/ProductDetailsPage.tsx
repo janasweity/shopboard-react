@@ -3,7 +3,7 @@ import { ApiError } from '../../../shared/api/api-client.ts'
 import ErrorBoundary from '../../../components/ErrorBoundary.tsx'
 import StatusMessage from '../../../components/StatusMessage.tsx'
 import NotFoundPage from '../../../pages/NotFoundPage.tsx'
-import { retryProduct } from '../api/product-resource.ts'
+import { retryProduct } from '../api/products-resource.ts'
 import ProductDetails from '../components/ProductDetails.tsx'
 
 interface Props {
