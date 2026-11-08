@@ -13,6 +13,6 @@ function readApiBase(value: string | undefined): string {
   )
 }
 
-export const apiBase = readApiBase(import.meta.env.VITE_API_BASE)
+const apiBase = readApiBase(import.meta.env.VITE_API_BASE)
 
 export const apiUrl = (path: string): string => apiBase + path

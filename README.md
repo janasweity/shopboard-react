@@ -151,7 +151,15 @@ App                                        src/App.tsx
 
 App wraps everything in `EntranceContext` (`src/features/entrance/entrance-motion.ts`). Hero, ProductCard, CatalogueControls and every page heading read it through `useEntranceMotion`.
 
-Inside it, `CartProvider` shares the cart through `CartContext` (`src/features/cart/cart-context.ts`). SiteHeader, ProductCard, ProductDetailsPage, CartDialog and CartStatus read it with `useCartContext`. Components between App and these consumers no longer receive cart props.
+Inside it, `CartProvider` shares the cart through `CartContext` (`src/features/cart/cart-context.ts`). SiteHeader, ProductCard, ProductDetails, CartDialog, CartStatus, CheckoutPage and OrderSummary read it with `useCartContext`. Components between App and these consumers no longer receive cart props.
+
+Why a Context provider:
+
+- It reuses the existing cart source. The Day 3 `src/state.ts` keeps the entries, saves and restores `raha-cart`, validates saved data and falls back to memory. `cart-store.ts` gives React a snapshot and change notifications.
+- It removes prop drilling. The cart, its actions and the page-scoped add announcement reach the components that use them directly.
+- It needs no extra library.
+- Zustand is a possible alternative and could also be used without duplicating the cart state. It is not needed for the current requirements.
+- Trade-off: every Context consumer re-renders when the cart value changes, including each ProductCard. Cart changes come only from user clicks, so this is acceptable here.
 
 ## Lazy-loaded pages
 
