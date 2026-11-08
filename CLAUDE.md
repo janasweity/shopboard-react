@@ -43,6 +43,12 @@ Architecture source of truth: README.md describes the implemented component tree
   - Its first run imported `cn` from an unrelated npm package and installed it. It also produced an index list key.
   - Use the RAHA Button, not a shadcn Button. shadcn files import with the `@/` alias and explicit extensions; RAHA files keep relative imports.
 - Forms use react-hook-form with one Zod schema per form through @hookform/resolvers. They do not transmit or store data, and do not take payment details. Do not invent delivery services, fees or prices.
+- The demo checkout (`/?page=checkout`, src/features/checkout) is a lazy page.
+  - Fields: full name, email, street address, city, postal code and a required demo confirmation. Every rule is in checkout-schema.ts.
+  - The order summary reads only useCartContext.
+  - Success shows a focused confirmation, keeps the cart and discards the values.
+  - Keep `aria-invalid` with `aria-describedby` on each field, focus on the first invalid field, and RAHA classes for the look.
+  - Keep ref callbacks that move focus stable (module-level). An inline ref callback runs again on every render and steals focus.
 - Preserve entrance skip/Escape/session/replay behavior and reduced motion; clean up timers, frames, media-query listeners and route listeners. The entrance may play on the first page of a session and stops on navigation. Content arrival motion (hero image, h1, search field, staggered cards) uses the original classes and timings through EntranceContext and useEntranceMotion. It applies only to content mounted before the intro started.
 - Shared cart state uses a React Context provider, not Zustand. The preserved src/state.ts stays the only owner of cart entries and raha-cart storage.
   - src/features/cart/cart-store.ts gives a cached snapshot and change notifications.

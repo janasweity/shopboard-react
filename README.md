@@ -33,9 +33,9 @@ Both required skills are installed as real files and tracked in Git. `skills-loc
 - `.claude/skills/vercel-react-best-practices/`
 - `.claude/skills/vercel-composition-patterns/`
 
-## Form libraries and shadcn/ui (prepared for checkout)
+## Form libraries and shadcn/ui
 
-The checkout page and form are not built yet. This setup only prepares them.
+They are used by the demo checkout (see "Demo checkout").
 
 | Package                                              | Purpose                                                        |
 | ---------------------------------------------------- | -------------------------------------------------------------- |
@@ -130,6 +130,13 @@ App                                        src/App.tsx
     │   │   │   └── ContactForm            src/features/about/ContactForm.tsx
     │   │   │       ├── FormField
     │   │   │       └── Button
+    │   │   ├── CheckoutPage               src/features/checkout/CheckoutPage.tsx
+    │   │   │   ├── StatusMessage + link to Products (empty cart)
+    │   │   │   ├── CheckoutForm           src/features/checkout/CheckoutForm.tsx  (or the confirmation + Button)
+    │   │   │   │   ├── FieldGroup, Field, FieldLabel, FieldDescription, FieldError  src/components/ui/field.tsx
+    │   │   │   │   ├── Input (×5)         src/components/ui/input.tsx
+    │   │   │   │   └── Button
+    │   │   │   └── OrderSummary           src/features/checkout/OrderSummary.tsx
     │   │   └── NotFoundPage               src/pages/NotFoundPage.tsx
     │   │       └── StatusMessage
     │   └── CartStatus (live region)       src/features/cart/CartStatus.tsx
@@ -137,6 +144,7 @@ App                                        src/App.tsx
     ├── CartDialog                         src/features/cart/CartDialog.tsx
     │   ├── CartLineItem (one per line)    src/features/cart/CartLineItem.tsx
     │   │   └── QuantityControl            src/features/cart/QuantityControl.tsx
+    │   ├── link "Review demo order" (when the cart has items)
     │   └── Button
     └── EntranceOverlay (while playing)    src/features/entrance/EntranceOverlay.tsx
 ```
@@ -147,7 +155,7 @@ Inside it, `CartProvider` shares the cart through `CartContext` (`src/features/c
 
 ## Lazy-loaded pages
 
-AppRoute loads each page with `React.lazy` and a dynamic `import()`: HomePage, ProductsPage, ProductDetailsPage, InspirationPage, AboutPage and NotFoundPage. Vite builds each page into its own JavaScript file, and the browser downloads it the first time that page opens.
+AppRoute loads each page with `React.lazy` and a dynamic `import()`: HomePage, ProductsPage, ProductDetailsPage, InspirationPage, AboutPage, CheckoutPage and NotFoundPage. Vite builds each page into its own JavaScript file, and the browser downloads it the first time that page opens.
 
 In App, a `Suspense` boundary wraps only AppRoute. While a page file downloads, it shows `StatusMessage` with "Loading page...". SiteHeader, SiteFooter, the cart dialog and CartStatus stay on screen and usable.
 
@@ -225,6 +233,41 @@ The switches can also be combined, for example `VITE_API_BASE=/delay/2000/fail/5
 
 `VariantSelector` is written inside `ProductDetails` and passed to `ProductGallery` as `children`, so it renders between the main photo and the thumbnails. `NotFoundPage` is used both for unknown routes and for unknown product IDs.
 
+## Demo checkout
+
+`/?page=checkout` is a lazy page inside the shared layout. The cart dialog shows a "Review demo order" link when the cart has items; it closes the dialog and opens the page.
+
+- **Empty cart:** StatusMessage "Your cart is empty, so there is nothing to review yet." and a link to Products.
+- **Form** (`CheckoutForm`): built with react-hook-form, the `zodResolver` from `@hookform/resolvers`, and the shadcn `Field`, `FieldLabel`, `FieldDescription`, `FieldError` and `Input`. The submit button is the RAHA `Button`.
+  - The fields are full name, email address, street address, city, postal code, and a required checkbox confirming the order is a demo. There is no payment, delivery service or fee.
+  - Every rule and message is in one schema, `src/features/checkout/checkout-schema.ts`. Values are trimmed, and the email is checked with `z.email`. The postal code accepts 3 to 10 letters, numbers, spaces or hyphens.
+  - `mode: 'onTouched'`: an error appears after a field is left or on submit, and then updates while typing. On submit, react-hook-form focuses the first invalid field.
+  - Each invalid field gets `aria-invalid="true"` and an `aria-describedby` pointing to its `FieldError` message, which has `role="alert"`.
+  - `noValidate` turns off the browser's own messages, so only the Zod messages are shown.
+- **Success:** the form is replaced by "Demo order confirmed." The heading receives focus, and a status says that nothing was sent, saved or charged.
+  - The entered values are not passed on, sent or stored. CheckoutPage keeps only `confirmed`. The cart is kept.
+  - "Start a new demo order" shows an empty form and focuses the full name field.
+- **Order summary** (`OrderSummary`): reads lines, count and subtotal from `useCartContext`. Nothing is copied into state. It says that no delivery, fees, taxes or payment are added.
+- **Styling:** the form uses RAHA classes in `main.css` (`.checkout-*`). The unlayered RAHA input rule gives the fields the same look as the contact form. The panel colour, radius and 768px two-column layout follow the About contact section.
+  - The checkbox is a native input, sized and coloured with `accent-color`. No shadcn Checkbox was added, so no icon package is needed.
+- The checkout page file is about 157 kB before gzip, because it bundles react-hook-form and Zod. It loads only when the checkout opens.
+
+## Routes
+
+All routes use the query string on `/`, inside the shared layout. Every page is loaded lazily.
+
+| URL                                                       | Page                                                 |
+| --------------------------------------------------------- | ---------------------------------------------------- |
+| `/`                                                       | HomePage                                             |
+| `/?page=products` (`q`, `category`, `collection`, `sort`) | ProductsPage                                         |
+| `/?page=product&id=…` (`color`)                           | ProductDetailsPage; an unknown ID shows the 404 view |
+| `/?page=inspiration`                                      | InspirationPage                                      |
+| `/?page=about`                                            | AboutPage                                            |
+| `/?page=checkout`                                         | CheckoutPage                                         |
+| anything else                                             | NotFoundPage                                         |
+
+Older category and collection URLs are rewritten to Products filters, and retired product IDs redirect to their category.
+
 ## Props
 
 `AddHandler` is `(productId: string, variantId: string) => void`, exported from `src/features/cart/cart-store.ts`. `Route` is the route union in `src/app/route.types.ts`.
@@ -254,6 +297,9 @@ The switches can also be combined, for example `VITE_API_BASE=/delay/2000/fail/5
 | RoomSection         | `room: InspirationRoom`, `position: number`                                                                                                                 |
 | RoomCalculator      | none                                                                                                                                                        |
 | AboutPage           | none                                                                                                                                                        |
+| CheckoutPage        | none; reads `quantity` from `useCartContext`                                                                                                                |
+| CheckoutForm        | `onConfirmed: () => void` (called after valid input; values are not passed)                                                                                 |
+| OrderSummary        | none; reads `items`, `quantity` and `subtotal` from `useCartContext`                                                                                        |
 | ContactForm         | none                                                                                                                                                        |
 | NotFoundPage        | `heading?: string`                                                                                                                                          |
 | SiteFooter          | `year: number`                                                                                                                                              |
@@ -290,6 +336,8 @@ Reusable components with more than one call site or many data-driven instances: 
 | Active room slide                     | RoomSlider (`activeId`)                                                                                                                   | Slide buttons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Registration open, status, form reset | RegistrationSection (`open`, `status`, `formKey`)                                                                                         | A valid submit closes the non-modal dialog and shows the demo status. The form key changes, so the inputs are cleared. Reopen shows an empty form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Contact status, form reset            | ContactForm (`status`, `formKey`)                                                                                                         | A valid submit shows the demo message and clears the form. Nothing is sent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Checkout field values and errors      | react-hook-form inside CheckoutForm (`useForm` with `zodResolver`)                                                                        | Typing and leaving fields update them. On success the form unmounts, so the values are discarded; they are never sent or stored.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Checkout confirmed                    | CheckoutPage (`confirmed`)                                                                                                                | A valid submit sets it to `true`, and "Start a new demo order" sets it back to `false`. Only this flag is kept, not the entered values.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Room dimensions and area              | RoomCalculator (`width`, `length`, `area`)                                                                                                | Controlled inputs; submit calls the Day 3 `calculateRoomArea`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Entrance intro and content motion     | `useEntrance` hook in App (`startedAt`, `claimed` ref), started after App `pageReady` is true                                             | The intro waits until the first lazily loaded page is shown. The Day 3 `claimEntranceSession` decides once per session (`?intro=replay` replays); reduced motion skips it. `startedAt` is shared through `EntranceContext`. `useEntranceMotion` adds `entrance-hero` (2100 ms), `entrance-copy` for the h1 (2350 ms), `entrance-search` (2450 ms) and `entrance-card` (2550 ms + 50 ms per card, up to 11), but only to content mounted before the intro started. Skip, Escape, the 3750 ms timer, switching to reduced motion, moving focus away or navigating set `startedAt` to null. That removes every class at once, so content shows immediately; Skip and Escape return focus to main. |
 
@@ -413,7 +461,23 @@ Last run on 2026-11-06:
   - On the dev server, the only difference was Vite's development `<script>` element.
   - The built CSS keeps all RAHA rules unchanged. It adds Tailwind theme variables and about 190 utilities from `src/components/ui`, and no preflight.
   - The catalogue (38/38), product details (40/40), lazy-loading (27/27), cart (21/21) and focus (17/17) runs passed again.
-  - The shadcn components are not used on any page yet.
+  - At that time the shadcn components were not used on any page yet; the demo checkout now uses Field and Input.
+
+- On 2026-11-08, after the demo checkout was built, the four commands passed again. A checkout run passed 50/50 on both the dev server and the production preview, with no Console warnings or errors. It covered:
+  - Empty cart: the message, the Products link and no form. There is no "Review demo order" link in an empty cart.
+  - Opening checkout with the keyboard from the cart: the dialog closes and focus moves to main. The summary matches the cart subtotal and lines.
+  - The fields have the same computed look as the contact form fields.
+  - Empty submit: all six fields are marked `aria-invalid` and linked to their messages, and focus moves to the first field. A later invalid email takes focus as the first invalid field.
+  - Errors clear while typing. Tab, Space and Enter work.
+  - Success: the confirmation heading is focused, and there is no network request or storage change. The entered values are not in storage, the cart count is unchanged, and the summary remains.
+  - "Start a new demo order" shows an empty form with focus on its first field. After refresh, the cart is kept and the form is empty.
+  - No overflow at 360, 768 and 1280px, with one column below 768px and two from 768px.
+- The style snapshot of the existing pages showed differences only on the product page at 360 and 768px. They were heights and positions caused by the longer, corrected footnote text; no colours, fonts or spacing changed.
+- The catalogue (38/38), product details (40/40), lazy-loading (27/27), cart (21/21), focus (17/17) and API (24/24) runs passed again.
+- The user also tested the checkout manually:
+  - Submitting the empty form showed messages under the fields and moved focus to the first field.
+  - Filling it with demo data showed "Demo order confirmed".
+  - Afterwards, the products and quantities were still in the cart.
 
 - React DevTools Components tab (inspected before the cart moved to `CartProvider`; App no longer calls `useCart`, so CartProvider now shows the Cart hook): the user inspected these components:
   - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).

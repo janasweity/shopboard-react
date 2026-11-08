@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
+import type { MouseEvent } from 'react'
 import { money } from '../../data.ts'
 import type { CartAction } from '../../modules/cart/cart.types.ts'
+import { handleRouteClick } from '../../app/navigation.ts'
 import Button from '../../components/Button.tsx'
 import CartLineItem from './CartLineItem.tsx'
 import { useCartContext } from './cart-context.ts'
@@ -49,6 +51,12 @@ export default function CartDialog({ open, onClose }: Props) {
     change(key, action)
   }
 
+  function openCheckout(event: MouseEvent<HTMLAnchorElement>): void {
+    handleRouteClick(event)
+    // Close only when the app handled the link (not a new-tab click).
+    if (event.defaultPrevented) onClose()
+  }
+
   function handleClear(): void {
     pendingFocus.current = { key: '', action: 'clear' }
     clear()
@@ -76,7 +84,7 @@ export default function CartDialog({ open, onClose }: Props) {
       </div>
       <p id="cart-note">
         A local demo cart. Items are saved on this device across page navigation
-        and refresh. No checkout or payments.
+        and refresh. The demo checkout takes no payment and sends nothing.
       </p>
       {quantity === 0 ? (
         <p id="cart-empty">Your cart is waiting for a little inspiration.</p>
@@ -90,6 +98,16 @@ export default function CartDialog({ open, onClose }: Props) {
         <span>Subtotal</span>
         <strong id="cart-total">{money(subtotal)}</strong>
       </div>
+      {quantity > 0 ? (
+        <a
+          href="/?page=checkout"
+          id="review-order"
+          className="button button-primary"
+          onClick={openCheckout}
+        >
+          Review demo order {'→'}
+        </a>
+      ) : null}
       <button
         type="button"
         className="text-button"

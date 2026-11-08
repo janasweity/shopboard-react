@@ -18,6 +18,7 @@ const titles = {
   product: 'Product details',
   inspiration: 'Room Inspiration',
   about: 'About & Contact',
+  checkout: 'Demo checkout',
   'not-found': 'Page not found',
 }
 

@@ -10,4 +10,5 @@ export type Route =
     }
   | { readonly page: 'inspiration' }
   | { readonly page: 'about' }
+  | { readonly page: 'checkout' }
   | { readonly page: 'not-found' }

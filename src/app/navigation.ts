@@ -115,6 +115,8 @@ export function readRoute(href: string): Route {
       return { page }
     case 'about':
       return { page }
+    case 'checkout':
+      return { page }
     default:
       return { page: 'not-found' }
   }

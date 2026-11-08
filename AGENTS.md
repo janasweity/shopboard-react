@@ -38,7 +38,11 @@
   - Its colours are mapped to RAHA tokens in tokens.css, and unlayered RAHA rules win.
   - Add only the shadcn components a feature uses, and review the CLI output. Its first run installed an unrelated `cn` package and wrote an index key.
   - Compare computed styles of existing pages before and after style setup changes.
-- Forms use react-hook-form with one Zod schema. They never transmit or store data, take payment details or invent delivery services or prices. The checkout page and form are not built yet.
+- Forms use react-hook-form with one Zod schema. They never transmit or store data, take payment details or invent delivery services or prices.
+- The demo checkout (`/?page=checkout`) is described in CLAUDE.md and README.md.
+  - Its summary reads only CartContext.
+  - Success keeps the cart and discards the form values.
+  - Its fields keep linked error messages and first-invalid focus.
 - Preserve forms as non-sending demos, product/finish IDs, route compatibility, images and reduced-motion behavior. Inactive room hotspot code does not justify a new UI without approval.
 
 ## Course delivery after approval

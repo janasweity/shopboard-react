@@ -109,8 +109,8 @@ export default function ProductDetails({ productId, colorId }: Props) {
             </div>
           </dl>
           <p className="collection-footnote">
-            Illustrative product specifications. Local demo cart only; no
-            checkout or order is created.
+            Illustrative product specifications. Local demo cart only; the demo
+            checkout creates no order and takes no payment.
           </p>
           <a
             href="/?page=products"

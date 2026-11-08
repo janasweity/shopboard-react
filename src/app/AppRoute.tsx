@@ -15,6 +15,7 @@ const InspirationPage = lazy(
   () => import('../features/rooms/InspirationPage.tsx'),
 )
 const AboutPage = lazy(() => import('../features/about/AboutPage.tsx'))
+const CheckoutPage = lazy(() => import('../features/checkout/CheckoutPage.tsx'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage.tsx'))
 
 interface Props {
@@ -48,6 +49,8 @@ export default function AppRoute({ route, onReady }: Props) {
       return <InspirationPage />
     case 'about':
       return <AboutPage />
+    case 'checkout':
+      return <CheckoutPage />
     case 'not-found':
       return <NotFoundPage />
   }
