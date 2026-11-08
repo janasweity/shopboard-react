@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import AppRoute from './app/AppRoute.tsx'
+import StatusMessage from './components/StatusMessage.tsx'
 import { useRoute } from './app/useRoute.ts'
 import { products } from './data.ts'
 import SiteHeader from './features/layout/SiteHeader.tsx'
@@ -24,7 +25,9 @@ export default function App() {
   const route = useRoute()
   const page = route.page
   const productId = route.page === 'product' ? route.productId : null
-  const entrance = useEntrance(page)
+  // True once the first lazily loaded page is on screen.
+  const [pageReady, setPageReady] = useState(false)
+  const entrance = useEntrance(page, pageReady)
   const [cartOpen, setCartOpen] = useState(false)
 
   useEffect(() => {
@@ -42,7 +45,14 @@ export default function App() {
           <SiteHeader route={route} onOpenCart={() => setCartOpen(true)} />
           <main id="main-content" tabIndex={-1}>
             <div id="page-view">
-              <AppRoute route={route} />
+              {/* Only the page waits; header, footer and cart stay usable. */}
+              <Suspense
+                fallback={
+                  <StatusMessage kind="loading" message="Loading page..." />
+                }
+              >
+                <AppRoute route={route} onReady={setPageReady} />
+              </Suspense>
             </div>
             <CartStatus />
           </main>

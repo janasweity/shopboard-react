@@ -24,7 +24,9 @@ function stopIntro(
   setStartedAt(null)
 }
 
-export function useEntrance(page: string) {
+// The intro starts only when the first page is ready. Pages are loaded lazily,
+// and arrival motion applies only to content mounted before the intro starts.
+export function useEntrance(page: string, pageReady: boolean) {
   const [startedAt, setStartedAt] = useState<number | null>(null)
   // StrictMode replays effects; the ref keeps one session decision.
   const claimed = useRef<boolean | null>(null)
@@ -35,6 +37,7 @@ export function useEntrance(page: string) {
   const playing = startedAt !== null
 
   useEffect(() => {
+    if (!pageReady) return
     if (claimed.current === null) {
       claimed.current = claimEntranceSession(readReplay())
     }
@@ -56,7 +59,7 @@ export function useEntrance(page: string) {
       reducedMotion.removeEventListener('change', onMotionChange)
       document.removeEventListener('keydown', onKeyDown)
     }
-  }, [])
+  }, [pageReady])
 
   // Navigating to another page ends the intro, as in the original.
   useEffect(() => {

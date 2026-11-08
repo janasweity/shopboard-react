@@ -53,7 +53,7 @@ export default function ProductDetailsPage({ product, colorId }: Props) {
         <span aria-current="page">{product.name}</span>
       </nav>
       <section className="product-layout">
-        <ProductGallery key={variant.id} product={product} variant={variant}>
+        <ProductGallery product={product} variant={variant}>
           <VariantSelector
             variants={product.variants}
             selected={variant}

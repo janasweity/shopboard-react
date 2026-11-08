@@ -15,11 +15,17 @@ interface Props {
   readonly children: ReactNode
 }
 
-// The parent remounts this component per finish (key=variant.id), so the
-// selected view resets to the product photograph without an effect.
 export default function ProductGallery({ product, variant, children }: Props) {
   const views = getProductGallery(product, variant)
-  const [viewId, setViewId] = useState('product')
+  // The chosen view is stored with the product and finish it belongs to. When
+  // the finish or product changes, it is reset during render (no effect and no
+  // remount), so the finish buttons in children keep keyboard focus.
+  const finishKey = product.id + '::' + variant.id
+  const [chosen, setChosen] = useState({ finishKey, viewId: 'product' })
+  if (chosen.finishKey !== finishKey) {
+    setChosen({ finishKey, viewId: 'product' })
+  }
+  const viewId = chosen.finishKey === finishKey ? chosen.viewId : 'product'
   const view = views.find((item) => item.id === viewId) || views[0]
   const original = product.variants[0]
   const hasAdditionalViews = getProductGallery(product, original).length > 1
@@ -50,7 +56,7 @@ export default function ProductGallery({ product, variant, children }: Props) {
               type="button"
               aria-pressed={item.id === view.id}
               aria-label={`Show ${product.name} ${item.id === 'product' ? 'product photo' : item.label.toLowerCase()}`}
-              onClick={() => setViewId(item.id)}
+              onClick={() => setChosen({ finishKey, viewId: item.id })}
             >
               <img src={item.image} alt="" loading="lazy" />
               <span>{item.label}</span>
