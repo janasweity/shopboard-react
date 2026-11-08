@@ -502,6 +502,11 @@ Last run on 2026-11-06:
 
   The lazy-loading (27/27), cart (21/21), catalogue (38/38), product details (40/40), checkout (50/50) and focus (17/17) runs passed again on both servers.
 
+- On 2026-11-08, the pre-commit hook was tested in a temporary clone outside the project, with the same Husky, lint-staged and Oxlint settings and versions.
+  - A staged file with `export const sample: any = 1` was rejected by `oxlint --deny-warnings` with `typescript(no-explicit-any)`. `HEAD` did not change, so no commit was created.
+  - The same line with `unknown` was accepted in the temporary clone.
+  - The clone was deleted; the project's `main` and history were not changed.
+
 - React DevTools Components tab (inspected before the cart moved to `CartProvider`; App no longer calls `useCart`, so CartProvider now shows the Cart hook): the user inspected these components:
   - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).
   - The Home page (HomePage), ProductsPage and ProductCard.
