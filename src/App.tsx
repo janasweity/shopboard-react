@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useState } from 'react'
 import AppRoute from './app/AppRoute.tsx'
+import ErrorBoundary from './components/ErrorBoundary.tsx'
 import StatusMessage from './components/StatusMessage.tsx'
 import { useRoute } from './app/useRoute.ts'
 import { products } from './data.ts'
@@ -36,6 +37,14 @@ export default function App() {
     document.title = (product ? product.name : titles[page]) + ' | RAHA'
   }, [page, productId])
 
+  // Opening another page after a page file failed clears the error. Focus
+  // moves to the page area, as on a normal page change.
+  function focusPage(): void {
+    requestAnimationFrame(() =>
+      document.getElementById('main-content')?.focus({ preventScroll: true }),
+    )
+  }
+
   return (
     <EntranceContext value={entrance.startedAt}>
       <CartProvider page={page}>
@@ -46,14 +55,34 @@ export default function App() {
           <SiteHeader route={route} onOpenCart={() => setCartOpen(true)} />
           <main id="main-content" tabIndex={-1}>
             <div id="page-view">
-              {/* Only the page waits; header, footer and cart stay usable. */}
-              <Suspense
-                fallback={
-                  <StatusMessage kind="loading" message="Loading page..." />
-                }
+              {/* Only the page waits or fails; header, footer and cart stay
+                  usable. A page file that cannot download shows this error,
+                  and opening another page clears it. */}
+              <ErrorBoundary
+                resetKey={page}
+                onRetry={focusPage}
+                fallback={() => (
+                  <section className="page-intro">
+                    <p className="eyebrow">RAHA / PAGE</p>
+                    <h1>This page could not be loaded.</h1>
+                    {/* React.lazy keeps a failed import, so Try again reloads
+                        the document to download the page file again. */}
+                    <StatusMessage
+                      kind="error"
+                      message="Check your connection and try again. Try again reloads the page; your cart is kept. The menu and other pages still work."
+                      onRetry={() => window.location.reload()}
+                    />
+                  </section>
+                )}
               >
-                <AppRoute route={route} onReady={setPageReady} />
-              </Suspense>
+                <Suspense
+                  fallback={
+                    <StatusMessage kind="loading" message="Loading page..." />
+                  }
+                >
+                  <AppRoute route={route} onReady={setPageReady} />
+                </Suspense>
+              </ErrorBoundary>
             </div>
             <CartStatus />
           </main>

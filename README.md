@@ -155,9 +155,16 @@ Inside it, `CartProvider` shares the cart through `CartContext` (`src/features/c
 
 ## Lazy-loaded pages
 
-AppRoute loads each page with `React.lazy` and a dynamic `import()`: HomePage, ProductsPage, ProductDetailsPage, InspirationPage, AboutPage, CheckoutPage and NotFoundPage. Vite builds each page into its own JavaScript file, and the browser downloads it the first time that page opens.
+The lazy pages are declared once, at module level, in `src/app/lazy-pages.ts` with `React.lazy` and a dynamic `import()`: HomePage, ProductsPage, ProductDetailsPage, InspirationPage, AboutPage, CheckoutPage and NotFoundPage. AppRoute imports them. Vite builds each page into its own JavaScript file, and the browser downloads it the first time that page opens.
 
 In App, a `Suspense` boundary wraps only AppRoute. While a page file downloads, it shows `StatusMessage` with "Loading page...". SiteHeader, SiteFooter, the cart dialog and CartStatus stay on screen and usable.
+
+An `ErrorBoundary` wraps that `Suspense` boundary, so a page file that cannot download breaks only the page area.
+
+- It shows the h1 "This page could not be loaded." and StatusMessage with Try again. The header, footer, cart and other pages keep working.
+- `React.lazy` keeps a failed import and throws the same error on every later render. Resetting the boundary alone would show the error again, so Try again calls `window.location.reload()`. The new document downloads the page file again. The cart is restored from `raha-cart`, while unsaved input on the page is lost.
+- The boundary has `resetKey={page}`, so opening another page clears the error and moves focus to main. Returning to the page that failed in the same visit shows the error again until Try again.
+- Recreating the lazy component at run time instead of reloading was tried. Oxlint's `react/static-components` rule rejects it, because a component chosen during render resets its state, so the rule was kept and reloading is used.
 
 Two parts of the app wait for the page:
 
@@ -478,6 +485,14 @@ Last run on 2026-11-06:
   - Submitting the empty form showed messages under the fields and moved focus to the first field.
   - Filling it with demo data showed "Demo order confirmed".
   - Afterwards, the products and quantities were still in the cart.
+
+- On 2026-11-08, before the page Error Boundary was added, a review found that a failed page file download made the whole app blank, with an empty `#root`. After the fix, the four commands passed. A page-failure run passed 19/19 on both the production preview and the dev server. The About page file was blocked with Playwright, and the run covered:
+  - A failure while navigating: the error heading and Try again appear, while the header, footer and cart stay, and the cart opens. After unblocking, Try again requested the file again, showed About on the same URL and kept the cart.
+  - A failure, then opening Products and Room Inspiration: both load, and focus moves to main. Returning to About after unblocking showed the error, and Try again then loaded it.
+  - A failure on a direct load: the error appears with the layout, and Try again recovers.
+  - A file that still fails: Try again shows the error again, the layout stays, and there are no repeated requests.
+
+  The lazy-loading (27/27), cart (21/21), catalogue (38/38), product details (40/40), checkout (50/50) and focus (17/17) runs passed again on both servers.
 
 - React DevTools Components tab (inspected before the cart moved to `CartProvider`; App no longer calls `useCart`, so CartProvider now shows the Cart hook): the user inspected these components:
   - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).

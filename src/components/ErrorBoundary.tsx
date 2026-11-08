@@ -7,6 +7,9 @@ interface Props {
   readonly fallback: (error: unknown, retry: () => void) => ReactNode
   // Runs before a retry, for example to forget a failed request.
   readonly onRetry?: () => void
+  // When this value changes (for example the page), the error is cleared and
+  // children render again, as after a retry.
+  readonly resetKey?: string
 }
 
 type State =
@@ -24,6 +27,12 @@ export default class ErrorBoundary extends Component<Props, State> {
   retry = (): void => {
     this.props.onRetry?.()
     this.setState({ failed: false })
+  }
+
+  componentDidUpdate(previous: Props): void {
+    if (this.state.failed && previous.resetKey !== this.props.resetKey) {
+      this.retry()
+    }
   }
 
   render(): ReactNode {
