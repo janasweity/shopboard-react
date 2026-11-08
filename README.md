@@ -183,11 +183,30 @@ List keys always come from data: `product.id`, `line.key` (product + finish), `v
 
 ## Products API and hosting
 
-`tooling/products-api.ts` adds `GET /api/products` to the Vite dev and preview servers. It serializes the same Day 3 catalogue with `serializeProducts` (prices in cents) and responds with `Content-Type: application/json`, `Cache-Control: no-store`, and `405` with `Allow: GET` for other methods. The Products page loads through the Day 3 `loadProducts` client, which validates the payload and converts cents to dollars. There is no static fallback: a failed request shows the error state with Try again.
+`tooling/products-api.ts` adds a products API to the Vite dev and preview servers. It serializes the RAHA catalogue from `src/data.ts` with the Day 3 `serializeProducts`, so prices are in cents. Every response has `Content-Type: application/json` and `Cache-Control: no-store`. Methods other than GET get `405` with `Allow: GET`.
+
+| Request                 | Response                                                                                                                                                                                |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/products`     | `200` with `{ "items": [ApiProduct, ...] }`. This is the original list contract and is unchanged.                                                                                       |
+| `GET /api/products/:id` | `200` with one `ApiProduct`, the same object as in the list. RAHA IDs are text, for example `/api/products/arc-sofa`. An unknown ID gets `404` with `{ "error": "Product not found" }`. |
+
+Test switches go at the start of the path, before `/api`, as in the course API. They work for both endpoints and can be combined, for example `/delay/2000/fail/503/api/products`:
+
+| Switch                     | Effect                                                                                              |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| `/delay/3000/api/products` | Waits 3000 ms, then answers normally. The delay is capped at 8000 ms.                               |
+| `/fail/500/api/products`   | Answers `500` with `{ "error": "Simulated error 500" }`. Codes 400-599 work; others get `400`.      |
+| `/empty/api/products`      | Returns `{ "items": [] }`. It affects only the list; `/empty/api/products/:id` returns the product. |
+
+The Products page loads through the Day 3 `loadProducts` client, which always requests `/api/products`, validates the payload and converts cents to dollars. There is no static fallback: a failed request shows the error state with Try again. The single-product endpoint and the switches can be requested directly; the UI does not use them yet.
 
 Home, details, cart validation and inspiration use the same static catalogue as the API, so product and finish IDs always agree.
 
-Limitation: the endpoint exists only in `npm run dev` and `npm run preview`. A static deployment of `dist/` alone has no `/api/products`, so it needs a real server route or backend that serves the same contract.
+Hosting limitations:
+
+- The API, including `/api/products/:id` and the `/delay`, `/fail` and `/empty` switches, exists only in `npm run dev` and `npm run preview`. It is Vite middleware, not part of `dist/`.
+- A static deployment of `dist/` alone has no `/api` routes. It needs a real server route or backend that serves the same contract and switches. Without one, the Products page shows its error state.
+- This API serves RAHA products. It is not the course API at `shopboard-api.vercel.app`, which has 12 fixed products with numeric IDs and a different shape.
 
 ## Verification status
 
@@ -233,6 +252,16 @@ Last run on 2026-11-06:
   - The focus run (17/17). Choosing a finish by click or keyboard keeps focus on that swatch. A new finish shows the product photo, and returning to an earlier finish does not bring back its old view.
   - The lazy-loading run (27/27).
   - The cart run (21/21).
+- On 2026-11-08, after the API gained `/api/products/:id` and the test switches, an API run passed 24/24 on both the dev server and the production preview. It covered:
+  - The unchanged list contract.
+  - One product by ID matching its list item, and `404` for an unknown or badly encoded ID.
+  - Delay timing, including the 8000 ms cap.
+  - `/fail/500` and `/fail/503` on both endpoints, and `400` for a code outside 400-599.
+  - `/empty` affecting only the list, and a combined delay and fail.
+  - `405` for POST, app pages still served as HTML, and a switch without `/api` not being treated as the API.
+
+  The lazy-loading run (27/27) and the cart run (21/21) passed again on the preview.
+
 - React DevTools Components tab (inspected before the cart moved to `CartProvider`; App no longer calls `useCart`, so CartProvider now shows the Cart hook): the user inspected these components:
   - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).
   - The Home page (HomePage), ProductsPage and ProductCard.
