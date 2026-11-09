@@ -5,8 +5,8 @@ import type {
   ProductVariant,
 } from '../../../modules/products/products.types.ts'
 import { getProductGallery } from '../../../product-gallery.ts'
-import { productURL } from '../../../data.ts'
-import { handleRouteClick } from '../../../app/navigation.ts'
+import Link from 'next/link'
+import { productPath } from '../../../lib/routes.ts'
 
 interface Props {
   readonly product: Product
@@ -66,17 +66,12 @@ export default function ProductGallery({ product, variant, children }: Props) {
         {hasAdditionalViews && variant.id !== original.id ? (
           <p className="gallery-note">
             Additional photographs are available in {original.name}.{' '}
-            <a
+            <Link
               className="text-link"
-              href={
-                productURL(product.id) +
-                '&color=' +
-                encodeURIComponent(original.id)
-              }
-              onClick={handleRouteClick}
+              href={productPath(product.id, original.id)}
             >
               View those photographs
-            </a>
+            </Link>
           </p>
         ) : (
           <p className="gallery-note">

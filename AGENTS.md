@@ -11,7 +11,7 @@
 
 ## Shared React rules
 
-- Use Vite, React and strict TypeScript. Use .tsx for components; .ts for types, API clients, state modules, hooks without JSX and pure logic.
+- Use Next.js (App Router), React and strict TypeScript. Use .tsx for components; .ts for types, API clients, state modules, hooks without JSX and pure logic.
 - Put each reusable component in its own file with a typed Props interface. Use stable data IDs as list keys.
 - Never mutate props or state. Give state one owner and one copy, and derive values instead of storing them. Use effects only to sync with something outside React.
 - Avoid `any`, type assertions, non-null assertions, error-suppression comments and new lint or TypeScript exceptions.
@@ -22,21 +22,20 @@
 
 ## Current architecture
 
-- **Routing:** query-string routes on `/`, read by `useRoute`. All pages are lazy, declared at module level in src/app/lazy-pages.ts.
-  - In App, the order is ErrorBoundary, then Suspense, then AppRoute, so only the page area loads or fails. The header, footer and cart stay usable.
-  - The page boundary's Try again reloads the document, because React.lazy keeps a failed import. `resetKey={page}` clears the error on navigation.
-  - `useRouteFocus` runs inside AppRoute.
+- **Next.js 16 App Router** in `src/app/`. Read the matching guide in `node_modules/next/dist/docs/` before writing Next.js code.
+  - Routes: `/`, `/products`, `/products/[id]`, `/inspiration`, `/about`, `/checkout` and `not-found.tsx`. AppShell (header, footer, cart, intro) wraps every page.
+  - src/proxy.ts redirects old `/?page=…` URLs and retired products, and strips API test switches into a request header.
+  - `'use client'` only where a Server Component imports a component that needs hooks, events or Context.
+- **Data:** src/lib/api/products.ts (`server-only`) requests the separate products API (products-api/) at the full `RAHA_API_URL` with the unchanged Day 3 decoder. Server Components use it; never fetch a relative URL or the app's own routes.
+  - `/products` passes the unawaited list promise to Client Components that read it with `use()` inside Suspense and Error Boundaries (Try again: `router.refresh()`).
+  - `/products/[id]` awaits the product, calls `notFound()` for 404, and has its own loading, error (`retry()`) and not-found files.
 - **Cart:** a React Context provider, not Zustand.
-  - src/state.ts owns the entries and raha-cart storage, and cart-store.ts gives snapshots.
+  - src/state.ts owns the entries and raha-cart storage, and cart-store.ts gives snapshots. useCart has an empty server snapshot, so the count is 0 until hydration.
   - Only CartProvider calls useCart. Components use only useCartContext and its `add`, `change` and `clear` actions.
-- **API:** tooling/products-api.ts serves `GET /api/products` (`{ items }`) and `GET /api/products/:id` (404 for unknown IDs) in dev and preview. It also handles the `/delay/<ms>`, `/fail/<code>` and `/empty` switches before `/api`.
-  - `VITE_API_BASE` is the shared base URL for both requests.
-  - products-resource.ts caches the request promises and validates responses with the unchanged Day 3 decoder.
-- **Products and details:** Suspense and Error Boundaries with Try again. The details 404 shows the not-found view. The catalogue controls stay outside the boundaries.
-- **Checkout:** `/?page=checkout`, built with react-hook-form, one Zod schema and the shadcn Field and Input.
+- **Checkout:** `/checkout`, built with react-hook-form, one Zod schema and the shadcn Field and Input.
   - Its summary reads only CartContext.
   - Nothing is sent or stored, there is no payment, delivery service or fee, and the cart is kept.
-- **Styles:** Tailwind v4 is used only for src/components/ui, with no preflight. Its colours point to RAHA tokens, and unlayered RAHA rules win. Review all shadcn CLI output.
+- **Styles:** Tailwind v4 (through `@tailwindcss/postcss`) is used only for src/components/ui, with no preflight. Its colours point to RAHA tokens, and unlayered RAHA rules win. Review all shadcn CLI output.
 
 ## Course delivery
 
@@ -55,8 +54,18 @@ Keep four kinds of evidence separate, as CLAUDE.md describes:
 3. **The user's own manual verification after fixes.**
 4. **The user's own mistakes, in the user's words.** Add one only after the user reports a real mistake.
 
-The first user-reported mistake was in the delay test setup, not in the app code. The loading state did not appear because the dev server had been started without `VITE_API_BASE`. Ports 5173 and 5174 were also busy. The resulting rule (CLAUDE.md rule 7):
+The first user-reported mistake was in the delay test setup, not in the app code. On the Vite version, the loading state did not appear because the dev server had been started without `VITE_API_BASE`. Ports 5173 and 5174 were also busy. The resulting rule (CLAUDE.md rule 7), now for Next.js:
 
-- Before testing an API state, set and print `VITE_API_BASE` in the terminal that starts the server.
-- Start a new server from that terminal, use the port Vite prints (a free one if needed), and open exactly that URL.
-- Confirm the prefixed request path in the Network tab before suspecting the code.
+- Before testing an API state, start the products API, then set and print `RAHA_API_URL` in the terminal that starts Next.js.
+- Start a new server from that terminal, use the port Next.js prints (a free one if needed), and open exactly that URL with the switch in front, for example `/delay/3000/products`.
+- Confirm the result before suspecting the code.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

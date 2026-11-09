@@ -1,3 +1,5 @@
+'use client'
+
 import { aboutCraft, aboutMaterials } from '../../data/page-imagery.ts'
 import ContactForm from './ContactForm.tsx'
 import {

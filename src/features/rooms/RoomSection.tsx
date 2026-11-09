@@ -1,6 +1,7 @@
 import type { InspirationRoom } from '../../modules/products/products.types.ts'
-import { money, productURL, products } from '../../data.ts'
-import { handleRouteClick } from '../../app/navigation.ts'
+import { money, products } from '../../data.ts'
+import { productPath } from '../../lib/routes.ts'
+import Link from 'next/link'
 
 interface Props {
   readonly room: InspirationRoom
@@ -12,8 +13,7 @@ export default function RoomSection({ room, position }: Props) {
     const product = products.find((candidate) => candidate.id === item.id)
     const variant = product?.variants.find((option) => option.id === item.color)
     if (!product || !variant) return []
-    const href =
-      productURL(product.id) + '&color=' + encodeURIComponent(variant.id)
+    const href = productPath(product.id, variant.id)
     return [{ product, variant, href }]
   })
 
@@ -58,9 +58,8 @@ export default function RoomSection({ room, position }: Props) {
             className="inspiration-product"
             data-inspiration-product={product.id}
           >
-            <a
+            <Link
               href={href}
-              onClick={handleRouteClick}
               aria-label={`View ${product.name} in ${variant.name}`}
             >
               <img
@@ -71,18 +70,16 @@ export default function RoomSection({ room, position }: Props) {
                 loading="lazy"
                 decoding="async"
               />
-            </a>
+            </Link>
             <div>
               <h3>
-                <a href={href} onClick={handleRouteClick}>
-                  {product.name}
-                </a>
+                <Link href={href}>{product.name}</Link>
               </h3>
               <p>{variant.name}</p>
               <p className="inspiration-price">{money(variant.price)}</p>
-              <a href={href} className="text-link" onClick={handleRouteClick}>
+              <Link href={href} className="text-link">
                 View product {'↗'}
-              </a>
+              </Link>
             </div>
           </article>
         ))}

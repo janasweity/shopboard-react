@@ -1,3 +1,5 @@
+'use client'
+
 import { inspirationRooms } from '../../data/inspiration.ts'
 import RoomSection from './RoomSection.tsx'
 import RoomCalculator from './RoomCalculator.tsx'

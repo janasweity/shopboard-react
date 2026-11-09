@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import type { MouseEvent } from 'react'
 import { money } from '../../data.ts'
 import type { CartAction } from '../../modules/cart/cart.types.ts'
-import { handleRouteClick } from '../../app/navigation.ts'
+import Link from 'next/link'
 import Button from '../../components/Button.tsx'
 import CartLineItem from './CartLineItem.tsx'
 import { useCartContext } from './cart-context.ts'
@@ -52,9 +52,9 @@ export default function CartDialog({ open, onClose }: Props) {
   }
 
   function openCheckout(event: MouseEvent<HTMLAnchorElement>): void {
-    handleRouteClick(event)
-    // Close only when the app handled the link (not a new-tab click).
-    if (event.defaultPrevented) onClose()
+    // Close only for an in-app navigation, not a new-tab or new-window click.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    onClose()
   }
 
   function handleClear(): void {
@@ -99,14 +99,14 @@ export default function CartDialog({ open, onClose }: Props) {
         <strong id="cart-total">{money(subtotal)}</strong>
       </div>
       {quantity > 0 ? (
-        <a
-          href="/?page=checkout"
+        <Link
+          href="/checkout"
           id="review-order"
           className="button button-primary"
           onClick={openCheckout}
         >
           Review demo order {'→'}
-        </a>
+        </Link>
       ) : null}
       <button
         type="button"

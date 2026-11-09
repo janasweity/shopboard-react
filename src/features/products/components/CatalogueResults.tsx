@@ -1,21 +1,29 @@
 import { use } from 'react'
 import { selectProducts } from '../../../modules/products/products.logic.ts'
-import type { ProductSelection } from '../../../modules/products/products.types.ts'
+import type {
+  Product,
+  ProductSelection,
+} from '../../../modules/products/products.types.ts'
 import StatusMessage from '../../../components/StatusMessage.tsx'
 import { EntranceContext } from '../../entrance/entrance-motion.ts'
-import { readCatalogue } from '../api/products-resource.ts'
 import ProductGrid from './ProductGrid.tsx'
 
 interface Props {
+  // The list request started by the products Server Component.
+  readonly products: Promise<Product[]>
   readonly selection: ProductSelection
   onReset: () => void
 }
 
-export default function CatalogueResults({ selection, onReset }: Props) {
+export default function CatalogueResults({
+  products: request,
+  selection,
+  onReset,
+}: Props) {
   // Suspends until the list loads. Errors go to the Error Boundary in
   // ProductsPage. Search, filter and sort only change the URL selection, so
-  // they re-render with the cached list and never start a new request.
-  const products = use(readCatalogue())
+  // they re-render with the same list and never start a new request.
+  const products = use(request)
   const visible = selectProducts(products, selection)
 
   return (

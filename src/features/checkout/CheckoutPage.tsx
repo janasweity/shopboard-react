@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { handleRouteClick } from '../../app/navigation.ts'
+import Link from 'next/link'
 import Button from '../../components/Button.tsx'
 import StatusMessage from '../../components/StatusMessage.tsx'
 import { useCartContext } from '../cart/cart-context.ts'
@@ -47,13 +49,9 @@ export default function CheckoutPage() {
             kind="empty"
             message="Your cart is empty, so there is nothing to review yet."
           />
-          <a
-            href="/?page=products"
-            className="text-link"
-            onClick={handleRouteClick}
-          >
+          <Link href="/products" className="text-link">
             Browse products {'↗'}
-          </a>
+          </Link>
         </section>
       ) : (
         <div className="checkout-layout">

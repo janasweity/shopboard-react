@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import type { Route } from '../../app/route.types.ts'
 import { products } from '../../data.ts'
 import { CartContext } from './cart-context.ts'
 import {
@@ -12,7 +11,8 @@ import {
 import { useCart } from './useCart.ts'
 
 interface Props {
-  readonly page: Route['page']
+  // The current pathname; the add announcement belongs to it.
+  readonly page: string
   readonly children: ReactNode
 }
 

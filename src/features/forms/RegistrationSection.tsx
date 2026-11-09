@@ -1,3 +1,5 @@
+'use client'
+
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import FormField from '../../components/FormField.tsx'

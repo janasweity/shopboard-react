@@ -1,4 +1,6 @@
-import { handleRouteClick } from '../../app/navigation.ts'
+'use client'
+
+import Link from 'next/link'
 import {
   entranceDelay,
   useEntranceMotion,
@@ -30,13 +32,9 @@ export default function Hero({ image, alt }: Props) {
           Considered furniture, warm textures, and little details that bring
           your everyday into balance.
         </p>
-        <a
-          href="/?page=products"
-          className="button hero-cta"
-          onClick={handleRouteClick}
-        >
+        <Link href="/products" className="button hero-cta">
           Explore the collection <span aria-hidden="true">{'\u2197'}</span>
-        </a>
+        </Link>
         <p className="hero-footnote">Thoughtfully chosen. Naturally at home.</p>
       </div>
       <figure>

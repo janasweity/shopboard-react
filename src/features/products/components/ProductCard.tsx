@@ -1,12 +1,14 @@
+'use client'
+
 import type { Product } from '../../../modules/products/products.types.ts'
 import {
   categoryName,
   collectionName,
   getVariant,
   money,
-  productURL,
 } from '../../../data.ts'
-import { handleRouteClick } from '../../../app/navigation.ts'
+import Link from 'next/link'
+import { productPath } from '../../../lib/routes.ts'
 import Button from '../../../components/Button.tsx'
 import { useCartContext } from '../../cart/cart-context.ts'
 import {
@@ -22,7 +24,7 @@ interface Props {
 
 export default function ProductCard({ product, position }: Props) {
   const { add } = useCartContext()
-  const href = productURL(product.id)
+  const href = productPath(product.id)
   const variant = getVariant(product)
   const motion = useEntranceMotion('card', entranceDelay.card(position))
   return (
@@ -33,10 +35,9 @@ export default function ProductCard({ product, position }: Props) {
       data-category={product.category}
       data-collection={product.collection}
     >
-      <a
+      <Link
         className="product-image"
         href={href}
-        onClick={handleRouteClick}
         aria-label={'View ' + product.name}
       >
         {product.tag ? (
@@ -50,16 +51,14 @@ export default function ProductCard({ product, position }: Props) {
           loading="lazy"
           decoding="async"
         />
-      </a>
+      </Link>
       <div className="product-info">
         <p className="product-type">
           {collectionName(product.collection)} /{' '}
           {categoryName(product.category)}
         </p>
         <h3>
-          <a href={href} onClick={handleRouteClick}>
-            {product.name}
-          </a>
+          <Link href={href}>{product.name}</Link>
         </h3>
         <p className="product-detail">{product.description.split('. ')[0]}.</p>
         <p className="product-price">{money(product.price)}</p>

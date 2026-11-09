@@ -2,7 +2,9 @@
 
 ## Project and workflow
 
-RAHA is the React + TypeScript version of the user's Day 3 ShopBoard project. The React root is C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react. The Day 3 project (C:/Users/morjm/OneDrive/Desktop/shopboard) is read-only.
+RAHA is the React + TypeScript version of the user's Day 3 ShopBoard project, built with the Next.js App Router. The React root is C:/Users/morjm/OneDrive/Desktop/shopboard-react/shopboard-react. The Day 3 project (C:/Users/morjm/OneDrive/Desktop/shopboard) is read-only.
+
+To run it locally: `npm run api:build`, `npm run api:start` (products API on port 4000), then `npm run dev` with `RAHA_API_URL=http://127.0.0.1:4000` (for example in `.env.local`) and open `http://localhost:5173`.
 
 README.md is the source of truth for the component tree, routes, props, state ownership, API and verification results. Keep it aligned with the code after every change.
 
@@ -13,7 +15,7 @@ README.md is the source of truth for the component tree, routes, props, state ow
 
 ## Shared React rules
 
-- Use Vite, React and strict TypeScript. Use .tsx for components; .ts for types, API clients, state modules, hooks without JSX and pure logic.
+- Use Next.js (App Router), React and strict TypeScript. Use .tsx for components; .ts for types, API clients, state modules, hooks without JSX and pure logic.
 - Put each reusable component in its own file with a typed Props interface. Use stable data IDs as list keys.
 - Never mutate props or React state. Give each piece of state one owner and one copy, and pass events upward through typed callbacks. Derive filtered products and totals instead of storing them.
 - Build the UI with React rendering, event handling and hooks. Do not initialize the old DOM UI or render HTML strings.
@@ -26,54 +28,50 @@ README.md is the source of truth for the component tree, routes, props, state ow
 
 ## Architecture
 
+The app uses the Next.js 16 App Router (`src/app/`). Next.js 16 changed APIs and file conventions; read the matching guide in `node_modules/next/dist/docs/` before writing Next.js code.
+
 ### Routing and pages
 
-- Routes use the query string on `/`: `?page=products`, `product`, `inspiration`, `about` and `checkout`. Anything else is the 404 page.
-  - `useRoute` (src/app/useRoute.ts) reads the URL with `useSyncExternalStore`, and `navigation.ts` handles links, legacy URLs and retired IDs.
-  - No router package is used.
-- Every page is lazy. The `React.lazy` declarations stay fixed at module level in src/app/lazy-pages.ts, and AppRoute imports them. Never choose or create components during render, which Oxlint `react/static-components` rejects.
-- In App, only the page area waits or fails. The order is ErrorBoundary, then Suspense ("Loading page..."), then AppRoute. The header, footer, cart dialog and cart status stay outside both.
-  - React.lazy keeps a failed import, so the page Error Boundary's Try again reloads the document.
-  - `resetKey={page}` clears the error when another page opens.
-- `useRouteFocus` runs inside AppRoute, so focus and hash scrolling happen after a lazy page is shown.
-  - Its effect must give the same result if StrictMode runs it twice. It updates the previous URL only when the focus move runs.
-- The entrance intro starts after the first page is shown. AppRoute calls `onReady`, App sets `pageReady`, and `useEntrance` waits for it.
-  - Arrival motion applies only to content mounted before the intro starts.
-  - Catalogue cards never animate, because CatalogueResults provides EntranceContext as `null`.
+- Routes: `/`, `/products`, `/products/[id]`, `/inspiration`, `/about`, `/checkout`, and `not-found.tsx` for anything else. The root layout renders AppShell (header, footer, cart dialog, cart status, intro) around every page.
+- Links use `next/link`. URL helpers live in src/lib/routes.ts: `productPath()`, `productsHref()`, `readProductSelection()`, `replaceProductSelection()`, `replaceProductColor()`, `redirectPath()` and `toAppHref()`.
+- src/proxy.ts (the Next.js 16 name for middleware) redirects old `/?page=…` URLs, old category pages and retired product IDs to the new paths (307). Keep those URLs working.
+- Day 3 data still holds old query-string links (`productURL()`, hero-slide `href`). Use `productPath()` and `toAppHref()` in React code; do not change the Day 3 files.
+- Next.js splits and loads each route itself. Do not add `React.lazy` for pages or a root `loading.tsx` (it streamed static pages behind a hidden copy). `/products/[id]` has its own `loading.tsx`, `error.tsx` and `not-found.tsx`; `src/app/error.tsx` covers other pages. `error.tsx` uses the `retry` prop (stable since Next.js 16.3).
+- Titles use `metadata` and `generateMetadata` with the template `%s | RAHA`; the root page sets an absolute title because the template does not apply to it.
+- `useRouteFocus` (in AppShell) moves focus to main after a pathname change, or to the hash target once it appears. Its effect must give the same result if StrictMode runs it twice.
+
+### Server and Client Components
+
+- Put `'use client'` only on components that a Server Component imports and that need hooks, events or Context. Route files, HomePage, FeaturedProducts and ProductGrid are Server Components and pass only plain data or promises to Client Components.
+- Never read `window`, `document` or storage during render; read them in effects, event handlers or `useSyncExternalStore` with a server snapshot.
+- Do not drive a controlled input from `useSearchParams`. The catalogue selection is read with `useProductSelection` (`useSyncExternalStore` on `location.search`, with the server's search for hydration) and written with `history.replaceState`.
+- The intro starts after hydration. `useEntranceMotion` animates only server-rendered content (a hydration flag read once); catalogue cards never animate (CatalogueResults provides EntranceContext as `null`).
 
 ### Cart
 
 - Shared cart state uses a React Context provider, not Zustand. README explains why.
 - The preserved src/state.ts is the only owner of cart entries and raha-cart storage.
   - src/features/cart/cart-store.ts gives a cached snapshot and change notifications.
-  - Only CartProvider calls useCart, which derives lines, count and subtotal.
-  - CartProvider shares them, the page-scoped add announcement and the actions `add`, `change` and `clear` through CartContext.
-- Components read the cart only with useCartContext and change it only through those actions. Never import cart-store.ts or state.ts mutations in components, copy cart entries into state, or pass cart callbacks through components that do not use them.
-- The cart stays a native modal dialog. Preserve add, increase, decrease, remove and clear, and product-and-finish identity. Also preserve restore before first display, saved-data validation, Escape, focus return and action focus recovery.
+  - Only CartProvider calls useCart, which derives lines, count and subtotal. useCart passes an empty server snapshot, so the server render and hydration show an empty cart and the browser cart appears right after (the user accepted the brief 0).
+  - CartProvider shares them, the page-scoped add announcement (keyed by pathname) and the actions `add`, `change` and `clear` through CartContext.
+- Components read the cart only with useCartContext and change it only through those actions. Never import cart-store.ts or state.ts mutations in components or Server Components, copy cart entries into state, or pass cart callbacks through components that do not use them.
+- The cart stays a native modal dialog. Preserve add, increase, decrease, remove and clear, product-and-finish identity, saved-data validation, Escape, focus return and action focus recovery.
 
 ### Products API and data loading
 
-- tooling/products-api.ts is Vite dev and preview middleware. It serves RAHA products, not the course API.
-  - `GET /api/products` returns `{ items }` and is unchanged.
-  - `GET /api/products/:id` returns one product, or 404 with `{ "error": "Product not found" }`.
-  - The `/delay/<ms>` (max 8000), `/fail/<400-599>` and `/empty` switches go before `/api`, and `/empty` affects only the list.
-  - A static deployment of dist/ has no API.
-- `VITE_API_BASE` (src/features/products/api/api-base.ts) is the one base URL for the list and one-product requests. It may be empty, start with `/`, or be an http(s) URL. Vite reads it when the dev server starts or at build time.
-- src/features/products/api/products-resource.ts loads both requests with the unchanged Day 3 `fetchJson`, `parseProductsResponse` and `mapApiProduct`. One product is validated as a one-item list.
-  - The promises are cached, so React's `use()` gets a stable promise and there are no duplicate requests.
-  - A failed request stays cached until its retry function runs. Never start a new request from render after a failure.
-- The Products page uses Suspense and two Error Boundaries. The summary and the results each have one, keyed together by `attempt`.
-  - The search, filters and sort stay outside the boundaries.
-  - The protected Day 3 `loadProducts` is not used, because it cannot take a base URL.
-- ProductDetailsPage uses an Error Boundary keyed by product ID around Suspense.
-  - `ApiError` 404 shows the not-found view. Other errors show Try again, which calls `retryProduct`.
-  - Finish changes use the cached product.
+- products-api/ is a separate API that serves RAHA products (not the course API). Its JSON is generated from src/data.ts at build time and ignored by Git.
+  - `GET /api/products` returns `{ items }`; `GET /api/products/:id` returns one product or 404 with `{ "error": "Product not found" }`.
+  - `/delay/<ms>` (max 8000), `/fail/<400-599>` and `/empty` go before `/api`; `/empty` affects only the list.
+- src/lib/api/products.ts (`server-only`) is the only products API client. It requests the full `RAHA_API_URL` with the unchanged Day 3 `fetchJson`, `parseProductsResponse` and `mapApiProduct`; one product is validated as a one-item list. `getProducts` and `getProduct` use React `cache()`. Never fetch a relative URL, call the app's own routes, or read src/data.ts in place of the API for catalogue or product data.
+- `getProduct` returns `null` for 404, and the page calls `notFound()`; other errors are thrown to `error.tsx`.
+- `/products` is `force-dynamic`. It passes the unawaited `getProducts()` promise, a new `requestId` and the server's search to ProductsPage. CatalogueSummary and CatalogueResults read it with `use()` inside Suspense and two Error Boundaries reset by `requestId`. The search, filters and sort stay outside the boundaries. Try again calls `router.refresh()`.
+- API test switches: src/proxy.ts strips `/delay`, `/fail` and `/empty` from a page URL and passes them in the `x-raha-test-switches` header (deleted from every incoming request first); the client puts them in front of `/api`. They are on in development and in production only with `RAHA_TEST_SWITCHES=1`.
 
 ### Demo checkout and forms
 
 - Registration and contact remain non-sending demos with native validation, as before.
 - Forms that use react-hook-form have one Zod schema each through @hookform/resolvers. They do not transmit or store data, and do not take payment details. Do not invent delivery services, fees or prices.
-- The demo checkout (`/?page=checkout`, src/features/checkout) is a lazy page, linked from the cart when it has items.
+- The demo checkout (`/checkout`, src/features/checkout) is linked from the cart when it has items.
   - Fields: full name, email, street address, city, postal code and a required demo confirmation. Every rule is in checkout-schema.ts.
   - The order summary reads only useCartContext. An empty cart shows a message and a Products link.
   - Success shows a focused confirmation, keeps the cart and discards the values.
@@ -82,12 +80,12 @@ README.md is the source of truth for the component tree, routes, props, state ow
 
 ### Styles, Tailwind and shadcn/ui
 
-- Keep tokens in src/styles/tokens.css and active styles in src/styles/main.css. Use mobile-first min-width breakpoints at 768px and 1280px, no !important and no max-width layout queries. Avoid overflow at 360, 768 and 1280px.
-- Tailwind CSS v4 is used only for shadcn/ui components.
+- Keep tokens in src/styles/tokens.css and active styles in src/styles/main.css, both imported by the root layout. Use mobile-first min-width breakpoints at 768px and 1280px, no !important and no max-width layout queries. Avoid overflow at 360, 768 and 1280px.
+- Tailwind CSS v4 (through `@tailwindcss/postcss`) is used only for shadcn/ui components.
   - main.css imports only theme.css and utilities.css in cascade layers, with no preflight. Utilities are generated only from src/components/ui (`source(none)` and `@source`).
   - RAHA rules stay unlayered, so they win.
   - shadcn colour names in tokens.css point to existing RAHA tokens. Do not add new colours, dark-mode styles, `!` utilities or `max-*` variants.
-  - After a style setup change, compare computed styles of the existing pages with a baseline.
+  - After a style or framework change, compare computed styles of the existing pages with a baseline.
 - shadcn/ui files in src/components/ui (field, input, label, separator) are project code and follow every rule.
   - Add only components a feature uses, and review all CLI output before keeping it.
   - Use the RAHA Button. shadcn files import with `@/` and explicit extensions; RAHA files keep relative imports.
@@ -125,9 +123,10 @@ Keep these four kinds of evidence separate, and never claim more than the eviden
    - Catalogue cards animating on a fast API response.
    - The blank app on a failed page file download.
    - The shadcn CLI installing an unrelated `cn` package and writing an index key.
+   - During the Next.js migration: `useSearchParams` dropping typed search characters, the intro missing server-rendered content, a hash link losing its target while the page loaded, and a root `loading.tsx` hiding static pages behind a hidden copy.
 3. **The user's own manual verification after fixes.** This is not observation of the bugs before they were fixed.
    - React DevTools inspections, as recorded in README.
-   - Trying `VITE_API_BASE` with `/delay/3000`, `/fail/500` and `/empty`.
+   - Trying `VITE_API_BASE` (Vite version) with `/delay/3000`, `/fail/500` and `/empty`.
    - The checkout: empty submit, success, and the cart kept afterwards.
 4. **The user's own mistakes.** These are reported by the user in their own words. Record only what the user reports, and add a new one only after the user reports a real mistake.
    - **Delay test setup (reported by the user).** This was a problem with how the test was set up, not a bug in the app code.
@@ -147,11 +146,10 @@ The rules below come from these kinds of evidence. Each rule names its source.
 4. **Do not reset state with a `key` on a component that renders focusable children.** (Found by an automated focus check.) Reset only that state, derived or adjusted during render, and check keyboard focus after such a change.
 5. **Make effects safe to run twice.** (Found by an automated dev-mode check.) StrictMode re-runs effects when Suspense reveals content. Do not update refs in a way that changes the second run's result.
 6. **Put an Error Boundary around lazy pages, and recover from a failed `React.lazy` with a reload.** (Found by a review check.) Without it, one failed page file blanks the whole app, and resetting the boundary alone does not reload the file.
-7. **Before testing an API state, check the environment, the server and the URL together.** (The user's own mistake in the delay test setup.) Follow these steps in order:
-   1. Set `VITE_API_BASE` in the terminal that will start the server, and print it to confirm the value.
-   2. Start a new dev server from that same terminal. A server that is already running keeps the value it started with, and refreshing the browser does not change it.
-   3. Read the port Vite prints. If the port is busy, choose a free one with `--port`.
-   4. Open the URL with exactly that port.
-   5. In the Network tab, confirm the request path starts with the prefix, for example `/delay/3000/api/products`.
-
-   If the expected state does not appear, check these setup steps before suspecting the app code.
+7. **Before testing an API state, check the environment, the server and the URL together.** (The user's own mistake in the delay test setup, made with the Vite version's `VITE_API_BASE`.) With Next.js, follow these steps in order:
+   1. Start the products API and confirm it answers, for example `http://127.0.0.1:4000/api/products`.
+   2. Set `RAHA_API_URL` (and `RAHA_TEST_SWITCHES=1` for `npm run start`) in the terminal that will start Next.js, or in `.env.local`, and print it to confirm the value.
+   3. Start a new Next.js server from that terminal. A server that is already running keeps the values it started with, and refreshing the browser does not change them.
+   4. Read the port Next.js prints. If the port is busy, choose a free one with `--port`. Open exactly that URL, using `localhost` in development.
+   5. Open the page with the switch in front, for example `/delay/3000/products`, and confirm the result before suspecting the app code.
+8. **Do not drive a controlled input from state that updates later than the input.** (Found by an automated check during the Next.js migration.) `useSearchParams` updated after `history.replaceState`, so typing "Lamp" in the search field produced "Lp". Read such URL state synchronously (`useSyncExternalStore`), and test fast typing after changing how an input gets its value.

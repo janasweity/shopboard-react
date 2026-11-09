@@ -1,6 +1,9 @@
+'use client'
+
 import { useState } from 'react'
 import type { heroSlides } from '../../data/hero-slides.ts'
-import { handleRouteClick } from '../../app/navigation.ts'
+import Link from 'next/link'
+import { toAppHref } from '../../lib/routes.ts'
 import Button from '../../components/Button.tsx'
 import StatusMessage from '../../components/StatusMessage.tsx'
 import { slideTitleLines } from './slide-title.ts'
@@ -33,13 +36,9 @@ export default function RoomSlider({ slides }: Props) {
             : slide.label}
         </h2>
         <p className="hero-description">{slide.description}</p>
-        <a
-          href={slide.href}
-          className="button hero-cta"
-          onClick={handleRouteClick}
-        >
+        <Link href={toAppHref(slide.href)} className="button hero-cta">
           Explore the look <span aria-hidden="true">{'\u2197'}</span>
-        </a>
+        </Link>
         <div className="hero-controls" role="group" aria-label="Choose a room">
           {slides.map((item) => (
             <Button

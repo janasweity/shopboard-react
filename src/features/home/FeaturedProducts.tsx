@@ -1,5 +1,5 @@
 import type { Product } from '../../modules/products/products.types.ts'
-import { handleRouteClick } from '../../app/navigation.ts'
+import Link from 'next/link'
 import ProductGrid from '../products/components/ProductGrid.tsx'
 
 interface Props {
@@ -27,13 +27,9 @@ export default function FeaturedProducts({ products }: Props) {
           <p className="eyebrow">FAVOURITES FROM OUR LIVING COLLECTIONS</p>
           <h2 id="bestsellers-title">Soft forms. Grounded living.</h2>
         </div>
-        <a
-          href="/?page=products"
-          className="text-link"
-          onClick={handleRouteClick}
-        >
+        <Link href="/products" className="text-link">
           View all products <span aria-hidden="true">{'\u2197'}</span>
-        </a>
+        </Link>
       </div>
       <ProductGrid products={featured} />
       <p className="collection-footnote">

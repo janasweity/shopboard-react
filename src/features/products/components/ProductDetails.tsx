@@ -1,27 +1,27 @@
-import { use } from 'react'
+'use client'
+
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   categoryName,
   collectionName,
   getVariant,
   money,
 } from '../../../data.ts'
-import {
-  handleRouteClick,
-  replaceProductColor,
-} from '../../../app/navigation.ts'
+import type { Product } from '../../../modules/products/products.types.ts'
+import { replaceProductColor } from '../../../lib/routes.ts'
 import Button from '../../../components/Button.tsx'
 import { useCartContext } from '../../cart/cart-context.ts'
 import {
   entranceDelay,
   useEntranceMotion,
 } from '../../entrance/entrance-motion.ts'
-import { readProduct } from '../api/products-resource.ts'
 import ProductGallery from './ProductGallery.tsx'
 import VariantSelector from './VariantSelector.tsx'
 
 interface Props {
-  readonly productId: string
-  readonly colorId: string | null
+  // Loaded by the products/[id] Server Component from the products API.
+  readonly product: Product
 }
 
 const defaultCare = {
@@ -31,13 +31,11 @@ const defaultCare = {
     'Wipe gently with a soft, slightly damp cloth and dry promptly. Avoid abrasive cleaners.',
 }
 
-export default function ProductDetails({ productId, colorId }: Props) {
-  // Suspends until GET /api/products/:id answers. Errors go to the nearest
-  // Error Boundary in ProductDetailsPage.
-  const product = use(readProduct(productId))
+export default function ProductDetails({ product }: Props) {
   const { add } = useCartContext()
   // The selected finish is derived from the URL, so refresh and links keep it.
-  const variant = getVariant(product, colorId)
+  // Choosing a finish only replaces ?color=, with no new server request.
+  const variant = getVariant(product, useSearchParams().get('color'))
   const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
   const care =
     product.care ||
@@ -46,13 +44,9 @@ export default function ProductDetails({ productId, colorId }: Props) {
   return (
     <>
       <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <a href="/" onClick={handleRouteClick}>
-          Home
-        </a>
+        <Link href="/">Home</Link>
         <span aria-hidden="true">/</span>
-        <a href="/?page=products" onClick={handleRouteClick}>
-          Products
-        </a>
+        <Link href="/products">Products</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{product.name}</span>
       </nav>
@@ -71,13 +65,12 @@ export default function ProductDetails({ productId, colorId }: Props) {
           <h1 className={titleMotion.className} style={titleMotion.style}>
             {product.name}
           </h1>
-          <a
+          <Link
             className="text-link detail-collection"
-            href={'/?page=products&collection=' + product.collection}
-            onClick={handleRouteClick}
+            href={'/products?collection=' + product.collection}
           >
             {collectionName(product.collection)}
-          </a>
+          </Link>
           <div className="variant-summary" aria-live="polite">
             <p className="detail-price">{money(variant.price)}</p>
             <p id="variant-availability">{variant.availability}</p>
@@ -112,13 +105,9 @@ export default function ProductDetails({ productId, colorId }: Props) {
             Illustrative product specifications. Local demo cart only; the demo
             checkout creates no order and takes no payment.
           </p>
-          <a
-            href="/?page=products"
-            className="text-link"
-            onClick={handleRouteClick}
-          >
+          <Link href="/products" className="text-link">
             {'←'} Back to all products
-          </a>
+          </Link>
         </div>
       </section>
     </>

@@ -1,9 +1,13 @@
 import { use } from 'react'
-import { readCatalogue } from '../api/products-resource.ts'
+import type { Product } from '../../../modules/products/products.types.ts'
 
-export default function CatalogueSummary() {
-  // Reads the same cached request as CatalogueResults, so no second request.
-  const products = use(readCatalogue())
+interface Props {
+  // The same list request as CatalogueResults, so no second request.
+  readonly products: Promise<Product[]>
+}
+
+export default function CatalogueSummary({ products: request }: Props) {
+  const products = use(request)
   return (
     <p id="catalogue-summary">
       {products.length} considered pieces. So many ways to make them yours.

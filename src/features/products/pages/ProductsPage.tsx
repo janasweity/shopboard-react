@@ -1,30 +1,45 @@
-import { Suspense, useRef, useState } from 'react'
-import { replaceProductSelection } from '../../../app/navigation.ts'
-import type { ProductSelection } from '../../../modules/products/products.types.ts'
+'use client'
+
+import { Suspense, useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { replaceProductSelection } from '../../../lib/routes.ts'
+import type { Product } from '../../../modules/products/products.types.ts'
 import ErrorBoundary from '../../../components/ErrorBoundary.tsx'
 import StatusMessage from '../../../components/StatusMessage.tsx'
-import { retryCatalogue } from '../api/products-resource.ts'
 import CatalogueControls from '../components/CatalogueControls.tsx'
 import CatalogueResults from '../components/CatalogueResults.tsx'
 import CatalogueSummary from '../components/CatalogueSummary.tsx'
+import { useProductSelection } from '../useProductSelection.ts'
 import {
   entranceDelay,
   useEntranceMotion,
 } from '../../entrance/entrance-motion.ts'
 
 interface Props {
-  readonly selection: ProductSelection
+  // Started by the products Server Component and not awaited, so the page
+  // streams and only the results wait.
+  readonly products: Promise<Product[]>
+  // New for every server render; a retry that brings new data clears errors.
+  readonly requestId: string
+  // The URL search the server rendered, for example '?q=lamp'.
+  readonly initialSearch: string
 }
 
 const summaryFallback = (
   <p id="catalogue-summary">Explore our considered collection.</p>
 )
 
-export default function ProductsPage({ selection }: Props) {
+export default function ProductsPage({
+  products,
+  requestId,
+  initialSearch,
+}: Props) {
   const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
-  // Each Try again remounts both boundaries below, so the summary and the
-  // results read the new request together.
-  const [attempt, setAttempt] = useState(0)
+  // Search, filter and sort live in the URL and are changed with
+  // history.replaceState, so they never start a server request.
+  const selection = useProductSelection(initialSearch)
+  const router = useRouter()
+  const [retrying, startRetry] = useTransition()
   // Try again removes its own button, so focus moves to the results region.
   const resultsRegion = useRef<HTMLDivElement>(null)
 
@@ -34,8 +49,8 @@ export default function ProductsPage({ selection }: Props) {
   }
 
   function tryAgain(): void {
-    retryCatalogue()
-    setAttempt((value) => value + 1)
+    // The server renders the page again with a new request and requestId.
+    startRetry(() => router.refresh())
     resultsRegion.current?.focus()
   }
 
@@ -46,9 +61,9 @@ export default function ProductsPage({ selection }: Props) {
         <h1 className={titleMotion.className} style={titleMotion.style}>
           Find your everyday favourites.
         </h1>
-        <ErrorBoundary key={attempt} fallback={() => summaryFallback}>
+        <ErrorBoundary resetKey={requestId} fallback={() => summaryFallback}>
           <Suspense fallback={summaryFallback}>
-            <CatalogueSummary />
+            <CatalogueSummary products={products} />
           </Suspense>
         </ErrorBoundary>
       </section>
@@ -62,15 +77,22 @@ export default function ProductsPage({ selection }: Props) {
         />
         <div id="catalogue-results" ref={resultsRegion} tabIndex={-1}>
           <ErrorBoundary
-            key={attempt}
+            resetKey={requestId}
             fallback={() => (
               <>
                 <div id="catalogue-status">
-                  <StatusMessage
-                    kind="error"
-                    message="We could not load the catalogue. Please try again."
-                    onRetry={tryAgain}
-                  />
+                  {retrying ? (
+                    <StatusMessage
+                      kind="loading"
+                      message="Loading products..."
+                    />
+                  ) : (
+                    <StatusMessage
+                      kind="error"
+                      message="We could not load the catalogue. Please try again."
+                      onRetry={tryAgain}
+                    />
+                  )}
                 </div>
                 <div id="catalog-grid" />
               </>
@@ -89,7 +111,11 @@ export default function ProductsPage({ selection }: Props) {
                 </>
               }
             >
-              <CatalogueResults selection={selection} onReset={reset} />
+              <CatalogueResults
+                products={products}
+                selection={selection}
+                onReset={reset}
+              />
             </Suspense>
           </ErrorBoundary>
         </div>

@@ -7,3 +7,7 @@ package-lock.json
 
 # Keep third-party skill contents identical to upstream
 .claude/skills/
+
+# Next.js build output and generated types
+.next/
+next-env.d.ts

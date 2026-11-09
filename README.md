@@ -1,30 +1,36 @@
 # RAHA React
 
-RAHA is a concept furniture and home store. This repository is the React + TypeScript version of the Day 3 ShopBoard project. The Day 3 repository is kept unchanged. Its typed product, cart, room and state modules are reused here unchanged, and the whole UI is rebuilt in React.
+RAHA is a concept furniture and home store. This repository is the React + TypeScript version of the Day 3 ShopBoard project, built with the Next.js App Router. The Day 3 repository is kept unchanged. Its typed product, cart, room and state modules are reused here unchanged, and the whole UI is built in React.
+
+The products shown on the catalogue and product pages come from a separate products API in `products-api/`. The Next.js app requests it from Server Components; it never calls itself.
 
 ## Setup
 
 Run all commands from the folder that contains package.json. You need Node.js 22.22.1 or newer and npm. In PowerShell, use `npm.cmd` if the execution policy blocks `npm.ps1`.
 
 ```sh
-npm ci            # install exact dependencies; also installs the Husky hook
-npm run dev       # start Vite with the local /api/products endpoint
-npm run build     # type-check (tsc -b) and build for production
-npm run preview   # serve the production build, also with /api/products
+npm ci              # install exact dependencies; also installs the Husky hook
+npm run api:build   # generate products-api/generated/products.json from src/data.ts
+npm run api:start   # start the products API on http://127.0.0.1:4000
+npm run dev         # start Next.js on http://localhost:5173 (second terminal)
+npm run build       # production build (Next.js runs the TypeScript check)
+npm run start       # serve the production build on http://localhost:4173
 ```
 
-`npm run dev` uses port 5173 with `strictPort`. If that port is busy, choose another one, for example `npm run dev -- --port 5174`.
+`RAHA_API_URL` must be the full URL of the products API, for example `http://127.0.0.1:4000`. Put `RAHA_API_URL=http://127.0.0.1:4000` in `.env.local` (Git ignores `*.local`), or set it in the terminal before `npm run dev` or `npm run start`. Without it, the catalogue and product pages show their error state.
+
+In development, open `http://localhost:5173`. Next.js blocks its development resources, such as hot reload, for other origins like `127.0.0.1`.
 
 ## Verification commands
 
 ```sh
-npm run typecheck     # strict TypeScript for the app and the Vite config
+npm run typecheck     # next typegen, then strict TypeScript for the app, next.config.ts and products-api
 npm run lint          # Oxlint, fails on any warning
 npm run format:check  # Prettier check (npm run format applies it)
 npm run build
 ```
 
-Lint rejects `any`, type assertions, non-null assertions and error-suppression comments. The pre-commit hook (`.husky/pre-commit`) runs lint-staged: staged JS/TS files are formatted and then linted, and staged JSON/CSS/HTML/Markdown/YAML files are formatted. Vendored skill files are excluded from lint and formatting.
+Lint rejects `any`, type assertions, non-null assertions and error-suppression comments. Its `react/only-export-components` rule allows the Next.js file exports `metadata`, `generateMetadata`, `viewport` and `dynamic`. The pre-commit hook (`.husky/pre-commit`) runs lint-staged: staged JS/TS files are formatted and then linted, and staged JSON/CSS/HTML/Markdown/YAML files are formatted. Vendored skill files, `.next/` and `next-env.d.ts` are excluded from lint and formatting.
 
 ## Project skills
 
@@ -33,6 +39,20 @@ Both required skills are installed as real files and tracked in Git. `skills-loc
 - `.claude/skills/vercel-react-best-practices/`
 - `.claude/skills/vercel-composition-patterns/`
 
+## Next.js setup
+
+| Package or file                                 | Purpose                                                                                              |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `next` 16.4.5                                   | App Router, Server Components, routing, streaming and the production server                          |
+| `server-only`                                   | Makes the build fail if the server API client is imported into a Client Component                    |
+| `@tailwindcss/postcss` and `postcss.config.mjs` | Tailwind CSS v4 for the shadcn/ui components (replaces `@tailwindcss/vite`)                          |
+| `next.config.ts`                                | Type-checks `tsconfig.app.json`, sets the Turbopack root, and serves `/favicon.ico` from `/raha.svg` |
+| `src/proxy.ts`                                  | Next.js 16 proxy (formerly middleware): legacy redirects and API test switches                       |
+
+React 19.3.1 and TypeScript 7.0.2 are unchanged. Next.js type-checks with the project's own `tsc` command, which works with TypeScript 7. `next dev` and `next typegen` add Next.js settings to `tsconfig.app.json` (`plugins`, `.next/types`, `allowJs`, `incremental`, `esModuleInterop`, `resolveJsonModule`); `strict` stays on. `next dev` also adds a block to AGENTS.md that points agents to the Next.js documentation in `node_modules/next/dist/docs/`.
+
+Vite, its plugins, `index.html`, `src/main.tsx`, the Vite middleware and the hand-written router were removed.
+
 ## Form libraries and shadcn/ui
 
 They are used by the demo checkout (see "Demo checkout").
@@ -40,28 +60,28 @@ They are used by the demo checkout (see "Demo checkout").
 | Package                                              | Purpose                                                        |
 | ---------------------------------------------------- | -------------------------------------------------------------- |
 | `react-hook-form`, `zod`, `@hookform/resolvers`      | Form state, one validation schema, and the bridge between them |
-| `tailwindcss`, `@tailwindcss/vite` (dev)             | Tailwind CSS v4, which shadcn/ui components are styled with    |
+| `tailwindcss`, `@tailwindcss/postcss` (dev)          | Tailwind CSS v4, which shadcn/ui components are styled with    |
 | `class-variance-authority`, `clsx`, `tailwind-merge` | Used by the shadcn/ui components and `cn`                      |
 | `radix-ui`                                           | Accessible primitives under the shadcn Label and Separator     |
 
 shadcn/ui files:
 
-- `components.json`: the shadcn CLI settings. Its CSS file is `src/styles/main.css`.
+- `components.json`: the shadcn CLI settings. `rsc` is `true`, and its CSS file is `src/styles/main.css`.
 - `src/lib/utils.ts`: `cn()`, which joins class names and resolves conflicting Tailwind classes.
 - `src/components/ui/`: only `field.tsx`, `input.tsx` and `label.tsx`, plus `separator.tsx`, which `field.tsx` uses. They were added with `npx shadcn@latest add field input label`. No shadcn Button was added: the RAHA `Button` stays the only button.
   - Changes from the CLI output, made to follow the project rules:
     - Imports use `@/lib/utils.ts` and `.tsx` extensions. The CLI had imported `cn` from an unrelated npm package called `cn` and installed it; that package was removed.
     - `FieldError` keys its list by the error message instead of the array index and uses `===`.
-    - An unused `"use client"` line was removed.
+    - An unused `"use client"` line was removed. They are imported only by Client Components.
     - Prettier formatted the files.
-- `@/` points to `src/`. It is set in `tsconfig.json`, `tsconfig.app.json` (`paths`) and `vite.config.ts` (`resolve.alias`). The shadcn files use it; RAHA files keep relative imports.
+- `@/` points to `src/` (`paths` in `tsconfig.json` and `tsconfig.app.json`). The shadcn files use it; RAHA files keep relative imports.
 
 How RAHA's design is kept:
 
 - `main.css` imports only Tailwind's `theme.css` and `utilities.css`. Preflight, Tailwind's global reset, is not imported, so RAHA's base styles for headings, buttons, links and forms are not reset.
-- Utilities are generated only from `src/components/ui` (`source(none)` and `@source`). Tailwind output sits in cascade layers, so the unlayered RAHA rules always win when both style the same element. For example, RAHA's `input` rule keeps the field look.
-- shadcn colour names (`--background`, `--primary`, `--border`, `--ring` and so on) are defined in `tokens.css` and point to existing RAHA tokens. No new colours were added. `--destructive` uses the RAHA ink colour until the form design chooses an error style.
-- `dark:` classes apply only inside a `.dark` element, which RAHA never uses, so the operating system's dark mode cannot restyle components.
+- Utilities are generated only from `src/components/ui` (`source(none)` and `@source`). Tailwind output sits in cascade layers, so the unlayered RAHA rules always win when both style the same element.
+- shadcn colour names (`--background`, `--primary`, `--border`, `--ring` and so on) are defined in `tokens.css` and point to existing RAHA tokens. No new colours were added. `--destructive` uses the RAHA ink colour.
+- `dark:` classes apply only inside a `.dark` element, which RAHA never uses.
 - Tailwind's `md` (768px) and `xl` (1280px) match RAHA's breakpoints. Do not use `max-*` variants or `!` (important) utilities.
 
 ## Reused Day 3 modules
@@ -77,81 +97,120 @@ These 23 files are byte-identical copies of the Day 3 originals, at the same rel
 - `src/data.ts`, `src/data/*.ts` (catalogue data, imagery, inspiration rooms, hero slides)
 - `src/product-gallery.ts`
 
-The Day 3 `ApiError` class uses a constructor parameter property. That syntax is rejected by `erasableSyntaxOnly`, so `tsconfig.app.json` sets `erasableSyntaxOnly: false`; `strict` stays on.
+The Day 3 `ApiError` class uses a constructor parameter property. That syntax is rejected by `erasableSyntaxOnly`, so `tsconfig.app.json` sets `erasableSyntaxOnly: false`; `strict` stays on. Next.js compiles it normally.
+
+Day 3 data still contains old query-string links (`productURL()` and the hero-slide `href` values). React code uses `productPath()` and `toAppHref()` from `src/lib/routes.ts` instead, so links go straight to the new paths.
+
+## Routes
+
+The App Router lives in `src/app/`. The root layout keeps the shared header, footer, cart and intro around every page.
+
+| URL                                                 | Page (file)                                      | Rendering                                                                          |
+| --------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `/`                                                 | `src/app/page.tsx`, HomePage                     | Static; six featured pieces from the static catalogue                              |
+| `/products` (`q`, `category`, `collection`, `sort`) | `src/app/products/page.tsx`, ProductsPage        | Dynamic; the list streams from the API                                             |
+| `/products/[id]` (`color`)                          | `src/app/products/[id]/page.tsx`, ProductDetails | Dynamic; one product from the API, with its own loading, error and not-found files |
+| `/inspiration`                                      | `src/app/inspiration/page.tsx`, InspirationPage  | Static                                                                             |
+| `/about`                                            | `src/app/about/page.tsx`, AboutPage              | Static                                                                             |
+| `/checkout`                                         | `src/app/checkout/page.tsx`, CheckoutPage        | Static shell; the cart is read in the browser                                      |
+| any other path                                      | `src/app/not-found.tsx`, NotFoundPage            | Status 404                                                                         |
+
+Next.js splits each route into its own files and loads them when a route opens.
+
+Redirects (`src/proxy.ts`, status 307, with `redirectPath()` from `src/lib/routes.ts`):
+
+- Old query-string URLs keep working: `/?page=products&…` goes to `/products?…`, `/?page=product&id=x&color=y` to `/products/x?color=y`, and `/?page=about`, `inspiration` and `checkout` to their paths.
+- Old category and collection pages (for example `/?page=living-room`) and category aliases go to the matching Products filter.
+- Retired product IDs, as an old URL or as `/products/<id>`, go to their category in Products.
+
+Page titles use `metadata` and `generateMetadata` (product name), with the template `%s | RAHA`.
 
 ## Component tree
 
-Every component lives in its own `.tsx` file. Arrows show what a component renders. Plain HTML elements are not listed.
+Every component lives in its own `.tsx` file. Arrows show what a component renders. Plain HTML elements are not listed. Server Components have no marker; Client Component boundaries are marked `(client)`, and everything they render runs in the browser too.
 
 ```text
-App                                        src/App.tsx
-└── CartProvider                           src/features/cart/CartProvider.tsx
-    ├── SiteHeader                         src/features/layout/SiteHeader.tsx
-    ├── main
-    │   ├── Suspense (fallback: StatusMessage "Loading page...")
-    │   │   AppRoute                       src/app/AppRoute.tsx  (renders one lazily loaded page)
-    │   │   ├── HomePage                   src/features/home/HomePage.tsx
-    │   │   │   ├── Hero                   src/features/home/Hero.tsx
-    │   │   │   ├── FeaturedProducts       src/features/home/FeaturedProducts.tsx
-    │   │   │   │   └── ProductGrid        src/features/products/components/ProductGrid.tsx
-    │   │   │   │       └── ProductCard    src/features/products/components/ProductCard.tsx
-    │   │   │   │           └── Button     src/components/Button.tsx
-    │   │   │   ├── RoomSlider             src/features/home/RoomSlider.tsx
-    │   │   │   │   ├── Button
-    │   │   │   │   └── StatusMessage      src/components/StatusMessage.tsx
-    │   │   │   └── RegistrationSection    src/features/forms/RegistrationSection.tsx
-    │   │   │       ├── FormField          src/components/FormField.tsx
-    │   │   │       └── Button
-    │   │   ├── ProductsPage               src/features/products/pages/ProductsPage.tsx
-    │   │   │   ├── ErrorBoundary → Suspense (fallback: "Explore our considered collection.")
-    │   │   │   │   └── CatalogueSummary   src/features/products/components/CatalogueSummary.tsx
-    │   │   │   ├── CatalogueControls      src/features/products/components/CatalogueControls.tsx
-    │   │   │   │   ├── FormField
-    │   │   │   │   └── Button
-    │   │   │   └── ErrorBoundary          (error: StatusMessage with Try again)
-    │   │   │       └── Suspense           (fallback: StatusMessage "Loading products...")
-    │   │   │           └── CatalogueResults  src/features/products/components/CatalogueResults.tsx
-    │   │   │               ├── StatusMessage  (empty, no-match or result count)
-    │   │   │               └── EntranceContext (null) → ProductGrid → ProductCard → Button
-    │   │   ├── ProductDetailsPage         src/features/products/pages/ProductDetailsPage.tsx
-    │   │   │   └── ErrorBoundary          src/components/ErrorBoundary.tsx  (keyed by product ID)
-    │   │   │       ├── error: NotFoundPage for 404, or StatusMessage with Try again
-    │   │   │       └── Suspense (fallback: StatusMessage "Loading product...")
-    │   │   │           └── ProductDetails src/features/products/components/ProductDetails.tsx
-    │   │   │               ├── ProductGallery   src/features/products/components/ProductGallery.tsx
-    │   │   │               │   └── VariantSelector  src/features/products/components/VariantSelector.tsx
-    │   │   │               └── Button
-    │   │   ├── InspirationPage            src/features/rooms/InspirationPage.tsx
-    │   │   │   ├── RoomSection (×3)       src/features/rooms/RoomSection.tsx
-    │   │   │   └── RoomCalculator         src/features/rooms/RoomCalculator.tsx
-    │   │   │       ├── FormField
-    │   │   │       └── Button
-    │   │   ├── AboutPage                  src/features/about/AboutPage.tsx
-    │   │   │   └── ContactForm            src/features/about/ContactForm.tsx
-    │   │   │       ├── FormField
-    │   │   │       └── Button
-    │   │   ├── CheckoutPage               src/features/checkout/CheckoutPage.tsx
-    │   │   │   ├── StatusMessage + link to Products (empty cart)
-    │   │   │   ├── CheckoutForm           src/features/checkout/CheckoutForm.tsx  (or the confirmation + Button)
-    │   │   │   │   ├── FieldGroup, Field, FieldLabel, FieldDescription, FieldError  src/components/ui/field.tsx
-    │   │   │   │   ├── Input (×5)         src/components/ui/input.tsx
-    │   │   │   │   └── Button
-    │   │   │   └── OrderSummary           src/features/checkout/OrderSummary.tsx
-    │   │   └── NotFoundPage               src/pages/NotFoundPage.tsx
-    │   │       └── StatusMessage
-    │   └── CartStatus (live region)       src/features/cart/CartStatus.tsx
-    ├── SiteFooter                         src/features/layout/SiteFooter.tsx
-    ├── CartDialog                         src/features/cart/CartDialog.tsx
-    │   ├── CartLineItem (one per line)    src/features/cart/CartLineItem.tsx
-    │   │   └── QuantityControl            src/features/cart/QuantityControl.tsx
-    │   ├── link "Review demo order" (when the cart has items)
+RootLayout                                 src/app/layout.tsx  (html, body, global CSS, metadata)
+└── AppShell (client)                      src/features/layout/AppShell.tsx
+    └── EntranceContext → CartProvider     src/features/cart/CartProvider.tsx
+        ├── SiteHeader                     src/features/layout/SiteHeader.tsx
+        ├── main
+        │   ├── page (one of the routes below, inside src/app/error.tsx for page errors)
+        │   └── CartStatus (live region)   src/features/cart/CartStatus.tsx
+        ├── SiteFooter                     src/features/layout/SiteFooter.tsx
+        ├── CartDialog                     src/features/cart/CartDialog.tsx
+        │   ├── CartLineItem (one per line) src/features/cart/CartLineItem.tsx
+        │   │   └── QuantityControl        src/features/cart/QuantityControl.tsx
+        │   ├── Link "Review demo order" (when the cart has items)
+        │   └── Button
+        └── EntranceOverlay (while playing) src/features/entrance/EntranceOverlay.tsx
+
+/                src/app/page.tsx
+└── HomePage                               src/features/home/HomePage.tsx
+    ├── Hero (client)                      src/features/home/Hero.tsx
+    ├── FeaturedProducts                   src/features/home/FeaturedProducts.tsx
+    │   └── ProductGrid                    src/features/products/components/ProductGrid.tsx
+    │       └── ProductCard (client)       src/features/products/components/ProductCard.tsx
+    │           └── Button                 src/components/Button.tsx
+    ├── RoomSlider (client)                src/features/home/RoomSlider.tsx
+    │   ├── Button
+    │   └── StatusMessage                  src/components/StatusMessage.tsx
+    └── RegistrationSection (client)       src/features/forms/RegistrationSection.tsx
+        ├── FormField                      src/components/FormField.tsx
+        └── Button
+
+/products        src/app/products/page.tsx  (starts getProducts(), not awaited)
+└── ProductsPage (client)                  src/features/products/pages/ProductsPage.tsx
+    ├── ErrorBoundary → Suspense ("Explore our considered collection.")
+    │   └── CatalogueSummary               src/features/products/components/CatalogueSummary.tsx
+    ├── CatalogueControls                  src/features/products/components/CatalogueControls.tsx
+    │   ├── FormField
     │   └── Button
-    └── EntranceOverlay (while playing)    src/features/entrance/EntranceOverlay.tsx
+    └── ErrorBoundary (error: StatusMessage with Try again)   src/components/ErrorBoundary.tsx
+        └── Suspense (StatusMessage "Loading products...")
+            └── CatalogueResults           src/features/products/components/CatalogueResults.tsx
+                ├── StatusMessage (empty, no-match or result count)
+                └── EntranceContext (null) → ProductGrid → ProductCard → Button
+
+/products/[id]   src/app/products/[id]/page.tsx  (awaits getProduct(id))
+├── loading.tsx: StatusMessage "Loading product..."
+├── error.tsx (client): heading and StatusMessage with Try again (retry())
+├── not-found.tsx: NotFoundPage "We couldn't find that product."
+└── ProductDetails (client)                src/features/products/components/ProductDetails.tsx
+    ├── ProductGallery                     src/features/products/components/ProductGallery.tsx
+    │   └── VariantSelector                src/features/products/components/VariantSelector.tsx
+    └── Button
+
+/inspiration     src/app/inspiration/page.tsx
+└── InspirationPage (client)               src/features/rooms/InspirationPage.tsx
+    ├── RoomSection (×3)                   src/features/rooms/RoomSection.tsx
+    └── RoomCalculator                     src/features/rooms/RoomCalculator.tsx
+        ├── FormField
+        └── Button
+
+/about           src/app/about/page.tsx
+└── AboutPage (client)                     src/features/about/AboutPage.tsx
+    └── ContactForm                        src/features/about/ContactForm.tsx
+        ├── FormField
+        └── Button
+
+/checkout        src/app/checkout/page.tsx
+└── CheckoutPage (client)                  src/features/checkout/CheckoutPage.tsx
+    ├── StatusMessage + Link to Products (empty cart)
+    ├── CheckoutForm                       src/features/checkout/CheckoutForm.tsx  (or the confirmation + Button)
+    │   ├── FieldGroup, Field, FieldLabel, FieldDescription, FieldError  src/components/ui/field.tsx
+    │   ├── Input (×5)                     src/components/ui/input.tsx
+    │   └── Button
+    └── OrderSummary                       src/features/checkout/OrderSummary.tsx
+
+not found        src/app/not-found.tsx
+└── NotFoundPage (client)                  src/features/not-found/NotFoundPage.tsx
+    └── StatusMessage
 ```
 
-App wraps everything in `EntranceContext` (`src/features/entrance/entrance-motion.ts`). Hero, ProductCard, CatalogueControls and every page heading read it through `useEntranceMotion`.
+AppShell provides `EntranceContext` (`src/features/entrance/entrance-motion.ts`). Hero, ProductCard, CatalogueControls and every page heading read it through `useEntranceMotion`.
 
-Inside it, `CartProvider` shares the cart through `CartContext` (`src/features/cart/cart-context.ts`). SiteHeader, ProductCard, ProductDetails, CartDialog, CartStatus, CheckoutPage and OrderSummary read it with `useCartContext`. Components between App and these consumers no longer receive cart props.
+Inside it, `CartProvider` shares the cart through `CartContext` (`src/features/cart/cart-context.ts`). SiteHeader, ProductCard, ProductDetails, CartDialog, CartStatus, CheckoutPage and OrderSummary read it with `useCartContext`. Components between the layout and these consumers do not receive cart props.
 
 Why a Context provider:
 
@@ -161,96 +220,65 @@ Why a Context provider:
 - Zustand is a possible alternative and could also be used without duplicating the cart state. It is not needed for the current requirements.
 - Trade-off: every Context consumer re-renders when the cart value changes, including each ProductCard. Cart changes come only from user clicks, so this is acceptable here.
 
-## Lazy-loaded pages
+`VariantSelector` is written inside `ProductDetails` and passed to `ProductGallery` as `children`, so it renders between the main photo and the thumbnails.
 
-The lazy pages are declared once, at module level, in `src/app/lazy-pages.ts` with `React.lazy` and a dynamic `import()`: HomePage, ProductsPage, ProductDetailsPage, InspirationPage, AboutPage, CheckoutPage and NotFoundPage. AppRoute imports them. Vite builds each page into its own JavaScript file, and the browser downloads it the first time that page opens.
+## Server and Client Components
 
-In App, a `Suspense` boundary wraps only AppRoute. While a page file downloads, it shows `StatusMessage` with "Loading page...". SiteHeader, SiteFooter, the cart dialog and CartStatus stay on screen and usable.
+- `'use client'` is placed only where a Server Component imports a component that needs hooks, events or Context: AppShell, Hero, ProductCard, RoomSlider, RegistrationSection, ProductsPage, ProductDetails, InspirationPage, AboutPage, CheckoutPage, NotFoundPage, ErrorBoundary and the two `error.tsx` files. Everything those components import runs in the browser as well.
+- The route files, HomePage, FeaturedProducts and ProductGrid are Server Components. Server Components pass only plain data (products, strings and promises) to Client Components.
+- The cart is browser-only state. `useCart` gives `useSyncExternalStore` an empty server snapshot, so the server HTML and hydration show an empty cart (count 0); React then switches to the saved `raha-cart` without a hydration mismatch. The cart count therefore shows 0 for a moment after a refresh.
+- The Day 3 `state.ts` reads `localStorage` when it is imported, including during the server render. Its own `try/catch` returns an empty cart there, so no Day 3 file needed a change, and the server never changes that cart. On Node.js 26, the server prints an experimental-feature warning when `localStorage` is touched without a storage file; it is a server log line, not a browser Console message.
+- Search, filter and sort are read by `useProductSelection` (`useSyncExternalStore` on `location.search`, with the server's search for hydration) and written with `history.replaceState`. Reading them through `useSearchParams` dropped characters while typing, because it updates later than the controlled field.
+- `useRouteFocus` (`src/features/layout/useRouteFocus.ts`) moves focus to main after a page change, or to the hash target once it appears (for example `/about#returns`). Changing only the search or the finish keeps the pathname, so focus stays where it is.
+- The entrance intro starts in an effect after hydration. `useEntranceMotion` animates only content that was rendered on the server (it reads a hydration flag once, with `useSyncExternalStore`); content that mounts later, such as catalogue cards streamed from the API, appears normally. CatalogueResults also provides `EntranceContext` as `null`.
 
-An `ErrorBoundary` wraps that `Suspense` boundary, so a page file that cannot download breaks only the page area.
+## Products API client and data loading
 
-- It shows the h1 "This page could not be loaded." and StatusMessage with Try again. The header, footer, cart and other pages keep working.
-- `React.lazy` keeps a failed import and throws the same error on every later render. Resetting the boundary alone would show the error again, so Try again calls `window.location.reload()`. The new document downloads the page file again. The cart is restored from `raha-cart`, while unsaved input on the page is lost.
-- The boundary has `resetKey={page}`, so opening another page clears the error and moves focus to main. Returning to the page that failed in the same visit shows the error again until Try again.
-- Recreating the lazy component at run time instead of reloading was tried. Oxlint's `react/static-components` rule rejects it, because a component chosen during render resets its state, so the rule was kept and reloading is used.
+`src/lib/api/products.ts` is the shared products API client. It imports `server-only`, so it can be used only by Server Components.
 
-Two parts of the app wait for the page:
+- It requests `RAHA_API_URL + /api/products` and `RAHA_API_URL + /api/products/:id` with the Day 3 `fetchJson`, unchanged. The list is checked with the Day 3 `parseProductsResponse`; one product is checked as a one-item list. `mapApiProduct` converts cents to dollars.
+- `getProducts()` and `getProduct(id)` are wrapped in React `cache()`, so a page and its `generateMetadata` share one request.
+- `getProduct` returns `null` for a 404, and the page calls `notFound()`. Other errors (server error, network error, invalid data, a different ID) are thrown.
+- `RAHA_API_URL` is read on the server at request time and must be a full `http(s)` URL. It is not sent to the browser.
 
-- `useRouteFocus` (`src/app/useRouteFocus.ts`) runs inside AppRoute, so it moves focus and scrolls only after the page is on screen. Hash links such as `/?page=about#returns` therefore find their target on a page that was not loaded yet.
-- The entrance intro starts once the first page is shown. AppRoute calls `onReady`, which sets `pageReady` in App, and `useEntrance` waits for it. The page content is then mounted before the intro starts, so the original arrival motion still applies to it.
-  - Catalogue cards never animate, as in the original. CatalogueResults wraps them in `EntranceContext` with the value `null`.
-  - The product details h1 animates only when `/api/products/:id` answers before the page is first shown. React briefly waits before showing a Suspense fallback, so a fast local answer arrives in time, while a slow one (tested with 1500 ms) does not.
+Catalogue (`/products`):
 
-## Product details from the API
+- The page is `force-dynamic`. It starts `getProducts()` without awaiting it and passes the promise, a new `requestId` and the server's URL search to ProductsPage.
+- CatalogueSummary and CatalogueResults read the promise with `use()` inside Suspense and two Error Boundaries. The h1, search, filters and sort sit outside the boundaries, so they keep working and keep focus while results load or fail.
+- Search, filter and sort derive the visible list with the Day 3 `selectProducts` on a copied array, and never start a server request.
+- Try again calls `router.refresh()` in a transition. The server renders the page again with a new request and `requestId`; both boundaries use `requestId` as `resetKey`, so they clear their errors together. While the refresh runs, the error area shows "Loading products...". Focus moves to `#catalogue-results`.
+- Empty and no-match states: "The catalogue is empty. Please check back soon." and "No products match these selections…" with Reset.
 
-ProductDetailsPage gets only `productId` and `colorId` from the route. It does not search the local catalogue, and it never requests the full list to show one product.
+Product details (`/products/[id]`):
 
-- `src/features/products/api/products-resource.ts` requests `GET /api/products/:id` with the Day 3 `fetchJson`, unchanged, and the shared base URL (see "API base URL and test switches").
-  - The response is checked at run time with the Day 3 `parseProductsResponse`, which receives the product as a one-item list. It is then converted with `mapApiProduct` (cents to dollars).
-  - A response for a different ID is rejected.
-  - The promise is cached by ID, because `use()` needs the same promise on every render. A failed request stays cached until Try again, so React does not start a new request each time it renders the error.
-- `ProductDetails` calls `use(readProduct(productId))`.
-  - While the request is open, the `Suspense` boundary shows "Loading product...".
-  - Only the details area waits. The header, footer and cart stay usable.
-  - Changing the finish only updates the URL and uses the cached product, with no new request.
-- `ErrorBoundary` (`src/components/ErrorBoundary.tsx`) wraps the details. It is a class component, because React has no hook for catching render errors. It is keyed by the product ID, so a new product starts without an old error.
-  - `ApiError` with status `404`: NotFoundPage with "We couldn't find that product." and no Try again.
-  - Any other error (server error, network error, invalid data): the heading "We could not load this product." and StatusMessage with Try again.
-  - Try again forgets the failed request, renders the details again and moves focus to the details region, because the button itself disappears.
-- In development, an intentional failure logs two Console errors:
-  - The browser's "Failed to load resource" line for the 404 or 500 response.
-  - React's report that the Error Boundary caught an `ApiError`.
+- The page awaits `getProduct(id)`. `loading.tsx` shows "Loading product..." while it waits; the header, footer and cart stay usable.
+- `error.tsx` shows "We could not load this product." with Try again, which calls Next.js `retry()` to fetch and render the page again. Focus moves to main.
+- `not-found.tsx` shows "We couldn't find that product." without Try again. Because the response is streamed, the HTTP status of this view is 200 with a `noindex` robots tag; unknown routes outside `/products/[id]` return 404.
+- The finish is read from `?color=` with `useSearchParams` and changed with `history.replaceState`, so it never requests the product again. The cart's add action still validates products against the static catalogue, with the same IDs as the API.
 
-  Both come from the forced failure; the success, delay and product-change runs log nothing.
+Pages: `src/app/error.tsx` catches errors in any other page and shows "This page could not be loaded." with Try again (`retry()`), inside the layout.
 
-- The cart's add action still validates products against the static catalogue, and the page title still comes from it. Both use the same IDs as the API.
+## API test switches
 
-## Catalogue loading
+The switches from the course API, `/delay/<ms>`, `/fail/<400-599>` and `/empty`, go at the start of a page URL. They can be combined.
 
-The Products page loads the list with Suspense and an Error Boundary. The h1, search, category and collection filters and sort sit outside the boundaries. They stay usable, and keep focus, while results load or fail. The header, footer and cart stay usable too.
+| Example                         | Result                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| `/delay/3000/products/arc-sofa` | "Loading product..." for about 3 s, then the product                       |
+| `/delay/3000/products`          | The page and controls at once; "Loading products..." for about 3 s         |
+| `/fail/500/products`            | "We could not load the catalogue. Please try again." with working controls |
+| `/fail/500/products/arc-sofa`   | "We could not load this product." with Try again                           |
+| `/empty/products`               | "The catalogue is empty. Please check back soon."                          |
 
-- `readCatalogue()` in `products-resource.ts` requests `GET /api/products` once and caches the promise.
-  - Search, filter and sort only change the URL selection. They re-render `CatalogueResults` with the cached list. The visible list is still derived with the Day 3 `selectProducts`, on a copied array.
-  - Leaving and returning to Products uses the cached list, with no new request.
-  - The Day 3 `loadProducts` always requests `/api/products` and cannot take a base URL. So the list is loaded with the same Day 3 `fetchJson`, `parseProductsResponse` and `mapApiProduct`, unchanged.
-- `CatalogueResults` shows "The catalogue is empty..." for an empty list, "No products match..." with Reset for no match, or "N of M products". `CatalogueSummary` shows "N considered pieces..." in the page intro.
-- Two boundaries are used, because the controls sit between the intro and the results. ProductsPage keeps an `attempt` counter as their `key`.
-  - Try again calls `retryCatalogue()`, increases `attempt` so both boundaries remount, and moves focus to `#catalogue-results`.
-  - While loading or after a failure, the summary shows "Explore our considered collection.".
-
-## API base URL and test switches
-
-`src/features/products/api/api-base.ts` reads `VITE_API_BASE` once. Both the catalogue request and the one-product request are built from it.
-
-- It may be empty, a path that starts with `/`, or an `http(s)` URL of a server with the same API. A trailing `/` is removed. Any other value throws an error when a products page loads.
-- Vite reads `VITE_` variables when the server starts or when `npm run build` runs. Restart `npm run dev`, or build again before `npm run preview`, after changing it.
-
-To try each state without editing code, set the variable for one run.
-
-PowerShell:
-
-```powershell
-$env:VITE_API_BASE = '/delay/3000'; npm run dev   # loading for 3 s
-$env:VITE_API_BASE = '/fail/500'; npm run dev     # error with Try again
-$env:VITE_API_BASE = '/empty'; npm run dev        # empty catalogue; one product still loads
-Remove-Item Env:VITE_API_BASE; npm run dev        # normal
-```
-
-Git Bash: add `MSYS_NO_PATHCONV=1`. Otherwise Git Bash rewrites a value that starts with `/` into a Windows path such as `C:/Program Files/Git/delay/3000`, and the app rejects it.
-
-```sh
-MSYS_NO_PATHCONV=1 VITE_API_BASE=/delay/3000 npm run dev
-```
-
-Or put `VITE_API_BASE=/fail/500` in `.env.development.local`. Git ignores `*.local` files. Delete the line or the file to go back to normal.
-
-The switches can also be combined, for example `VITE_API_BASE=/delay/2000/fail/503`. A product that does not exist, for example `/?page=product&id=no-such-product`, shows the 404 view with any base.
-
-`VariantSelector` is written inside `ProductDetails` and passed to `ProductGallery` as `children`, so it renders between the main photo and the thumbnails. `NotFoundPage` is used both for unknown routes and for unknown product IDs.
+- `src/proxy.ts` removes the switches with `splitTestSwitches()` (`src/lib/api/test-switches.ts`), rewrites the request to the real path and passes the switches in the `x-raha-test-switches` request header. It deletes that header from every incoming request first, so only the proxy can set it.
+- The API client checks the header again and puts the switches in front of `/api` in the API URL, so the delay, error or empty list really comes from the products API.
+- The switches apply only to the URL they are on; links from that page go to normal URLs.
+- They are on in development and off in production unless `RAHA_TEST_SWITCHES=1` is set (for example `RAHA_TEST_SWITCHES=1 npm run start`). When they are off, a switch URL shows the 404 page.
+- In Git Bash, add `MSYS_NO_PATHCONV=1` before commands whose arguments start with `/`, or Git Bash rewrites them into Windows paths. This happens in shell commands, not in the browser address bar.
 
 ## Demo checkout
 
-`/?page=checkout` is a lazy page inside the shared layout. The cart dialog shows a "Review demo order" link when the cart has items; it closes the dialog and opens the page.
+`/checkout` is a page inside the shared layout. The cart dialog shows a "Review demo order" link when the cart has items; it closes the dialog and opens the page.
 
 - **Empty cart:** StatusMessage "Your cart is empty, so there is nothing to review yet." and a link to Products.
 - **Form** (`CheckoutForm`): built with react-hook-form, the `zodResolver` from `@hookform/resolvers`, and the shadcn `Field`, `FieldLabel`, `FieldDescription`, `FieldError` and `Input`. The submit button is the RAHA `Button`.
@@ -259,150 +287,128 @@ The switches can also be combined, for example `VITE_API_BASE=/delay/2000/fail/5
   - `mode: 'onTouched'`: an error appears after a field is left or on submit, and then updates while typing. On submit, react-hook-form focuses the first invalid field.
   - Each invalid field gets `aria-invalid="true"` and an `aria-describedby` pointing to its `FieldError` message, which has `role="alert"`.
   - `noValidate` turns off the browser's own messages, so only the Zod messages are shown.
-- **Success:** the form is replaced by "Demo order confirmed." The heading receives focus, and a status says that nothing was sent, saved or charged.
-  - The entered values are not passed on, sent or stored. CheckoutPage keeps only `confirmed`. The cart is kept.
-  - "Start a new demo order" shows an empty form and focuses the full name field.
-- **Order summary** (`OrderSummary`): reads lines, count and subtotal from `useCartContext`. Nothing is copied into state. It says that no delivery, fees, taxes or payment are added.
-- **Styling:** the form uses RAHA classes in `main.css` (`.checkout-*`). The unlayered RAHA input rule gives the fields the same look as the contact form. The panel colour, radius and 768px two-column layout follow the About contact section.
-  - The checkbox is a native input, sized and coloured with `accent-color`. No shadcn Checkbox was added, so no icon package is needed.
-- The checkout page file is about 157 kB before gzip, because it bundles react-hook-form and Zod. It loads only when the checkout opens.
-
-## Routes
-
-All routes use the query string on `/`, inside the shared layout. Every page is loaded lazily.
-
-| URL                                                       | Page                                                 |
-| --------------------------------------------------------- | ---------------------------------------------------- |
-| `/`                                                       | HomePage                                             |
-| `/?page=products` (`q`, `category`, `collection`, `sort`) | ProductsPage                                         |
-| `/?page=product&id=…` (`color`)                           | ProductDetailsPage; an unknown ID shows the 404 view |
-| `/?page=inspiration`                                      | InspirationPage                                      |
-| `/?page=about`                                            | AboutPage                                            |
-| `/?page=checkout`                                         | CheckoutPage                                         |
-| anything else                                             | NotFoundPage                                         |
-
-Older category and collection URLs are rewritten to Products filters, and retired product IDs redirect to their category.
+- **Success:** the form is replaced by "Demo order confirmed." The heading receives focus, and a status says that nothing was sent, saved or charged. The entered values are not passed on, sent or stored; CheckoutPage keeps only `confirmed`. The cart is kept. "Start a new demo order" shows an empty form and focuses the full name field.
+- **Order summary** (`OrderSummary`): reads lines, count and subtotal from `useCartContext`. Nothing is copied into state.
+- **Styling:** RAHA classes in `main.css` (`.checkout-*`). The unlayered RAHA input rule gives the fields the same look as the contact form. The checkbox is a native input styled with `accent-color`.
 
 ## Props
 
-`AddHandler` is `(productId: string, variantId: string) => void`, exported from `src/features/cart/cart-store.ts`. `Route` is the route union in `src/app/route.types.ts`.
+`AddHandler` is `(productId: string, variantId: string) => void`, exported from `src/features/cart/cart-store.ts`.
 
-| Component           | Props                                                                                                                                                       |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| App                 | none                                                                                                                                                        |
-| SiteHeader          | `route: Route`, `onOpenCart: () => void` (reads `quantity` from `useCartContext`)                                                                           |
-| AppRoute            | `route: Route`, `onReady: (ready: boolean) => void` (called after the first page is shown)                                                                  |
-| HomePage            | `products: readonly Product[]`                                                                                                                              |
-| Hero                | `image: string`, `alt: string`                                                                                                                              |
-| FeaturedProducts    | `products: readonly Product[]`                                                                                                                              |
-| RoomSlider          | `slides: readonly (typeof heroSlides)[number][]`                                                                                                            |
-| RegistrationSection | none                                                                                                                                                        |
-| ProductsPage        | `selection: ProductSelection`                                                                                                                               |
-| CatalogueSummary    | none; reads the list with `use(readCatalogue())`                                                                                                            |
-| CatalogueResults    | `selection: ProductSelection`, `onReset: () => void`; reads the list with `use(readCatalogue())`                                                            |
-| CatalogueControls   | `selection: ProductSelection`, `onChange: (selection: ProductSelection) => void`, `onReset: () => void`                                                     |
-| ProductGrid         | `products: readonly Product[]`                                                                                                                              |
-| ProductCard         | `product: Product`, `position: number` (grid position, used only to stagger the intro motion); reads `add` from `useCartContext`                            |
-| ProductDetailsPage  | `productId: string`, `colorId: string \| null`                                                                                                              |
-| ErrorBoundary       | `children: ReactNode`, `fallback: (error: unknown, retry: () => void) => ReactNode`, `onRetry?: () => void`                                                 |
-| ProductDetails      | `productId: string`, `colorId: string \| null`; reads the product with `use(readProduct(productId))` and `add` from `useCartContext`                        |
-| ProductGallery      | `product: Product`, `variant: ProductVariant`, `children: ReactNode`                                                                                        |
-| VariantSelector     | `variants: readonly ProductVariant[]`, `selected: ProductVariant`, `onSelect: (variantId: string) => void`                                                  |
-| InspirationPage     | none                                                                                                                                                        |
-| RoomSection         | `room: InspirationRoom`, `position: number`                                                                                                                 |
-| RoomCalculator      | none                                                                                                                                                        |
-| AboutPage           | none                                                                                                                                                        |
-| CheckoutPage        | none; reads `quantity` from `useCartContext`                                                                                                                |
-| CheckoutForm        | `onConfirmed: () => void` (called after valid input; values are not passed)                                                                                 |
-| OrderSummary        | none; reads `items`, `quantity` and `subtotal` from `useCartContext`                                                                                        |
-| ContactForm         | none                                                                                                                                                        |
-| NotFoundPage        | `heading?: string`                                                                                                                                          |
-| SiteFooter          | `year: number`                                                                                                                                              |
-| CartProvider        | `page: Route['page']`, `children: ReactNode`                                                                                                                |
-| CartStatus          | none; reads `status` from `useCartContext`                                                                                                                  |
-| CartDialog          | `open: boolean`, `onClose: () => void`; reads the cart and its actions from `useCartContext`                                                                |
-| CartLineItem        | `line: CartLine`, `onAction: (key: string, action: CartAction) => void`                                                                                     |
-| QuantityControl     | `quantity: number`, `itemLabel: string`, `finishName: string`, `cartKey: string`, `onDecrease: () => void`, `onIncrease: () => void`                        |
-| EntranceOverlay     | `overlayRef: RefObject<HTMLElement \| null>`, `skipRef: RefObject<HTMLButtonElement \| null>`, `onSkip: () => void`                                         |
-| Button              | all native `ButtonHTMLAttributes<HTMLButtonElement>` plus `tone?: 'primary' \| 'secondary'`; `type` defaults to `button`                                    |
-| FormField           | `id: string`, `label: string`, `hint?: string`, `error?: string`, `className?: string`, `children: ReactNode`                                               |
-| StatusMessage       | `kind: 'loading' \| 'error' \| 'empty' \| 'no-match' \| 'success'`, `message: string`, `className?: string`, `onRetry?: () => void`, `onReset?: () => void` |
+| Component                             | Props                                                                                                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RootLayout                            | `children: ReactNode`                                                                                                                                       |
+| AppShell                              | `children: ReactNode` (the current page); reads the pathname with `usePathname`                                                                             |
+| SiteHeader                            | `onOpenCart: () => void`; reads `quantity` from `useCartContext` and the pathname with `usePathname`                                                        |
+| HomePage                              | `products: readonly Product[]`                                                                                                                              |
+| Hero                                  | `image: string`, `alt: string`                                                                                                                              |
+| FeaturedProducts                      | `products: readonly Product[]`                                                                                                                              |
+| RoomSlider                            | `slides: readonly (typeof heroSlides)[number][]`                                                                                                            |
+| RegistrationSection                   | none                                                                                                                                                        |
+| ProductsPage                          | `products: Promise<Product[]>`, `requestId: string`, `initialSearch: string`                                                                                |
+| CatalogueSummary                      | `products: Promise<Product[]>`                                                                                                                              |
+| CatalogueResults                      | `products: Promise<Product[]>`, `selection: ProductSelection`, `onReset: () => void`                                                                        |
+| CatalogueControls                     | `selection: ProductSelection`, `onChange: (selection: ProductSelection) => void`, `onReset: () => void`                                                     |
+| ProductGrid                           | `products: readonly Product[]`                                                                                                                              |
+| ProductCard                           | `product: Product`, `position: number` (grid position, used only to stagger the intro motion); reads `add` from `useCartContext`                            |
+| ProductDetails                        | `product: Product`; reads `?color=` with `useSearchParams` and `add` from `useCartContext`                                                                  |
+| ProductGallery                        | `product: Product`, `variant: ProductVariant`, `children: ReactNode`                                                                                        |
+| VariantSelector                       | `variants: readonly ProductVariant[]`, `selected: ProductVariant`, `onSelect: (variantId: string) => void`                                                  |
+| ErrorBoundary                         | `children: ReactNode`, `fallback: (error: unknown, retry: () => void) => ReactNode`, `onRetry?: () => void`, `resetKey?: string`                            |
+| PageError, ProductError (`error.tsx`) | `error: unknown`, `retry: () => void`                                                                                                                       |
+| InspirationPage                       | none                                                                                                                                                        |
+| RoomSection                           | `room: InspirationRoom`, `position: number`                                                                                                                 |
+| RoomCalculator                        | none                                                                                                                                                        |
+| AboutPage                             | none                                                                                                                                                        |
+| ContactForm                           | none                                                                                                                                                        |
+| CheckoutPage                          | none; reads `quantity` from `useCartContext`                                                                                                                |
+| CheckoutForm                          | `onConfirmed: () => void` (called after valid input; values are not passed)                                                                                 |
+| OrderSummary                          | none; reads `items`, `quantity` and `subtotal` from `useCartContext`                                                                                        |
+| NotFoundPage                          | `heading?: string`                                                                                                                                          |
+| SiteFooter                            | `year: number`                                                                                                                                              |
+| CartProvider                          | `page: string` (the pathname the add announcement belongs to), `children: ReactNode`                                                                        |
+| CartStatus                            | none; reads `status` from `useCartContext`                                                                                                                  |
+| CartDialog                            | `open: boolean`, `onClose: () => void`; reads the cart and its actions from `useCartContext`                                                                |
+| CartLineItem                          | `line: CartLine`, `onAction: (key: string, action: CartAction) => void`                                                                                     |
+| QuantityControl                       | `quantity: number`, `itemLabel: string`, `finishName: string`, `cartKey: string`, `onDecrease: () => void`, `onIncrease: () => void`                        |
+| EntranceOverlay                       | `overlayRef: RefObject<HTMLElement \| null>`, `skipRef: RefObject<HTMLButtonElement \| null>`, `onSkip: () => void`                                         |
+| Button                                | all native `ButtonHTMLAttributes<HTMLButtonElement>` plus `tone?: 'primary' \| 'secondary'`; `type` defaults to `button`                                    |
+| FormField                             | `id: string`, `label: string`, `hint?: string`, `error?: string`, `className?: string`, `children: ReactNode`                                               |
+| StatusMessage                         | `kind: 'loading' \| 'error' \| 'empty' \| 'no-match' \| 'success'`, `message: string`, `className?: string`, `onRetry?: () => void`, `onReset?: () => void` |
 
-Reusable components with more than one call site or many data-driven instances: Button, FormField, StatusMessage, ProductGrid, ProductCard, CartLineItem, QuantityControl, RoomSection and NotFoundPage.
+Reusable components with more than one call site or many data-driven instances: Button, FormField, StatusMessage, ErrorBoundary, ProductGrid, ProductCard, CartLineItem, QuantityControl, RoomSection and NotFoundPage.
 
 ## State ownership
 
-| State                                 | Owner                                                                                                                                     | How it changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current page and URL parameters       | Browser URL, read by `useRoute` (`src/app/useRoute.ts`) in App; `useRouteFocus` in AppRoute handles focus and scroll after a route change | Links call `handleRouteClick` (pushState). Search/filter/sort call `replaceProductSelection`, and finish choice calls `replaceProductColor` (both use replaceState). `useSyncExternalStore` re-renders on popstate, hashchange and the app's navigation event.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Search, category/collection, sort     | URL (`q`, `category`/`collection`, `sort`)                                                                                                | `ProductsPage` gets `selection` from the route. The visible list is derived with `selectProducts` (copied array, no mutation) and is never stored in state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Catalogue request                     | Promise cache in `src/features/products/api/products-resource.ts` (one promise)                                                           | `readCatalogue()` starts or reuses the request. Suspense shows loading, and the ErrorBoundary shows the error. `retryCatalogue()` (Try again) forgets a failed request. The list is not copied into React state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Catalogue retry attempt               | ProductsPage (`attempt`)                                                                                                                  | Try again increases it. It is the `key` of both catalogue boundaries, so they remount together.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| One product request                   | Promise cache in `src/features/products/api/products-resource.ts` (one promise per product ID)                                            | `readProduct(id)` starts or reuses the request. Suspense shows loading, and ErrorBoundary shows 404 or the error. `retryProduct(id)` (Try again) forgets a failed request. The product is not copied into React state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Product details error                 | ErrorBoundary in ProductDetailsPage (`failed`, `error`)                                                                                   | Set when loading fails. Try again clears it, and a new product ID remounts the boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Cart entries and `raha-cart` storage  | Day 3 `src/state.ts`                                                                                                                      | Components call only the Context actions `add`, `change` and `clear` from `CartProvider`. They use `src/features/cart/cart-store.ts` (`addToCart`, `changeCart`, `emptyCart`), which keeps a cached snapshot and notifies subscribers. The Context holds no copy of the entries.                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Cart lines, count, subtotal           | Derived in `useCart` (`src/features/cart/useCart.ts`), called only by `CartProvider`                                                      | `calculateCart(snapshot)`. Shared through `CartContext` with SiteHeader (count) and CartDialog; never stored as separate state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| First page shown                      | App (`pageReady`)                                                                                                                         | Set to `true` by `AppRoute.onReady` after the first lazily loaded page is on screen. It is used only to start the entrance intro.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Cart open/closed                      | App (`cartOpen`)                                                                                                                          | `SiteHeader.onOpenCart` opens it; `CartDialog.onClose` closes it (close button, Continue, Escape).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Cart add announcement                 | CartProvider (`announcement`)                                                                                                             | Set by the Context `add` action and shown by `CartStatus`. It stores the page where it was set, so it disappears on navigation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Cart keyboard focus after an action   | CartDialog (`pendingFocus` ref)                                                                                                           | After an increase/decrease/remove/clear, focus moves to the same control, or to Close/Continue.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Selected finish                       | URL `color`                                                                                                                               | `ProductDetails` derives the variant with `getVariant`; `VariantSelector.onSelect` updates the URL.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Gallery view                          | ProductGallery (`chosen`: `finishKey` and `viewId`)                                                                                       | Thumbnail clicks set it. `finishKey` is the product ID plus the finish ID. When the finish or product changes, ProductGallery resets it to the product photo during render, without an effect or a `key` remount. The finish buttons are therefore not replaced and keep keyboard focus.                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Active room slide                     | RoomSlider (`activeId`)                                                                                                                   | Slide buttons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Registration open, status, form reset | RegistrationSection (`open`, `status`, `formKey`)                                                                                         | A valid submit closes the non-modal dialog and shows the demo status. The form key changes, so the inputs are cleared. Reopen shows an empty form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Contact status, form reset            | ContactForm (`status`, `formKey`)                                                                                                         | A valid submit shows the demo message and clears the form. Nothing is sent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Checkout field values and errors      | react-hook-form inside CheckoutForm (`useForm` with `zodResolver`)                                                                        | Typing and leaving fields update them. On success the form unmounts, so the values are discarded; they are never sent or stored.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Checkout confirmed                    | CheckoutPage (`confirmed`)                                                                                                                | A valid submit sets it to `true`, and "Start a new demo order" sets it back to `false`. Only this flag is kept, not the entered values.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Room dimensions and area              | RoomCalculator (`width`, `length`, `area`)                                                                                                | Controlled inputs; submit calls the Day 3 `calculateRoomArea`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Entrance intro and content motion     | `useEntrance` hook in App (`startedAt`, `claimed` ref), started after App `pageReady` is true                                             | The intro waits until the first lazily loaded page is shown. The Day 3 `claimEntranceSession` decides once per session (`?intro=replay` replays); reduced motion skips it. `startedAt` is shared through `EntranceContext`. `useEntranceMotion` adds `entrance-hero` (2100 ms), `entrance-copy` for the h1 (2350 ms), `entrance-search` (2450 ms) and `entrance-card` (2550 ms + 50 ms per card, up to 11), but only to content mounted before the intro started. Skip, Escape, the 3750 ms timer, switching to reduced motion, moving focus away or navigating set `startedAt` to null. That removes every class at once, so content shows immediately; Skip and Escape return focus to main. |
+| State                                 | Owner                                                                | How it changes                                                                                                                                                                         |
+| ------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current page                          | The URL path, read with `usePathname`                                | `next/link` navigation. `useRouteFocus` moves focus after a change.                                                                                                                    |
+| Search, category/collection, sort     | URL (`q`, `category`/`collection`, `sort`)                           | `useProductSelection` reads it; `replaceProductSelection` writes it with `history.replaceState` and an event. The visible list is derived with `selectProducts` and never stored.      |
+| Catalogue list                        | The `getProducts()` promise from the products Server Component       | A new server render (first visit or Try again) creates it. It is read with `use()`; it is not copied into state.                                                                       |
+| Catalogue error reset                 | ErrorBoundary (`failed`, `error`), reset by `requestId`              | Set when the list fails. A new server render brings a new `requestId`, which clears both catalogue boundaries.                                                                         |
+| One product                           | The products/[id] Server Component (`getProduct`, cached per render) | Each visit or Try again (`retry()`). Passed to ProductDetails as a prop.                                                                                                               |
+| Cart entries and `raha-cart` storage  | Day 3 `src/state.ts`                                                 | Components call only the Context actions `add`, `change` and `clear` from `CartProvider`. They use `cart-store.ts`, which keeps a cached snapshot and notifies subscribers.            |
+| Cart lines, count, subtotal           | Derived in `useCart`, called only by `CartProvider`                  | `calculateCart(snapshot)`, with an empty server snapshot. Shared through `CartContext`; never stored as separate state.                                                                |
+| Cart open/closed                      | AppShell (`cartOpen`)                                                | `SiteHeader.onOpenCart` opens it; `CartDialog.onClose` closes it (close button, Continue, Escape, the checkout link).                                                                  |
+| Cart add announcement                 | CartProvider (`announcement`)                                        | Set by the Context `add` action and shown by `CartStatus`. It stores the pathname where it was set, so it disappears on navigation.                                                    |
+| Cart keyboard focus after an action   | CartDialog (`pendingFocus` ref)                                      | After an increase/decrease/remove/clear, focus moves to the same control, or to Close/Continue.                                                                                        |
+| Selected finish                       | URL `color`                                                          | `ProductDetails` derives the variant with `getVariant`; `VariantSelector.onSelect` calls `replaceProductColor`.                                                                        |
+| Gallery view                          | ProductGallery (`chosen`: `finishKey` and `viewId`)                  | Thumbnail clicks set it. A new finish or product resets it to the product photo during render, without a `key` remount.                                                                |
+| Active room slide                     | RoomSlider (`activeId`)                                              | Slide buttons.                                                                                                                                                                         |
+| Registration open, status, form reset | RegistrationSection (`open`, `status`, `formKey`)                    | A valid submit closes the non-modal dialog and shows the demo status. The form key changes, so the inputs are cleared.                                                                 |
+| Contact status, form reset            | ContactForm (`status`, `formKey`)                                    | A valid submit shows the demo message and clears the form. Nothing is sent.                                                                                                            |
+| Checkout field values and errors      | react-hook-form inside CheckoutForm                                  | Typing and leaving fields update them. On success the form unmounts, so the values are discarded.                                                                                      |
+| Checkout confirmed                    | CheckoutPage (`confirmed`)                                           | A valid submit sets it to `true`; "Start a new demo order" sets it back to `false`.                                                                                                    |
+| Room dimensions and area              | RoomCalculator (`width`, `length`, `area`)                           | Controlled inputs; submit calls the Day 3 `calculateRoomArea`.                                                                                                                         |
+| Entrance intro and content motion     | `useEntrance` in AppShell (`startedAt`, `claimed` ref)               | The Day 3 `claimEntranceSession` decides once per session (`?intro=replay` replays); reduced motion skips it. Skip, Escape, the 3750 ms timer, moving focus away or navigating end it. |
 
 List keys always come from data: `product.id`, `line.key` (product + finish), `variant.id`, gallery `view.id`, `slide.id`, `room.id`, and category or collection IDs.
 
-## Products API and hosting
+## Products API (`products-api/`)
 
-`tooling/products-api.ts` adds a products API to the Vite dev and preview servers. It serializes the RAHA catalogue from `src/data.ts` with the Day 3 `serializeProducts`, so prices are in cents. Every response has `Content-Type: application/json` and `Cache-Control: no-store`. Methods other than GET get `405` with `Allow: GET`.
+A separate API for RAHA products. The Next.js app reads it through `RAHA_API_URL`. It is not deployed.
 
-| Request                 | Response                                                                                                                                                                                |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/products`     | `200` with `{ "items": [ApiProduct, ...] }`. This is the original list contract and is unchanged.                                                                                       |
-| `GET /api/products/:id` | `200` with one `ApiProduct`, the same object as in the list. RAHA IDs are text, for example `/api/products/arc-sofa`. An unknown ID gets `404` with `{ "error": "Product not found" }`. |
-
-Test switches go at the start of the path, before `/api`, as in the course API. They work for both endpoints and can be combined, for example `/delay/2000/fail/503/api/products`:
-
-| Switch                     | Effect                                                                                              |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| `/delay/3000/api/products` | Waits 3000 ms, then answers normally. The delay is capped at 8000 ms.                               |
-| `/fail/500/api/products`   | Answers `500` with `{ "error": "Simulated error 500" }`. Codes 400-599 work; others get `400`.      |
-| `/empty/api/products`      | Returns `{ "items": [] }`. It affects only the list; `/empty/api/products/:id` returns the product. |
-
-The Products page loads the list with the Day 3 `fetchJson`, `parseProductsResponse` and `mapApiProduct`, which validate the payload and convert cents to dollars (see "Catalogue loading"). Product details use `GET /api/products/:id` (see "Product details from the API"). There is no static fallback: a failed request shows the error state with Try again. Both requests use `VITE_API_BASE`, so the switches can be tried in the UI (see "API base URL and test switches").
-
-Home, details, cart validation and inspiration use the same static catalogue as the API, so product and finish IDs always agree.
+- It has its own `package.json` with no dependencies. Node.js 22.18 or newer runs its TypeScript files directly with type stripping.
+- `npm run api:build` runs `scripts/generate-products.ts`, which reads `src/data.ts` with the unchanged Day 3 `serializeProducts` (prices in cents) and writes `products-api/generated/products.json`. That file is generated on every build and ignored by Git, so `src/data.ts` stays the only product source. It cannot import `products.client.ts`, because that file imports `api-client.ts`, whose `ApiError` uses a parameter property that type stripping does not support.
+- `src/handle-request.ts` holds the request rules: `GET /api/products` returns `{ items }`; `GET /api/products/:id` returns one product or 404 with `{ "error": "Product not found" }`; `/delay/<ms>` (max 8000), `/fail/<400-599>` and `/empty` go before `/api`, and `/empty` affects only the list; other paths get 404 and other methods 405 with `Allow: GET`.
+- `npm run api:start` serves it on `http://127.0.0.1:4000` (`PORT` changes the port). Without the generated file, it stops with a message to run the build first.
+- `products-api/tsconfig.json` is referenced from the root `tsconfig.json`, so `npm run typecheck` checks it.
 
 Hosting limitations:
 
-- The API, including `/api/products/:id` and the `/delay`, `/fail` and `/empty` switches, exists only in `npm run dev` and `npm run preview`. It is Vite middleware, not part of `dist/`.
-- A static deployment of `dist/` alone has no `/api` routes. It needs a real server route or backend that serves the same contract and switches. Without one, the Products page shows its error state.
-- `VITE_API_BASE` is fixed into the build by `npm run build`. A deployment can point it at a real backend URL, but that backend must allow the site's origin (CORS) and serve the RAHA contract.
-- This API serves RAHA products. It is not the course API at `shopboard-api.vercel.app`, which has 12 fixed products with numeric IDs and a different shape.
-
-## Standalone products API (prepared locally)
-
-`products-api/` is a separate API for the planned Next.js version. The app does not use it yet, and it is not deployed.
-
-- It has its own `package.json` with no dependencies. Node 22.18 or newer runs its TypeScript files directly with type stripping.
-- `npm --prefix products-api run build` runs `scripts/generate-products.ts`. The script reads `src/data.ts` with the unchanged Day 3 `serializeProducts`, prices in cents, and writes `products-api/generated/products.json`.
-  - That file is generated on every build and ignored by Git, so `src/data.ts` stays the only product source.
-  - It cannot import `products.client.ts`, because that file imports `api-client.ts`, whose `ApiError` uses a constructor parameter property that type stripping does not support.
-- `src/handle-request.ts` holds the request rules, independent of the server: the same contract and switches as the Vite middleware.
-  - `GET /api/products` returns `{ items }`, and `GET /api/products/:id` returns one product or 404 with `{ "error": "Product not found" }`.
-  - `/delay/<ms>` (max 8000), `/fail/<400-599>` and `/empty` go before `/api` and can be combined. `/empty` affects only the list.
-  - Other paths get 404 with `{ "error": "Not found" }`, and other methods get 405 with `Allow: GET`.
-- `npm --prefix products-api run start` serves it on `http://127.0.0.1:4000` (`PORT` changes the port). Without the generated file, it stops with a message to run the build first.
-- `products-api/tsconfig.json` is referenced from the root `tsconfig.json`, so `npm run typecheck` checks it.
-- For a later deployment, the plan is a separate Vercel project with Root Directory `products-api`. Vercel's documentation says a build can read files outside the Root Directory by default, and the default function limit with Fluid compute is 300 s. The Vercel function adapter and `vercel.json` are not written yet; they need a test deployment, which needs the user's approval.
+- Neither the app nor the API is deployed. A deployment needs the API hosted first (planned: a separate Vercel project with Root Directory `products-api`), then `RAHA_API_URL` set for the app. The Vercel function adapter and `vercel.json` are not written yet.
+- Vercel's documentation says a build can read files outside the Root Directory by default, and the default function limit with Fluid compute is 300 s, which covers the 8000 ms delay cap. Preview deployments behind Deployment Protection need a bypass for server-to-server requests.
+- The test switches are off in production unless `RAHA_TEST_SWITCHES=1` is set.
 
 ## Verification status
+
+### Next.js App Router (2026-11-09)
+
+- `npm run typecheck`, `npm run lint` (0 warnings), `npm run format:check` and `npm run build` pass. All 23 reused Day 3 files are byte-identical to the originals.
+- A Playwright run passed 109/109 against the production server (`npm run start`, with `RAHA_TEST_SWITCHES=1`) and against the dev server (`npm run dev`, StrictMode), both reading the local products API. It covered:
+  - Every route: title, one h1, the shared header, footer and cart, and no horizontal overflow at 360, 768 and 1280px. An unknown path returns 404.
+  - Legacy URLs (`/?page=…`, old category pages, collections, a product with a finish, a hash) redirecting to the new paths.
+  - The catalogue from the API (60 cards): search with focus kept and no lost characters, no-match with Reset, category filter and price sort, with no server request for any of them.
+  - A product from the API: finish in the URL with focus kept, the gallery, add to cart, and the cart restored after a refresh.
+  - An unknown product showing "We couldn't find that product." without Try again.
+  - `/delay/3000`, `/fail/500` and `/empty` through page URLs, with the layout and the catalogue controls usable during loading and errors.
+  - A real API outage: the list and the product show their errors, and after the API restarts, Try again loads the list (focus on the results) and the product.
+  - The cart across pages, the add announcement clearing on navigation, focus on main after navigation, increase with focus kept, the "Review demo order" link, clear and Escape.
+  - The intro on the first visit (hero class and six staggered cards), Escape, no replay in the same session, and the footer link focusing `#returns`.
+- The earlier checkout (50/50), cart (21/21) and focus (17/17) runs passed against the production server with the selectors and links updated to the new paths.
+- A computed-style snapshot of the six pages at 360, 768 and 1280px was compared with the snapshot taken on the Vite version. The only differences were elements that render nothing: Next.js's hidden metadata elements, its streamed `<title>`/`<meta>` on the product page, and the removed `#product-region` wrapper. Colours, fonts, spacing, sizes and positions matched on all 18 pages.
+- Console: the normal pages, the catalogue, the product page and the cart logged no warnings or errors in development or production. The intentional `/fail/500` pages log React's report of the caught error: the `ApiError` text in development, and React error #441 in production, whose message React omits in production builds by design.
+- Problems found and fixed during the migration:
+  - Reading the catalogue selection with `useSearchParams` dropped typed characters ("Lamp" became "Lp"). It is now read synchronously with `useSyncExternalStore`.
+  - The intro did not animate the Home content, because page content hydrated after the intro started. Motion now applies to server-rendered content.
+  - A footer hash link focused main instead of `#returns` while the page was still loading. `useRouteFocus` now waits for the target.
+  - A root `loading.tsx` streamed even static pages behind a hidden copy, which briefly showed two h1 elements and would hide content without JavaScript. It was removed; Products streams its own results, and `/products/[id]` keeps its `loading.tsx`.
+  - After an error the browser requested `/favicon.ico` and got a 404; `next.config.ts` now serves `/raha.svg` there.
+  - The layout's title template does not apply to the root page, so Home sets its full title.
+
+### Before the Next.js migration (Vite version)
+
+The entries below were recorded on the earlier Vite version, at its query-string URLs. The user's React DevTools inspections and manual checks in this section were made on that version and have not been repeated on Next.js.
 
 Last run on 2026-11-06:
 
@@ -559,9 +565,13 @@ Last run on 2026-11-06:
 ## Known gaps
 
 - The dormant room-hotspot feature from Day 3 (`shop-room.ts`, `room-beacon` CSS) was not active in the original UI and is not migrated.
-- The React DevTools inspection covers only the components listed under Verification status.
+- The user's React DevTools inspections were made on the Vite version and cover only the components listed above. They have not been repeated on Next.js.
+- The unknown-product view (`/products/[id]`) is sent with HTTP status 200 and a `noindex` robots tag, because the page streams before `notFound()` runs. Other unknown paths return 404.
+- The cart count shows 0 for a moment after a refresh, until the browser cart is read after hydration.
+- On Node.js 26, the server logs an experimental-feature warning when the Day 3 `state.ts` touches `localStorage` during the server render.
+- The products API and the app are not deployed.
 
 ## Project documents
 
 - `debug-lab-log.md` records the five course debug-lab bugs with AI disclosure. Bug 5 (CartRow) showed no visible problem in the user's test and was identified through a source review. The fixes in the log are suggestions and were not applied to the lab.
-- CLAUDE.md now lists three learning rules taken from the debug-lab bugs: stable data keys instead of the array index, copying an array before sorting it, and updating props and state without mutating them.
+- CLAUDE.md and AGENTS.md describe the current project and its rules. CLAUDE.md lists eight learning rules, each with its source: course-lab bugs, bugs found by automated checks, and one mistake the user reported.

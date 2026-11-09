@@ -1,43 +1,51 @@
-import type { Route } from '../../app/route.types.ts'
-import { handleRouteClick } from '../../app/navigation.ts'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useCartContext } from '../cart/cart-context.ts'
 
 interface Props {
-  readonly route: Route
   onOpenCart: () => void
 }
 
 const links = [
   { id: 'home', href: '/', label: 'Home' },
-  { id: 'products', href: '/?page=products', label: 'Products' },
-  { id: 'inspiration', href: '/?page=inspiration', label: 'Room Inspiration' },
-  { id: 'about', href: '/?page=about', label: 'About & Contact' },
+  { id: 'products', href: '/products', label: 'Products' },
+  { id: 'inspiration', href: '/inspiration', label: 'Room Inspiration' },
+  { id: 'about', href: '/about', label: 'About & Contact' },
 ]
 
-export default function SiteHeader({ route, onOpenCart }: Props) {
+// A product page belongs to Products in the menu.
+function isActive(pathname: string, href: string): boolean {
+  return href === '/'
+    ? pathname === '/'
+    : pathname === href || pathname.startsWith(href + '/')
+}
+
+export default function SiteHeader({ onOpenCart }: Props) {
   const { quantity } = useCartContext()
-  const activePage = route.page === 'product' ? 'products' : route.page
+  const pathname = usePathname()
   return (
     <header className="site-header">
-      <a className="brand" href="/" onClick={handleRouteClick}>
+      <Link className="brand" href="/">
         <span>
           RAHA <small>HOME &amp; LIVING</small>
         </span>
-      </a>
+      </Link>
       <nav aria-label="Main navigation">
         <ul className="nav-list">
-          {links.map((link) => (
-            <li key={link.id}>
-              <a
-                href={link.href}
-                onClick={handleRouteClick}
-                className={activePage === link.id ? 'active' : undefined}
-                aria-current={activePage === link.id ? 'page' : undefined}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
+          {links.map((link) => {
+            const active = isActive(pathname, link.href)
+            return (
+              <li key={link.id}>
+                <Link
+                  href={link.href}
+                  className={active ? 'active' : undefined}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            )
+          })}
           <li>
             <button
               className="cart-toggle"

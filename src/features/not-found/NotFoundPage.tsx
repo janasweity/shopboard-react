@@ -1,9 +1,11 @@
-import { handleRouteClick } from '../app/navigation.ts'
-import StatusMessage from '../components/StatusMessage.tsx'
+'use client'
+
+import Link from 'next/link'
+import StatusMessage from '../../components/StatusMessage.tsx'
 import {
   entranceDelay,
   useEntranceMotion,
-} from '../features/entrance/entrance-motion.ts'
+} from '../entrance/entrance-motion.ts'
 
 interface Props {
   readonly heading?: string
@@ -23,9 +25,9 @@ export default function NotFoundPage({
         kind="empty"
         message="We could not find that page. Make yourself at home and explore our featured pieces."
       />
-      <a href="/" className="text-link" onClick={handleRouteClick}>
+      <Link href="/" className="text-link">
         Back to Home {'\u2197'}
-      </a>
+      </Link>
     </section>
   )
 }
