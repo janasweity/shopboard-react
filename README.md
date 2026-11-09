@@ -386,6 +386,22 @@ Hosting limitations:
 - `VITE_API_BASE` is fixed into the build by `npm run build`. A deployment can point it at a real backend URL, but that backend must allow the site's origin (CORS) and serve the RAHA contract.
 - This API serves RAHA products. It is not the course API at `shopboard-api.vercel.app`, which has 12 fixed products with numeric IDs and a different shape.
 
+## Standalone products API (prepared locally)
+
+`products-api/` is a separate API for the planned Next.js version. The app does not use it yet, and it is not deployed.
+
+- It has its own `package.json` with no dependencies. Node 22.18 or newer runs its TypeScript files directly with type stripping.
+- `npm --prefix products-api run build` runs `scripts/generate-products.ts`. The script reads `src/data.ts` with the unchanged Day 3 `serializeProducts`, prices in cents, and writes `products-api/generated/products.json`.
+  - That file is generated on every build and ignored by Git, so `src/data.ts` stays the only product source.
+  - It cannot import `products.client.ts`, because that file imports `api-client.ts`, whose `ApiError` uses a constructor parameter property that type stripping does not support.
+- `src/handle-request.ts` holds the request rules, independent of the server: the same contract and switches as the Vite middleware.
+  - `GET /api/products` returns `{ items }`, and `GET /api/products/:id` returns one product or 404 with `{ "error": "Product not found" }`.
+  - `/delay/<ms>` (max 8000), `/fail/<400-599>` and `/empty` go before `/api` and can be combined. `/empty` affects only the list.
+  - Other paths get 404 with `{ "error": "Not found" }`, and other methods get 405 with `Allow: GET`.
+- `npm --prefix products-api run start` serves it on `http://127.0.0.1:4000` (`PORT` changes the port). Without the generated file, it stops with a message to run the build first.
+- `products-api/tsconfig.json` is referenced from the root `tsconfig.json`, so `npm run typecheck` checks it.
+- For a later deployment, the plan is a separate Vercel project with Root Directory `products-api`. Vercel's documentation says a build can read files outside the Root Directory by default, and the default function limit with Fluid compute is 300 s. The Vercel function adapter and `vercel.json` are not written yet; they need a test deployment, which needs the user's approval.
+
 ## Verification status
 
 Last run on 2026-11-06:
@@ -506,6 +522,17 @@ Last run on 2026-11-06:
   - A staged file with `export const sample: any = 1` was rejected by `oxlint --deny-warnings` with `typescript(no-explicit-any)`. `HEAD` did not change, so no commit was created.
   - The same line with `unknown` was accepted in the temporary clone.
   - The clone was deleted; the project's `main` and history were not changed.
+
+- On 2026-11-09, the standalone products API was built and served locally on Node 26.
+  - The build wrote 60 products, and Git ignores `products-api/generated/products.json`.
+  - A request run passed 21/21. It covered:
+    - The list (`{ items }`, 60 products, `no-store`), identical to the current Vite `/api/products` response.
+    - One product equal to its list item, with the price in cents.
+    - 404 for an unknown ID, a badly encoded ID and other paths.
+    - Delay of about 3 s and the 8000 ms cap.
+    - `/fail/500` and `/fail/503` on both endpoints, and 400 for a code outside 400-599.
+    - `/empty` affecting only the list, a combined delay and fail, and 405 for POST.
+  - Starting the server without the generated file stopped with the build message.
 
 - React DevTools Components tab (inspected before the cart moved to `CartProvider`; App no longer calls `useCart`, so CartProvider now shows the Cart hook): the user inspected these components:
   - App, with the custom hooks Route, Cart and Entrance. In the code, these are `useRoute` (the current page from the URL), `useCart` (derived cart lines, count and subtotal) and `useEntrance` (the intro state).

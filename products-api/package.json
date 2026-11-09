@@ -1,0 +1,12 @@
+{
+  "name": "raha-products-api",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "build": "node scripts/generate-products.ts",
+    "start": "node server.ts"
+  }
+}

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Products API data, generated from src/data.ts on every build
+products-api/generated/
