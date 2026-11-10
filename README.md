@@ -68,13 +68,15 @@ shadcn/ui files:
 
 - `components.json`: the shadcn CLI settings. `rsc` is `true`, and its CSS file is `src/app/globals.css`.
 - `src/lib/utils.ts`: `cn()`, which joins class names and resolves conflicting Tailwind classes.
-- `src/components/ui/`: only `field.tsx`, `input.tsx` and `label.tsx`, plus `separator.tsx`, which `field.tsx` uses. They were added with `npx shadcn@latest add field input label`. No shadcn Button was added: the RAHA `Button` stays the only button.
+- `src/components/ui/`: only `field.tsx`, `input.tsx` and `label.tsx`, plus `separator.tsx`, which `field.tsx` uses. They were added with `npx shadcn@latest add field input label`. No shadcn Button was added.
   - Changes from the CLI output, made to follow the project rules:
     - Imports use `@/lib/utils.ts` and `.tsx` extensions. The CLI had imported `cn` from an unrelated npm package called `cn` and installed it; that package was removed.
     - `FieldError` keys its list by the error message instead of the array index and uses `===`.
     - An unused `"use client"` line was removed. They are imported only by Client Components.
     - Prettier formatted the files.
 - `@/` points to `src/` (`paths` in `tsconfig.json` and `tsconfig.app.json`). The shadcn files use it; RAHA files keep relative imports.
+- `src/components/ui/button.tsx` and `button-variants.ts`: the RAHA Button written with Tailwind and `cva` (not shadcn CLI output). `variant` is `primary` (default), `secondary` or `ghost`; `size` is `sm` (40px high, `text-2xs`), `md` (default, 44px, `text-xs`) or `lg` (48px, `text-sm`). It uses only Tailwind's scale and RAHA tokens, with no arbitrary values. Compared with the old `.button`, `md` is 2px lower (44px instead of 46px), 3.2px wider in padding and uses 12px text instead of 11.5px; `sm` matches Add to cart except 11px text instead of 10.9px. All other native button props pass through, and `type` defaults to `"button"`. `buttonVariants()` gives the same classes to a link. It is not used by any page yet: every page still uses `src/components/Button.tsx` (`tone`) and the `.button` rules in `globals.css`.
+- `cn()` knows RAHA's radius names, so a `className` such as `rounded-panel` replaces the default radius.
 
 ## Styles and design tokens
 
@@ -84,6 +86,7 @@ All CSS is in `src/app/globals.css`, which the root layout imports once. RAHA is
 - **Tokens** (`@theme static`). Tailwind's default colours, fonts and radii are removed, so only RAHA values exist as utilities. `static` keeps every token as a CSS variable, because the component rules read them with `var()`.
   - Colours: the ten-shade palette (`soft-black`, `charcoal-brown`, `warm-slate`, `graphite-grey`, `stone-grey`, `warm-greige`, `taupe-brown`, `silver-mist`, `warm-ivory`, `soft-white`), the roles (`bg`, `ink`, `muted`, `primary`, `primary-dark`, `panel`, `line`, `sand`) and the shadcn names (`background`, `foreground`, `primary-foreground`, `muted-foreground`, `border`, `input`, `ring`, `destructive`), which point to RAHA colours. No new colours were added. `destructive` uses the RAHA ink colour.
   - Fonts: `font-body` and `font-heading`. Preflight gives `html` the body font through `--default-font-family`.
+  - Text: `text-2xs` (11px), RAHA's compact control text. The small buttons and chips used 0.68rem to 0.72rem, below Tailwind's smallest step, `text-xs` (12px). Tailwind's own text scale is kept.
   - Radii: `thumb` 4px, `field` 5px, `md` 6px (also shadcn's `rounded-md`), `control` 8px, `card` 10px, `panel` 12px, `photo` 14px, `dialog` 15px, `feature` 18px, `chip` 30px, `pill` 100px and `circle` 50%. The intro's Skip button used 50px; it now uses `pill`, which looks the same because both are more than half its height. The two curved hero shapes keep their own values.
   - Spacing: `gutter`, 1.25rem, then 2.5rem from 768px and 5rem from 1280px.
 - **Base layer** (`@layer base`): the page colour and font, headings, links, `em`, the button cursor and icon SVGs. Preflight already supplies box-sizing, zero margins, inherited form fonts and link colours, block images and `[hidden]`, so those RAHA rules were removed. The base layer also restores, with `revert`, browser defaults that preflight removes but RAHA relies on: the dialog margin (which centres the cart modal), button, legend and option padding, bold option-group labels and the browser's placeholder grey.
@@ -589,7 +592,7 @@ Last run on 2026-11-06:
 - The cart count shows 0 for a moment after a refresh, until the browser cart is read after hydration.
 - On Node.js 26, the server logs an experimental-feature warning when the Day 3 `state.ts` touches `localStorage` during the server render.
 - The products API and the app are not deployed.
-- Tailwind is set up, but no page has been converted yet: the components are still styled by the component rules in `globals.css`. There is no dark mode and no shared `components/ui` kit beyond the shadcn form parts.
+- Tailwind is set up, but no page has been converted yet: the components are still styled by the component rules in `globals.css`. There is no dark mode. `components/ui` has the shadcn form parts and the new Button, which no page uses yet; there is no Input, Card, Badge or Modal kit.
 
 ## Project documents
 
