@@ -72,11 +72,14 @@ shadcn/ui files:
   - Changes from the CLI output, made to follow the project rules:
     - Imports use `@/lib/utils.ts` and `.tsx` extensions. The CLI had imported `cn` from an unrelated npm package called `cn` and installed it; that package was removed.
     - `FieldError` keys its list by the error message instead of the array index and uses `===`.
-    - An unused `"use client"` line was removed. They are imported only by Client Components.
-    - Prettier formatted the files.
+- `input.tsx` was rewritten as RAHA's shared Input (see the next item).
+  - An unused `"use client"` line was removed. They are imported only by Client Components.
+  - Prettier formatted the files.
 - `@/` points to `src/` (`paths` in `tsconfig.json` and `tsconfig.app.json`). The shadcn files use it; RAHA files keep relative imports.
 - `src/components/ui/button.tsx` and `button-variants.ts`: the RAHA Button written with Tailwind and `cva` (not shadcn CLI output). `variant` is `primary` (default), `secondary` or `ghost`; `size` is `sm` (40px high, `text-2xs`), `md` (default, 44px, `text-xs`) or `lg` (48px, `text-sm`). It uses only Tailwind's scale and RAHA tokens, with no arbitrary values. Compared with the old `.button`, `md` is 2px lower (44px instead of 46px), 3.2px wider in padding and uses 12px text instead of 11.5px; `sm` matches Add to cart except 11px text instead of 10.9px. All other native button props pass through, and `type` defaults to `"button"`. `buttonVariants()` gives the same classes to a link. It is not used by any page yet: every page still uses `src/components/Button.tsx` (`tone`) and the `.button` rules in `globals.css`.
 - `cn()` knows RAHA's radius names, so a `className` such as `rounded-panel` replaces the default radius.
+- `src/components/ui/input.tsx`: RAHA's shared text field, with `InputProps` (every native input prop, including `ref`, so `register()` can be spread onto it) and `type` defaulting to `"text"`. It uses only Tailwind's scale and RAHA tokens: `min-h-11`, `p-3`, `rounded-field`, `border-input`, `bg-background` and `text-foreground`; the text inherits the surrounding font, and the placeholder keeps the browser grey from the base layer. `disabled` gives 50% opacity and a not-allowed cursor; `aria-invalid` gives a 2px `destructive` (ink) border. The focus ring is the global `:focus-visible` outline. The shadcn shadow, focus and error rings, `file:` and `selection:` styles, `dark:` classes and the fixed `h-9` height were removed.
+  - The unlayered RAHA input rule in `globals.css` (for the fields not yet converted) skips `[data-slot='input']` inside `:where()`, so it no longer overrides the Input and keeps its specificity for the old fields. The earlier limit, where that rule's 1px border hid the Input's `aria-invalid` border outside the checkout, is removed, and the checkout no longer needs its own error rule for text fields. Only the native confirmation checkbox keeps `.checkout-form input[type='checkbox'][aria-invalid='true']`.
 
 ## Styles and design tokens
 
@@ -90,7 +93,7 @@ All CSS is in `src/app/globals.css`, which the root layout imports once. RAHA is
   - Radii: `thumb` 4px, `field` 5px, `md` 6px (also shadcn's `rounded-md`), `control` 8px, `card` 10px, `panel` 12px, `photo` 14px, `dialog` 15px, `feature` 18px, `chip` 30px, `pill` 100px and `circle` 50%. The intro's Skip button used 50px; it now uses `pill`, which looks the same because both are more than half its height. The two curved hero shapes keep their own values.
   - Spacing: `gutter`, 1.25rem, then 2.5rem from 768px and 5rem from 1280px.
 - **Base layer** (`@layer base`): the page colour and font, headings, links, `em`, the button cursor and icon SVGs. Preflight already supplies box-sizing, zero margins, inherited form fonts and link colours, block images and `[hidden]`, so those RAHA rules were removed. The base layer also restores, with `revert`, browser defaults that preflight removes but RAHA relies on: the dialog margin (which centres the cart modal), button, legend and option padding, bold option-group labels and the browser's placeholder grey.
-- **Outside the layers:** the focus ring and the component rules. They win over Tailwind classes, so the current look stays until a feature is converted; converting a feature removes its old rules. The focus ring stays there so it also wins over `outline-none` in the shadcn input. One checkout rule (`.checkout-form [data-slot='input']`) keeps the inherited field text size over the shadcn `text-base md:text-sm` classes.
+- **Outside the layers:** the focus ring and the component rules. They win over Tailwind classes, so the current look stays until a feature is converted; converting a feature removes its old rules. The focus ring stays there so it also wins over any `outline` class.
 - `dark:` classes apply only inside a `.dark` element, which RAHA never uses. There is no dark mode yet.
 - Tailwind's `md` (768px) and `xl` (1280px) match RAHA's breakpoints. Do not use `max-*` variants or `!` (important) utilities.
 
@@ -403,6 +406,17 @@ Hosting limitations:
 - On the production server, the 109-check run passed twice in a row, and the checkout (50/50), cart (21/21) and focus (17/17) runs passed. Three earlier runs of the 109-check run stopped at one check that read the catalogue summary while React still held the streamed summary next to its fallback for a moment. In 10 loads, the summary and the cards became visible in the same frame every time. The check now waits until one summary remains.
 - In development, all routes logged no Console warnings or errors (the 404 page logs its intended 404 response).
 - Not checked: hover and active states (their rules were moved unchanged), browsers other than Chromium, and the intro with motion (only its start and Escape are covered by the 109-check run).
+- After the shared Input rewrite (same day), the four commands passed. The same 48-snapshot comparison changed only the checkout with a cart item, with errors and with a focused field:
+  - The text fields are 51.5px high instead of 44px (53.5px with the error border), the same height as the contact form fields. The old 44px came from the shadcn `h-9` class.
+  - The faint shadcn shadow and its 3px focus and error rings are gone. The focus outline (3px, charcoal, 5px offset), the 1px stone-grey border, the 5px radius and the background are unchanged, and an invalid field still has a 2px ink border.
+  - The form grows by about 37px (47px with errors), which moves the content below it; no other page changed.
+  - The checkout (50/50) and focus (17/17) runs passed on the production server. A separate test page with the built CSS showed a disabled Input at 50% opacity with a not-allowed cursor, skipped by Tab.
+- After the old input rule stopped applying to the Input (same day), the four commands passed. The 48-snapshot comparison with the build before showed 0 differences, including the checkout with errors (still 53.5px with the 2px border) and every old field. A separate test page with the built CSS showed, outside the checkout:
+  - A normal Input with the same height, border, radius, colours, padding and font as an old field (51.5px).
+  - `aria-invalid`: a 2px ink border (53.5px); an old field with `aria-invalid` is unchanged.
+  - `disabled`: 50% opacity and a not-allowed cursor, skipped by Tab.
+  - Keyboard focus: the 3px charcoal outline with a 5px offset, also on an invalid Input.
+  - The checkout (50/50) and focus (17/17) runs passed again on the production server.
 
 ### Next.js App Router (2026-11-09)
 

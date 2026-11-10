@@ -810,7 +810,10 @@ main:focus {
   margin-bottom: 0.4rem;
   font-size: 0.8rem;
 }
-input:not([type='submit']),
+/* Form fields not yet converted. The shared Input (data-slot="input") is
+   left out, so its own classes style it; :where() keeps this rule's
+   specificity unchanged for the old fields. */
+input:not([type='submit']):where(:not([data-slot='input'])),
 select,
 textarea {
   width: 100%;
@@ -1799,12 +1802,8 @@ button:disabled {
   font-size: 0.75rem;
   font-weight: 500;
 }
-/* Keeps RAHA's inherited field text over the shadcn text-base and md:text-sm
-   classes until the checkout is converted. */
-.checkout-form [data-slot='input'] {
-  font: inherit;
-}
-.checkout-form input[aria-invalid='true'] {
+/* The native confirmation checkbox is not an Input yet. */
+.checkout-form input[type='checkbox'][aria-invalid='true'] {
   border: 2px solid var(--color-charcoal-brown);
 }
 .checkout-form input[type='checkbox'] {
