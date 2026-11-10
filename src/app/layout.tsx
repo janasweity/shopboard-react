@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import AppShell from '../features/layout/AppShell.tsx'
-import '../styles/tokens.css'
-import '../styles/main.css'
+import './globals.css'
 
 export const metadata: Metadata = {
   title: { default: 'RAHA | Make room for living', template: '%s | RAHA' },

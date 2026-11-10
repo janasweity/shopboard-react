@@ -1,4 +1,4 @@
-// Tailwind CSS v4 for the shadcn/ui components (see src/styles/main.css).
+// Tailwind CSS v4 through PostCSS (see src/app/globals.css).
 export default {
   plugins: {
     '@tailwindcss/postcss': {},

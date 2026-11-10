@@ -35,7 +35,9 @@
 - **Checkout:** `/checkout`, built with react-hook-form, one Zod schema and the shadcn Field and Input.
   - Its summary reads only CartContext.
   - Nothing is sent or stored, there is no payment, delivery service or fee, and the cart is kept.
-- **Styles:** Tailwind v4 (through `@tailwindcss/postcss`) is used only for src/components/ui, with no preflight. Its colours point to RAHA tokens, and unlayered RAHA rules win. Review all shadcn CLI output.
+- **Styles:** all CSS is in src/app/globals.css. Tailwind v4 (through `@tailwindcss/postcss`, with preflight) covers src/components, src/features and src/app, and the RAHA colours, fonts, radii and gutter are tokens in `@theme`.
+  - Features are converted to Tailwind one at a time, only when the user asks. Until then their old component rules stay unlayered and win; a converted feature removes its old rules.
+  - No new colours or dark mode without approval. Review all shadcn CLI output.
 
 ## Course delivery
 

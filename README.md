@@ -45,7 +45,7 @@ Both required skills are installed as real files and tracked in Git. `skills-loc
 | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `next` 16.4.5                                   | App Router, Server Components, routing, streaming and the production server                          |
 | `server-only`                                   | Makes the build fail if the server API client is imported into a Client Component                    |
-| `@tailwindcss/postcss` and `postcss.config.mjs` | Tailwind CSS v4 for the shadcn/ui components (replaces `@tailwindcss/vite`)                          |
+| `@tailwindcss/postcss` and `postcss.config.mjs` | Tailwind CSS v4 through PostCSS (replaces `@tailwindcss/vite`); see "Styles and design tokens"       |
 | `next.config.ts`                                | Type-checks `tsconfig.app.json`, sets the Turbopack root, and serves `/favicon.ico` from `/raha.svg` |
 | `src/proxy.ts`                                  | Next.js 16 proxy (formerly middleware): legacy redirects and API test switches                       |
 
@@ -60,13 +60,13 @@ They are used by the demo checkout (see "Demo checkout").
 | Package                                              | Purpose                                                        |
 | ---------------------------------------------------- | -------------------------------------------------------------- |
 | `react-hook-form`, `zod`, `@hookform/resolvers`      | Form state, one validation schema, and the bridge between them |
-| `tailwindcss`, `@tailwindcss/postcss` (dev)          | Tailwind CSS v4, which shadcn/ui components are styled with    |
+| `tailwindcss`, `@tailwindcss/postcss` (dev)          | Tailwind CSS v4, set up in `src/app/globals.css`               |
 | `class-variance-authority`, `clsx`, `tailwind-merge` | Used by the shadcn/ui components and `cn`                      |
 | `radix-ui`                                           | Accessible primitives under the shadcn Label and Separator     |
 
 shadcn/ui files:
 
-- `components.json`: the shadcn CLI settings. `rsc` is `true`, and its CSS file is `src/styles/main.css`.
+- `components.json`: the shadcn CLI settings. `rsc` is `true`, and its CSS file is `src/app/globals.css`.
 - `src/lib/utils.ts`: `cn()`, which joins class names and resolves conflicting Tailwind classes.
 - `src/components/ui/`: only `field.tsx`, `input.tsx` and `label.tsx`, plus `separator.tsx`, which `field.tsx` uses. They were added with `npx shadcn@latest add field input label`. No shadcn Button was added: the RAHA `Button` stays the only button.
   - Changes from the CLI output, made to follow the project rules:
@@ -76,12 +76,19 @@ shadcn/ui files:
     - Prettier formatted the files.
 - `@/` points to `src/` (`paths` in `tsconfig.json` and `tsconfig.app.json`). The shadcn files use it; RAHA files keep relative imports.
 
-How RAHA's design is kept:
+## Styles and design tokens
 
-- `main.css` imports only Tailwind's `theme.css` and `utilities.css`. Preflight, Tailwind's global reset, is not imported, so RAHA's base styles for headings, buttons, links and forms are not reset.
-- Utilities are generated only from `src/components/ui` (`source(none)` and `@source`). Tailwind output sits in cascade layers, so the unlayered RAHA rules always win when both style the same element.
-- shadcn colour names (`--background`, `--primary`, `--border`, `--ring` and so on) are defined in `tokens.css` and point to existing RAHA tokens. No new colours were added. `--destructive` uses the RAHA ink colour.
-- `dark:` classes apply only inside a `.dark` element, which RAHA never uses.
+All CSS is in `src/app/globals.css`, which the root layout imports once. RAHA is moving to Tailwind step by step: Tailwind is set up for the whole project, and the existing component rules stay in the same file until each feature is converted.
+
+- **Tailwind:** `@import 'tailwindcss' source(none)`, with `@source` for `src/components`, `src/features` and `src/app`. Preflight, Tailwind's reset, is included.
+- **Tokens** (`@theme static`). Tailwind's default colours, fonts and radii are removed, so only RAHA values exist as utilities. `static` keeps every token as a CSS variable, because the component rules read them with `var()`.
+  - Colours: the ten-shade palette (`soft-black`, `charcoal-brown`, `warm-slate`, `graphite-grey`, `stone-grey`, `warm-greige`, `taupe-brown`, `silver-mist`, `warm-ivory`, `soft-white`), the roles (`bg`, `ink`, `muted`, `primary`, `primary-dark`, `panel`, `line`, `sand`) and the shadcn names (`background`, `foreground`, `primary-foreground`, `muted-foreground`, `border`, `input`, `ring`, `destructive`), which point to RAHA colours. No new colours were added. `destructive` uses the RAHA ink colour.
+  - Fonts: `font-body` and `font-heading`. Preflight gives `html` the body font through `--default-font-family`.
+  - Radii: `thumb` 4px, `field` 5px, `md` 6px (also shadcn's `rounded-md`), `control` 8px, `card` 10px, `panel` 12px, `photo` 14px, `dialog` 15px, `feature` 18px, `chip` 30px, `pill` 100px and `circle` 50%. The intro's Skip button used 50px; it now uses `pill`, which looks the same because both are more than half its height. The two curved hero shapes keep their own values.
+  - Spacing: `gutter`, 1.25rem, then 2.5rem from 768px and 5rem from 1280px.
+- **Base layer** (`@layer base`): the page colour and font, headings, links, `em`, the button cursor and icon SVGs. Preflight already supplies box-sizing, zero margins, inherited form fonts and link colours, block images and `[hidden]`, so those RAHA rules were removed. The base layer also restores, with `revert`, browser defaults that preflight removes but RAHA relies on: the dialog margin (which centres the cart modal), button, legend and option padding, bold option-group labels and the browser's placeholder grey.
+- **Outside the layers:** the focus ring and the component rules. They win over Tailwind classes, so the current look stays until a feature is converted; converting a feature removes its old rules. The focus ring stays there so it also wins over `outline-none` in the shadcn input. One checkout rule (`.checkout-form [data-slot='input']`) keeps the inherited field text size over the shadcn `text-base md:text-sm` classes.
+- `dark:` classes apply only inside a `.dark` element, which RAHA never uses. There is no dark mode yet.
 - Tailwind's `md` (768px) and `xl` (1280px) match RAHA's breakpoints. Do not use `max-*` variants or `!` (important) utilities.
 
 ## Reused Day 3 modules
@@ -289,7 +296,7 @@ The switches from the course API, `/delay/<ms>`, `/fail/<400-599>` and `/empty`,
   - `noValidate` turns off the browser's own messages, so only the Zod messages are shown.
 - **Success:** the form is replaced by "Demo order confirmed." The heading receives focus, and a status says that nothing was sent, saved or charged. The entered values are not passed on, sent or stored; CheckoutPage keeps only `confirmed`. The cart is kept. "Start a new demo order" shows an empty form and focuses the full name field.
 - **Order summary** (`OrderSummary`): reads lines, count and subtotal from `useCartContext`. Nothing is copied into state.
-- **Styling:** RAHA classes in `main.css` (`.checkout-*`). The unlayered RAHA input rule gives the fields the same look as the contact form. The checkbox is a native input styled with `accent-color`.
+- **Styling:** RAHA classes in `globals.css` (`.checkout-*`). The unlayered RAHA input rule gives the fields the same look as the contact form. The checkbox is a native input styled with `accent-color`.
 
 ## Props
 
@@ -381,6 +388,18 @@ Hosting limitations:
 - The test switches are off in production unless `RAHA_TEST_SWITCHES=1` is set.
 
 ## Verification status
+
+### Tailwind globals and tokens (2026-11-11)
+
+- `npm run typecheck`, `npm run lint` (0 warnings), `npm run format:check` and `npm run build` pass. All 23 reused Day 3 files are byte-identical to the originals.
+- A computed-style snapshot recorded about 60 CSS properties, the placeholder colour, the focused element and the position and size of every element. It covered 16 states at 360, 768 and 1280px (48 snapshots, 11,640 elements): Home, Products, a product page, Room Inspiration, About, the 404 and unknown-product pages, the product and catalogue errors, the empty catalogue, the checkout empty, with a cart item, with errors and with a focused field, the focused search field and the open cart. It was compared with the same snapshot of the build before the change; two snapshots of that build matched each other exactly.
+  - The first comparison found preflight changes, which the base layer now fixes: the cart dialog sat at the top left instead of the centre; buttons without their own padding lost the browser's padding (the cart button became 12px narrower); placeholders turned 50% ink instead of the browser grey; options and legends lost their small padding; option-group labels lost their bold weight; and the checkout fields changed from 15px to 16px text below 768px and 14px from 768px.
+  - After the fixes, every element has the same position and size, and no colour, font, spacing, border or radius changed, at all three widths. The remaining differences render nothing: the `html` element's own font and line height (`body` still sets RAHA's), `tab-size`, `border-style: solid` on zero-width borders, `vertical-align: middle` on images and icons, `appearance: button` on buttons, and a transparent tap highlight on all elements instead of only on links and controls.
+  - No horizontal overflow at 360, 768 and 1280px.
+- Generated utilities: about 130, all from the shadcn components. No RAHA class name matches a Tailwind utility in the rendered pages.
+- On the production server, the 109-check run passed twice in a row, and the checkout (50/50), cart (21/21) and focus (17/17) runs passed. Three earlier runs of the 109-check run stopped at one check that read the catalogue summary while React still held the streamed summary next to its fallback for a moment. In 10 loads, the summary and the cards became visible in the same frame every time. The check now waits until one summary remains.
+- In development, all routes logged no Console warnings or errors (the 404 page logs its intended 404 response).
+- Not checked: hover and active states (their rules were moved unchanged), browsers other than Chromium, and the intro with motion (only its start and Escape are covered by the 109-check run).
 
 ### Next.js App Router (2026-11-09)
 
@@ -570,6 +589,7 @@ Last run on 2026-11-06:
 - The cart count shows 0 for a moment after a refresh, until the browser cart is read after hydration.
 - On Node.js 26, the server logs an experimental-feature warning when the Day 3 `state.ts` touches `localStorage` during the server render.
 - The products API and the app are not deployed.
+- Tailwind is set up, but no page has been converted yet: the components are still styled by the component rules in `globals.css`. There is no dark mode and no shared `components/ui` kit beyond the shadcn form parts.
 
 ## Project documents
 

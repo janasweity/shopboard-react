@@ -1,123 +1,171 @@
-﻿/* Shared foundation and accessible controls. */
+/* RAHA global styles: Tailwind, the design tokens, base element styles and
+   the component rules that are still waiting to be converted to Tailwind. */
 
-/* Tailwind for shadcn/ui only. Preflight (Tailwind's reset) is not imported,
-   and utilities are generated only from src/components/ui. Tailwind output
-   sits in cascade layers, so the unlayered RAHA rules below always win. */
-@layer theme, base, components, utilities;
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities) source(none);
-@source '../components/ui';
+/* Tailwind with its preflight reset. Classes are generated only from the
+   project's component, feature and route files. */
+@import 'tailwindcss' source(none);
+@source '../components';
+@source '../features';
+@source '../app';
 
 /* RAHA has no dark theme: dark: classes apply only inside a .dark element,
    which the site never uses, so the OS dark mode cannot restyle components. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* shadcn/ui colour names, mapped to RAHA tokens in tokens.css. */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-destructive: var(--destructive);
+/* Design tokens. Tailwind's default colours, fonts and radii are removed, so
+   only RAHA values exist as utilities (bg-soft-white, font-heading,
+   rounded-panel and so on). `static` keeps every token as a CSS variable,
+   because the component rules below read them with var(). */
+@theme static {
+  --color-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+
+  /* The ten-shade RAHA palette. */
+  --color-soft-black: #171614;
+  --color-charcoal-brown: #302923;
+  --color-warm-slate: #4d4b47;
+  --color-graphite-grey: #62605b;
+  --color-stone-grey: #88857d;
+  --color-warm-greige: #b6ac9d;
+  --color-taupe-brown: #9a826d;
+  --color-silver-mist: #d1c8bc;
+  --color-warm-ivory: #eee5d5;
+  --color-soft-white: #faf8f1;
+
+  /* Colour roles. */
+  --color-bg: var(--color-soft-white);
+  --color-ink: var(--color-charcoal-brown);
+  --color-muted: var(--color-warm-slate);
+  --color-primary: var(--color-charcoal-brown);
+  --color-primary-dark: var(--color-soft-black);
+  --color-panel: var(--color-silver-mist);
+  --color-line: var(--color-stone-grey);
+  --color-sand: var(--color-warm-ivory);
+
+  /* shadcn/ui colour names, mapped to RAHA colours. */
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-ink);
+  --color-primary-foreground: var(--color-soft-white);
+  --color-muted-foreground: var(--color-muted);
+  --color-border: var(--color-line);
+  --color-input: var(--color-stone-grey);
+  --color-ring: var(--color-charcoal-brown);
+  --color-destructive: var(--color-ink);
+
+  /* Typography. Preflight gives the html element the body font. */
+  --font-body: 'Helvetica Neue', Arial, sans-serif;
+  --font-heading:
+    'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --default-font-family: var(--font-body);
+
+  /* Corner radii used by RAHA. */
+  --radius-thumb: 4px; /* gallery thumbnails, quantity controls, hotspot labels */
+  --radius-field: 5px; /* form fields, small cart and room images */
+  --radius-md: 6px; /* room list images; also shadcn/ui's rounded-md */
+  --radius-control: 8px; /* search box, selects, finish swatches */
+  --radius-card: 10px; /* product images, registration form, room panel */
+  --radius-panel: 12px; /* panels, galleries, section cards */
+  --radius-photo: 14px; /* shop-the-room photo */
+  --radius-dialog: 15px; /* cart dialog */
+  --radius-feature: 18px; /* story images */
+  --radius-chip: 30px; /* tags, filter and slide buttons */
+  --radius-pill: 100px; /* buttons */
+  --radius-circle: 50%; /* round icon buttons, counters and dots */
+
+  /* Page gutter: 1.25rem, then 2.5rem from 768px and 5rem from 1280px. */
+  --spacing-gutter: 1.25rem;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* Base element styles. Preflight already supplies box-sizing, zero margins,
+   inherited form fonts and link colours, block images and [hidden]. */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font: 15px/1.7 var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  a {
+    text-decoration: none;
+  }
+  button {
+    cursor: pointer;
+  }
+  /* Browser defaults that preflight removes but RAHA's layout relies on:
+     centred modal dialogs, button and legend padding, option spacing, bold
+     option-group labels and the browser's placeholder grey. */
+  dialog {
+    margin: revert;
+  }
+  button,
+  legend,
+  option {
+    padding: revert;
+  }
+  optgroup {
+    font-weight: revert;
+  }
+  ::placeholder {
+    color: revert;
+  }
+  h1,
+  h2,
+  h3 {
+    color: var(--color-soft-black);
+    font-family: var(--font-heading);
+    font-weight: 400;
+    line-height: 1.12;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 5.3vw, 5rem);
+    letter-spacing: -0.045em;
+  }
+  h2 {
+    font-size: clamp(2rem, 3.2vw, 3.3rem);
+    letter-spacing: -0.035em;
+  }
+  h3 {
+    font-size: 1.4rem;
+  }
+  em {
+    font-weight: 400;
+  }
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 }
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 2rem;
-}
-body {
-  margin: 0;
-  background: var(--color-bg);
-  color: var(--color-ink);
-  font: 15px/1.7 var(--font-body);
-  -webkit-font-smoothing: antialiased;
-}
-a {
-  color: inherit;
-  text-decoration: none;
-}
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-button {
-  cursor: pointer;
-}
-button,
-a,
-input,
-select,
-textarea {
-  -webkit-tap-highlight-color: transparent;
-}
+
+/* The focus ring stays outside the layers so it also wins over the
+   outline-none class in the shadcn/ui input. */
 :focus-visible {
-  outline: 3px solid var(--charcoal-brown);
+  outline: 3px solid var(--color-charcoal-brown);
   outline-offset: 5px;
 }
-h1,
-h2,
-h3,
-p,
-figure {
-  margin: 0;
-}
-h1,
-h2,
-h3 {
-  font-family: var(--font-heading);
-  font-weight: 400;
-  line-height: 1.12;
-}
-h1 {
-  font-size: clamp(2.6rem, 5.3vw, 5rem);
-  letter-spacing: -0.045em;
-}
-h2 {
-  font-size: clamp(2rem, 3.2vw, 3.3rem);
-  letter-spacing: -0.035em;
-}
-h3 {
-  font-size: 1.4rem;
-}
-em {
-  font-weight: 400;
-}
-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-svg {
-  width: 24px;
-  height: 24px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-[hidden],
-.product-card[hidden] {
-  display: none;
-}
+
+/* Component rules from the former main.css. They stay outside the layers, so
+   they win over Tailwind classes until each feature is converted. */
+
 .page-content {
   width: 100%;
   max-width: 1600px;
   margin-inline: auto;
 }
 main {
-  padding-inline: var(--gutter);
+  padding-inline: var(--spacing-gutter);
 }
 main:focus {
   outline: none;
@@ -149,9 +197,9 @@ main:focus {
   min-height: 46px;
   padding: 0.85rem 1.4rem;
   border: 1px solid transparent;
-  border-radius: 100px;
+  border-radius: var(--radius-pill);
   background: var(--color-primary);
-  color: var(--soft-white);
+  color: var(--color-soft-white);
   font-size: 0.72rem;
   font-weight: 500;
   line-height: 1.4;
@@ -190,7 +238,7 @@ main:focus {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.65rem 1rem;
-  padding: 1rem var(--gutter);
+  padding: 1rem var(--spacing-gutter);
 }
 .brand {
   display: inline-flex;
@@ -248,7 +296,7 @@ main:focus {
   min-width: 22px;
   height: 22px;
   padding: 0 4px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--color-panel);
   font-size: 0.65rem;
 }
@@ -256,13 +304,13 @@ main:focus {
 :is(.home-hero, .room-slider) {
   position: relative;
   isolation: isolate;
-  margin-inline: calc(-1 * var(--gutter));
-  background: var(--warm-ivory);
+  margin-inline: calc(-1 * var(--spacing-gutter));
+  background: var(--color-warm-ivory);
   border-radius: 0 0 45% 6% / 0 0 4% 2%;
   overflow: hidden;
 }
 .hero-copy {
-  padding: 3rem var(--gutter) 2rem;
+  padding: 3rem var(--spacing-gutter) 2rem;
   position: relative;
   z-index: 2;
 }
@@ -274,7 +322,7 @@ main:focus {
 }
 .hero-description {
   max-width: 340px;
-  color: var(--warm-slate);
+  color: var(--color-warm-slate);
   font-size: 0.88rem;
   margin-bottom: 1.6rem;
 }
@@ -300,8 +348,8 @@ main:focus {
   padding: 0.3rem 0.6rem;
   font-size: 0.5rem;
   letter-spacing: 0.15em;
-  color: var(--charcoal-brown);
-  background: color-mix(in srgb, var(--soft-white) 90%, transparent);
+  color: var(--color-charcoal-brown);
+  background: color-mix(in srgb, var(--color-soft-white) 90%, transparent);
 }
 .page-section {
   padding-block: 3.5rem;
@@ -348,8 +396,8 @@ main:focus {
   display: block;
   position: relative;
   aspect-ratio: 1.3;
-  background: var(--silver-mist);
-  border-radius: 10px;
+  background: var(--color-silver-mist);
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
 .product-image img {
@@ -367,7 +415,7 @@ main:focus {
   top: 0.7rem;
   left: 0.7rem;
   z-index: 1;
-  border-radius: 30px;
+  border-radius: var(--radius-chip);
   padding: 0.25rem 0.6rem;
   background: var(--color-bg);
   color: var(--color-primary-dark);
@@ -434,9 +482,9 @@ main:focus {
 .search-input {
   display: flex;
   align-items: center;
-  background: var(--soft-white);
-  border: 1px solid var(--stone-grey);
-  border-radius: 8px;
+  background: var(--color-soft-white);
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-control);
   padding-inline: 0.9rem;
   gap: 0.6rem;
 }
@@ -472,8 +520,8 @@ main:focus {
 .text-button {
   min-height: 44px;
   padding: 0.55rem 0.9rem;
-  border: 1px solid var(--stone-grey);
-  border-radius: 30px;
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-chip);
   color: var(--color-ink);
   background: transparent;
   font-size: 0.7rem;
@@ -510,7 +558,7 @@ main:focus {
 }
 .product-gallery > figure {
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   background: var(--color-panel);
 }
 #gallery-image {
@@ -532,7 +580,7 @@ main:focus {
   width: 110px;
   padding: 0.4rem;
   border: 1px solid var(--color-line);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--color-ink);
   font-size: 0.65rem;
@@ -544,7 +592,7 @@ main:focus {
   width: 100%;
   aspect-ratio: 1.5;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: var(--radius-thumb);
 }
 .detail-copy h1 {
   font-size: clamp(2.3rem, 4vw, 3.8rem);
@@ -595,7 +643,7 @@ main:focus {
   width: 100%;
   aspect-ratio: 1.2;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: var(--radius-feature);
 }
 .room-story figcaption {
   margin-top: 0.7rem;
@@ -616,7 +664,7 @@ main:focus {
 .contact-section {
   padding: 1.5rem;
   background: var(--color-panel);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
 }
 .inspiration-room {
   margin-block: 2rem 4rem;
@@ -645,7 +693,7 @@ main:focus {
   width: 100%;
   aspect-ratio: 3 / 2;
   object-fit: contain;
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   background: var(--color-panel);
 }
 .inspiration-product h3 {
@@ -713,9 +761,9 @@ main:focus {
   gap: 2rem;
   margin-block: 3.5rem;
   padding: 2rem 1.25rem;
-  background: var(--warm-greige);
+  background: var(--color-warm-greige);
   border: 1px solid var(--color-line);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
 }
 .registration-copy {
   align-self: center;
@@ -738,7 +786,7 @@ main:focus {
   margin: 0;
   padding: 1.3rem;
   border: 1px solid var(--color-line);
-  border-radius: 10px;
+  border-radius: var(--radius-card);
   color: var(--color-ink);
   background: var(--color-bg);
 }
@@ -764,12 +812,9 @@ textarea {
   min-height: 44px;
   padding: 0.75rem;
   color: var(--color-ink);
-  border: 1px solid var(--stone-grey);
-  border-radius: 5px;
-  background: var(--soft-white);
-}
-textarea {
-  resize: vertical;
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-field);
+  background: var(--color-soft-white);
 }
 #password-help,
 #demo-behavior,
@@ -796,12 +841,12 @@ textarea {
   max-height: 85vh;
   padding: 1.5rem;
   border: 1px solid var(--color-line);
-  border-radius: 15px;
+  border-radius: var(--radius-dialog);
   color: var(--color-ink);
   background: var(--color-bg);
 }
 .cart-dialog::backdrop {
-  background: color-mix(in srgb, var(--soft-black) 45%, transparent);
+  background: color-mix(in srgb, var(--color-soft-black) 45%, transparent);
   backdrop-filter: blur(3px);
 }
 .cart-header {
@@ -817,7 +862,7 @@ textarea {
   border: 0;
   background: var(--color-panel);
   color: var(--color-ink);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   width: 44px;
   height: 44px;
   font-size: 1.6rem;
@@ -846,7 +891,7 @@ textarea {
   width: 72px;
   height: 80px;
   object-fit: contain;
-  border-radius: 5px;
+  border-radius: var(--radius-field);
   background: var(--color-panel);
 }
 #cart-items h3 {
@@ -873,7 +918,7 @@ textarea {
   color: var(--color-ink);
   background: transparent;
   border: 1px solid var(--color-line);
-  border-radius: 4px;
+  border-radius: var(--radius-thumb);
 }
 .cart-summary {
   display: flex;
@@ -892,7 +937,7 @@ textarea {
 /* Footer navigation keeps every existing service accessible. */
 .site-footer {
   margin-top: 2rem;
-  padding: 2.5rem var(--gutter) 1rem;
+  padding: 2.5rem var(--spacing-gutter) 1rem;
   border-top: 1px solid var(--color-line);
 }
 .footer-top {
@@ -940,21 +985,14 @@ textarea {
   font-size: 0.62rem;
 }
 
-/* Component display rules must respect native hidden state. */
-[hidden],
-.reopen-button[hidden],
-#clear-search[hidden],
-.product-card[hidden] {
-  display: none;
-}
 /* The optional introduction never hides the underlying page. */
 .store-intro {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--warm-slate);
-  color: var(--soft-white);
+  background: var(--color-warm-slate);
+  color: var(--color-soft-white);
 }
 .store-intro.is-playing {
   display: grid;
@@ -1001,7 +1039,7 @@ textarea {
   height: 1px;
   width: min(240px, 60%);
   margin-inline: auto;
-  background: var(--taupe-brown);
+  background: var(--color-taupe-brown);
   transform-origin: left;
   animation: intro-underline 650ms ease-out 650ms both;
 }
@@ -1011,14 +1049,14 @@ textarea {
   right: 1.5rem;
   min-height: 48px;
   padding: 0.7rem 1.2rem;
-  border: 1px solid var(--stone-grey);
-  border-radius: 50px;
-  color: var(--soft-white);
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-pill);
+  color: var(--color-soft-white);
   background: var(--color-primary-dark);
   font-size: 0.8rem;
 }
 .skip-intro:focus-visible {
-  outline-color: var(--soft-white);
+  outline-color: var(--color-soft-white);
 }
 .entrance-hero,
 .entrance-copy,
@@ -1069,16 +1107,11 @@ textarea {
   min-height: 3.4em;
 }
 /* RAHA: the ten-shade interface palette. Product color dots keep their own values. */
-h1,
-h2,
-h3 {
-  color: var(--soft-black);
-}
 .site-header {
-  background: var(--warm-ivory);
+  background: var(--color-warm-ivory);
 }
 .brand {
-  color: var(--charcoal-brown);
+  color: var(--color-charcoal-brown);
   font-family: var(--font-heading);
   font-size: 2.25rem;
   letter-spacing: 0.16em;
@@ -1090,46 +1123,46 @@ h3 {
   margin-top: 0.55rem;
 }
 .nav-list .active {
-  border-bottom-color: var(--taupe-brown);
+  border-bottom-color: var(--color-taupe-brown);
   font-weight: 600;
 }
 .cart-toggle svg {
-  color: var(--stone-grey);
+  color: var(--color-stone-grey);
 }
 .product-tag {
-  border: 1px solid var(--taupe-brown);
+  border: 1px solid var(--color-taupe-brown);
 }
 .registration-section {
-  background: var(--warm-greige);
+  background: var(--color-warm-greige);
 }
 .registration-section .eyebrow,
 #demo-description {
-  color: var(--charcoal-brown);
+  color: var(--color-charcoal-brown);
 }
 .site-footer {
-  background: var(--charcoal-brown);
-  color: var(--soft-white);
-  border-top: 4px solid var(--taupe-brown);
+  background: var(--color-charcoal-brown);
+  color: var(--color-soft-white);
+  border-top: 4px solid var(--color-taupe-brown);
 }
 .site-footer .eyebrow,
 .site-footer .footer-intro > p,
 .site-footer .footer-note > p:not(.eyebrow),
 .footer-bottom {
-  color: var(--silver-mist);
+  color: var(--color-silver-mist);
 }
 .site-footer .text-link {
-  color: var(--soft-white);
+  color: var(--color-soft-white);
 }
 .footer-brand {
   padding: 0.8rem 1rem;
-  background: var(--warm-ivory);
+  background: var(--color-warm-ivory);
 }
 .site-footer :focus-visible {
-  outline-color: var(--soft-white);
+  outline-color: var(--color-soft-white);
 }
 .store-intro {
-  background: var(--warm-ivory);
-  color: var(--charcoal-brown);
+  background: var(--color-warm-ivory);
+  color: var(--color-charcoal-brown);
 }
 .store-intro::before {
   filter: none;
@@ -1144,16 +1177,16 @@ h3 {
   letter-spacing: 0.25em;
 }
 .skip-intro {
-  background: var(--charcoal-brown);
-  color: var(--soft-white);
-  border-color: var(--charcoal-brown);
+  background: var(--color-charcoal-brown);
+  color: var(--color-soft-white);
+  border-color: var(--color-charcoal-brown);
 }
 .skip-intro:focus-visible {
-  outline-color: var(--soft-black);
+  outline-color: var(--color-soft-black);
 }
 .color-option-count {
   font-size: 0.68rem;
-  color: var(--warm-slate);
+  color: var(--color-warm-slate);
   margin-top: 0.3rem;
 }
 .color-options {
@@ -1163,7 +1196,7 @@ h3 {
   min-width: 0;
 }
 .color-options legend {
-  color: var(--charcoal-brown);
+  color: var(--color-charcoal-brown);
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -1183,27 +1216,27 @@ h3 {
   gap: 0.5rem;
   min-height: 48px;
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--stone-grey);
-  border-radius: 8px;
-  color: var(--charcoal-brown);
-  background: var(--soft-white);
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-control);
+  color: var(--color-charcoal-brown);
+  background: var(--color-soft-white);
   font-size: 0.75rem;
 }
 .color-swatch:hover {
-  background: var(--warm-ivory);
+  background: var(--color-warm-ivory);
 }
 .color-swatch[aria-pressed='true'] {
-  border: 2px solid var(--charcoal-brown);
+  border: 2px solid var(--color-charcoal-brown);
   padding: calc(0.6rem - 1px) calc(0.75rem - 1px);
-  background: var(--silver-mist);
+  background: var(--color-silver-mist);
 }
 .swatch-dot {
   width: 24px;
   height: 24px;
   flex: 0 0 24px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--swatch-color);
-  border: 1px solid var(--stone-grey);
+  border: 1px solid var(--color-stone-grey);
 }
 .swatch-check {
   font-weight: 600;
@@ -1225,12 +1258,12 @@ h3 {
 .variant-demo-note {
   font-size: 0.7rem;
   margin-bottom: 1rem;
-  color: var(--warm-slate);
+  color: var(--color-warm-slate);
 }
 .button:disabled {
   cursor: not-allowed;
-  background: var(--graphite-grey);
-  color: var(--soft-white);
+  background: var(--color-graphite-grey);
+  color: var(--color-soft-white);
 }
 .cart-color {
   margin-block: 0.3rem;
@@ -1248,7 +1281,7 @@ h3 {
 .shop-room-photo {
   width: 100%;
   height: auto;
-  border-radius: 14px;
+  border-radius: var(--radius-photo);
 }
 .room-hotspot {
   display: none;
@@ -1261,19 +1294,20 @@ h3 {
   height: 44px;
   padding: 0;
   place-items: center;
-  border: 2px solid var(--soft-white);
-  border-radius: 50%;
-  background: var(--charcoal-brown);
-  color: var(--soft-white);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--soft-black) 25%, transparent);
+  border: 2px solid var(--color-soft-white);
+  border-radius: var(--radius-circle);
+  background: var(--color-charcoal-brown);
+  color: var(--color-soft-white);
+  box-shadow: 0 2px 10px
+    color-mix(in srgb, var(--color-soft-black) 25%, transparent);
   font-size: 0.85rem;
 }
 .room-hotspot::before {
   content: '';
   position: absolute;
   inset: -6px;
-  border: 1px solid var(--soft-white);
-  border-radius: 50%;
+  border: 1px solid var(--color-soft-white);
+  border-radius: var(--radius-circle);
   pointer-events: none;
   animation: room-beacon 3s ease-in-out infinite;
 }
@@ -1282,14 +1316,14 @@ html[data-entrance='playing'] .room-hotspot::before {
 }
 .room-hotspot:hover,
 .room-hotspot[aria-expanded='true'] {
-  background: var(--soft-white);
-  color: var(--charcoal-brown);
-  border-color: var(--charcoal-brown);
+  background: var(--color-soft-white);
+  color: var(--color-charcoal-brown);
+  border-color: var(--color-charcoal-brown);
 }
 .room-hotspot:focus-visible {
-  outline: 3px solid var(--soft-black);
+  outline: 3px solid var(--color-soft-black);
   outline-offset: 5px;
-  box-shadow: 0 0 0 5px var(--soft-white);
+  box-shadow: 0 0 0 5px var(--color-soft-white);
 }
 .room-hotspot-label {
   position: absolute;
@@ -1297,11 +1331,11 @@ html[data-entrance='playing'] .room-hotspot::before {
   left: 50%;
   transform: translateX(-50%);
   padding: 0.3rem 0.6rem;
-  border-radius: 4px;
+  border-radius: var(--radius-thumb);
   white-space: nowrap;
   font-size: 0.65rem;
-  background: var(--soft-white);
-  color: var(--charcoal-brown);
+  background: var(--color-soft-white);
+  color: var(--color-charcoal-brown);
   visibility: hidden;
 }
 .room-hotspot:hover .room-hotspot-label,
@@ -1329,21 +1363,19 @@ html[data-entrance='playing'] .room-hotspot::before {
   width: 310px;
   max-width: calc(100% - 2.5rem);
   padding: 1.5rem 1rem 1rem;
-  border: 1px solid var(--stone-grey);
-  border-radius: 10px;
-  background: var(--soft-white);
-  color: var(--charcoal-brown);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--soft-black) 15%, transparent);
-}
-.room-product-panel[hidden] {
-  display: none;
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-card);
+  background: var(--color-soft-white);
+  color: var(--color-charcoal-brown);
+  box-shadow: 0 8px 24px
+    color-mix(in srgb, var(--color-soft-black) 15%, transparent);
 }
 .room-product-panel > img {
   width: 84px;
   height: 94px;
   object-fit: contain;
-  border-radius: 5px;
-  background: var(--silver-mist);
+  border-radius: var(--radius-field);
+  background: var(--color-silver-mist);
 }
 .room-product-panel h3 {
   font-size: 1.15rem;
@@ -1351,7 +1383,7 @@ html[data-entrance='playing'] .room-hotspot::before {
 }
 .room-panel-color {
   font-size: 0.68rem;
-  color: var(--warm-slate);
+  color: var(--color-warm-slate);
   margin-block: 0.35rem;
 }
 .room-panel-price {
@@ -1367,13 +1399,13 @@ html[data-entrance='playing'] .room-hotspot::before {
   width: 36px;
   min-height: 36px;
   border: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
-  color: var(--charcoal-brown);
+  color: var(--color-charcoal-brown);
   font-size: 1.4rem;
 }
 .room-panel-close:hover {
-  background: var(--silver-mist);
+  background: var(--color-silver-mist);
 }
 .room-mobile-list {
   display: grid;
@@ -1394,8 +1426,8 @@ html[data-entrance='playing'] .room-hotspot::before {
   width: 80px;
   height: 80px;
   object-fit: contain;
-  background: var(--silver-mist);
-  border-radius: 6px;
+  background: var(--color-silver-mist);
+  border-radius: var(--radius-md);
 }
 .room-mobile-list h3 {
   font-size: 1.15rem;
@@ -1425,19 +1457,19 @@ html[data-entrance='playing'] .room-hotspot::before {
 .hero-controls button {
   min-height: 44px;
   padding: 0.55rem 0.85rem;
-  border: 1px solid var(--stone-grey);
-  border-radius: 30px;
-  background: var(--soft-white);
-  color: var(--charcoal-brown);
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-chip);
+  background: var(--color-soft-white);
+  color: var(--color-charcoal-brown);
   font: 0.72rem/1.4 var(--font-body);
 }
 .hero-controls button[aria-pressed='true'] {
-  background: var(--charcoal-brown);
-  color: var(--soft-white);
-  border-color: var(--charcoal-brown);
+  background: var(--color-charcoal-brown);
+  color: var(--color-soft-white);
+  border-color: var(--color-charcoal-brown);
 }
 .hero-controls button:hover {
-  border-color: var(--soft-black);
+  border-color: var(--color-soft-black);
 }
 .visually-hidden {
   position: absolute;
@@ -1465,14 +1497,11 @@ html[data-entrance='playing'] .room-hotspot::before {
   .room-product-panel {
     display: grid;
   }
-  .room-product-panel[hidden] {
-    display: none;
-  }
   .room-mobile-list {
     display: none;
   }
   :root {
-    --gutter: 2.5rem;
+    --spacing-gutter: 2.5rem;
   }
   .site-header {
     gap: 1.25rem;
@@ -1514,8 +1543,8 @@ html[data-entrance='playing'] .room-hotspot::before {
     inset: 0;
     background: linear-gradient(
       90deg,
-      var(--warm-ivory) 0%,
-      color-mix(in srgb, var(--warm-ivory) 65%, transparent) 15%,
+      var(--color-warm-ivory) 0%,
+      color-mix(in srgb, var(--color-warm-ivory) 65%, transparent) 15%,
       transparent 43%
     );
   }
@@ -1567,7 +1596,7 @@ html[data-entrance='playing'] .room-hotspot::before {
 }
 @media (min-width: 1280px) {
   :root {
-    --gutter: 5rem;
+    --spacing-gutter: 5rem;
   }
   .site-header {
     min-height: 96px;
@@ -1580,7 +1609,7 @@ html[data-entrance='playing'] .room-hotspot::before {
   }
   .hero-copy {
     width: 49%;
-    padding-left: calc(var(--gutter) + 1.5rem);
+    padding-left: calc(var(--spacing-gutter) + 1.5rem);
   }
   .hero-copy h1 {
     font-size: 4.1rem;
@@ -1655,9 +1684,9 @@ html[data-entrance='playing'] .room-hotspot::before {
   min-width: 0;
   min-height: 48px;
   padding: 0.65rem 2rem 0.65rem 0.8rem;
-  border: 1px solid var(--stone-grey);
-  border-radius: 8px;
-  background: var(--soft-white);
+  border: 1px solid var(--color-stone-grey);
+  border-radius: var(--radius-control);
+  background: var(--color-soft-white);
   color: var(--color-ink);
   font: inherit;
   font-size: 0.8rem;
@@ -1675,7 +1704,7 @@ html[data-entrance='playing'] .room-hotspot::before {
 
 .contact-detail-image img {
   width: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
 }
 .contact-detail-image figcaption {
   margin-top: 0.7rem;
@@ -1701,11 +1730,11 @@ button:disabled {
 }
 .button-secondary {
   color: var(--color-ink);
-  background: var(--warm-ivory);
+  background: var(--color-warm-ivory);
   border-color: var(--color-line);
 }
 .button-secondary:hover {
-  background: var(--silver-mist);
+  background: var(--color-silver-mist);
 }
 
 /* React catalogue feedback sits outside the busy grid for immediate announcements. */
@@ -1735,7 +1764,7 @@ button:disabled {
   min-width: 0;
   padding: 1.5rem;
   background: var(--color-panel);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
 }
 .checkout-panel h2,
 .checkout-summary h2 {
@@ -1765,8 +1794,13 @@ button:disabled {
   font-size: 0.75rem;
   font-weight: 500;
 }
+/* Keeps RAHA's inherited field text over the shadcn text-base and md:text-sm
+   classes until the checkout is converted. */
+.checkout-form [data-slot='input'] {
+  font: inherit;
+}
 .checkout-form input[aria-invalid='true'] {
-  border: 2px solid var(--charcoal-brown);
+  border: 2px solid var(--color-charcoal-brown);
 }
 .checkout-form input[type='checkbox'] {
   flex: none;
@@ -1775,7 +1809,7 @@ button:disabled {
   min-height: 0;
   margin: 0;
   padding: 0;
-  accent-color: var(--charcoal-brown);
+  accent-color: var(--color-charcoal-brown);
 }
 .checkout-summary ul {
   margin: 1rem 0;

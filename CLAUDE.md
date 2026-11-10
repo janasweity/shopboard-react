@@ -80,12 +80,16 @@ The app uses the Next.js 16 App Router (`src/app/`). Next.js 16 changed APIs and
 
 ### Styles, Tailwind and shadcn/ui
 
-- Keep tokens in src/styles/tokens.css and active styles in src/styles/main.css, both imported by the root layout. Use mobile-first min-width breakpoints at 768px and 1280px, no !important and no max-width layout queries. Avoid overflow at 360, 768 and 1280px.
-- Tailwind CSS v4 (through `@tailwindcss/postcss`) is used only for shadcn/ui components.
-  - main.css imports only theme.css and utilities.css in cascade layers, with no preflight. Utilities are generated only from src/components/ui (`source(none)` and `@source`).
-  - RAHA rules stay unlayered, so they win.
-  - shadcn colour names in tokens.css point to existing RAHA tokens. Do not add new colours, dark-mode styles, `!` utilities or `max-*` variants.
-  - After a style or framework change, compare computed styles of the existing pages with a baseline.
+- All CSS is in src/app/globals.css, imported once by the root layout. Do not add other CSS files. Use mobile-first min-width breakpoints at 768px and 1280px (Tailwind `md` and `xl`), no !important and no max-width layout queries. Avoid overflow at 360, 768 and 1280px.
+- Tailwind CSS v4 (through `@tailwindcss/postcss`) is set up for the whole project, with preflight. Classes are generated only from src/components, src/features and src/app (`source(none)` and `@source`).
+- Design tokens live only in `@theme static`: the RAHA palette, colour roles and shadcn colour names, `font-body` and `font-heading`, the RAHA radii and `gutter`. Tailwind's default colours, fonts and radii are removed.
+  - Use token utilities (`bg-panel`, `text-muted`, `rounded-panel`, `font-heading`) or `var(--color-…)`, `var(--radius-…)`; never raw colour values.
+  - Do not add colours, dark-mode styles, `!` utilities or `max-*` variants without the user's approval.
+- `@layer base` holds element styles and the browser defaults that preflight removes but RAHA needs (dialog margin, button, legend and option padding, option-group weight, placeholder colour). Do not repeat what preflight already sets.
+- Gradual conversion to Tailwind:
+  - Convert one feature at a time, only when the user asks. Features not yet converted keep their component rules in globals.css.
+  - The component rules and the focus ring stay unlayered, so they beat Tailwind classes. When a feature is converted, remove its old rules in the same step, so no element is styled by both.
+  - Keep each converted feature's look, responsive behavior, focus, motion and accessibility. Compare computed styles of the affected pages with a baseline at 360, 768 and 1280px, before and after.
 - shadcn/ui files in src/components/ui (field, input, label, separator) are project code and follow every rule.
   - Add only components a feature uses, and review all CLI output before keeping it.
   - Use the RAHA Button. shadcn files import with `@/` and explicit extensions; RAHA files keep relative imports.
