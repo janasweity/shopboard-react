@@ -2,8 +2,10 @@ import { clsx } from 'clsx'
 import type { ClassValue } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 
-// tailwind-merge knows Tailwind's default radius names only. RAHA's names from
-// @theme are added, so a className such as rounded-panel replaces rounded-pill.
+// tailwind-merge knows Tailwind's default names only. RAHA's names from
+// @theme are added, so conflicting classes resolve correctly: rounded-panel
+// replaces rounded-pill, and text-caption stays a font size next to a text
+// colour instead of being dropped as a second colour.
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
@@ -20,7 +22,15 @@ const twMerge = extendTailwindMerge({
         'chip',
         'pill',
         'circle',
+        'hero',
+        'hero-md',
       ],
+      text: ['brand-tag', 'hero', 'slide-title', 'caption', 'hint'],
+      tracking: ['brand', 'brand-tag', 'caption'],
+      leading: ['body'],
+    },
+    classGroups: {
+      'object-position': [{ object: ['hero', 'hero-md', 'kitchen'] }],
     },
   },
 })

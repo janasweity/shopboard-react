@@ -18,14 +18,16 @@ export default function FeaturedProducts({ products }: Props) {
   const featured = products.filter((product) => featuredIds.has(product.id))
   return (
     <section
-      className="page-section featured-section"
+      className="page-section border-t border-line"
       id="products"
       aria-labelledby="bestsellers-title"
     >
-      <div className="section-heading">
+      <div className="mb-7.25 flex flex-wrap items-end justify-between gap-5.25">
         <div>
           <p className="eyebrow">FAVOURITES FROM OUR LIVING COLLECTIONS</p>
-          <h2 id="bestsellers-title">Soft forms. Grounded living.</h2>
+          <h2 id="bestsellers-title" className="mt-2.5">
+            Soft forms. Grounded living.
+          </h2>
         </div>
         <Link href="/products" className="text-link">
           View all products <span aria-hidden="true">{'\u2197'}</span>

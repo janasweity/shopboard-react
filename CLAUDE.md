@@ -127,6 +127,7 @@ Keep these four kinds of evidence separate, and never claim more than the eviden
    - Catalogue cards animating on a fast API response.
    - The blank app on a failed page file download.
    - The shadcn CLI installing an unrelated `cn` package and writing an index key.
+   - During the Tailwind conversion: the Home room buttons turning soft-black with charcoal text on hover (the old `.button:hover` rule), and tailwind-merge dropping RAHA custom text sizes next to a text colour.
    - During the Next.js migration: `useSearchParams` dropping typed search characters, the intro missing server-rendered content, a hash link losing its target while the page loaded, and a root `loading.tsx` hiding static pages behind a hidden copy.
 3. **The user's own manual verification after fixes.** This is not observation of the bugs before they were fixed.
    - React DevTools inspections, as recorded in README.
