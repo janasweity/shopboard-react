@@ -37,7 +37,7 @@ export default function ProductCard({ product, position }: Props) {
       data-collection={product.collection}
     >
       <Link
-        className="relative block aspect-13/10 overflow-hidden rounded-card bg-silver-mist xl:aspect-29/20"
+        className="relative block aspect-13/10 overflow-hidden rounded-card bg-panel xl:aspect-29/20"
         href={href}
         aria-label={'View ' + product.name}
       >
@@ -73,7 +73,7 @@ export default function ProductCard({ product, position }: Props) {
           {product.description.split('. ')[0]}.
         </p>
         <p className="mt-auto text-sm leading-body">{money(product.price)}</p>
-        <p className="mt-1.25 text-2xs leading-body text-warm-slate">
+        <p className="mt-1.25 text-2xs leading-body text-muted">
           {product.variants.length}{' '}
           {product.variants.length === 1
             ? 'color / finish'

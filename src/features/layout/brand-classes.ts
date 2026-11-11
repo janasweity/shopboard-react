@@ -1,6 +1,6 @@
 // The RAHA wordmark, shared by the header and the footer.
 export const brandClass =
-  'inline-flex items-center font-heading text-4xl leading-none tracking-brand text-charcoal-brown'
+  'inline-flex items-center font-heading text-4xl leading-none tracking-brand text-ink'
 
 // Its "HOME & LIVING" line.
 export const brandTagClass =

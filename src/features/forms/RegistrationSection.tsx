@@ -45,7 +45,7 @@ export default function RegistrationSection() {
       aria-labelledby="registration-title"
     >
       <div className="self-center">
-        <p className={cn(eyebrowClass, 'text-charcoal-brown')}>
+        <p className={cn(eyebrowClass, 'text-ink')}>
           THERE'S ROOM FOR YOU HERE
         </p>
         <h2 id="registration-title" className="mt-3.25 mb-4">
@@ -55,7 +55,7 @@ export default function RegistrationSection() {
         </h2>
         <p
           id="demo-description"
-          className="max-w-97.5 text-xs leading-body text-charcoal-brown"
+          className="max-w-97.5 text-xs leading-body text-ink"
         >
           Try our registration demo. No account is created, and your details are
           never sent or stored. Please use made-up details.

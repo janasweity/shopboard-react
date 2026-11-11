@@ -22,7 +22,7 @@ const labelClass = 'mb-2.5'
 // data-slot="select" keeps the shared field rule in globals.css off these
 // selects, so their own classes apply.
 const selectClass =
-  'min-h-12 w-full min-w-0 rounded-control border border-stone-grey bg-soft-white py-2.5 pr-8 pl-3.25 text-xs text-foreground'
+  'min-h-12 w-full min-w-0 rounded-control border border-input bg-background py-2.5 pr-8 pl-3.25 text-xs text-foreground'
 
 export default function CatalogueControls({
   selection,
@@ -39,7 +39,7 @@ export default function CatalogueControls({
         style={motion.style}
       >
         <FormField id="product-search" label="Find something for your home">
-          <div className="flex items-center gap-2.5 rounded-control border border-stone-grey bg-soft-white px-3.5">
+          <div className="flex items-center gap-2.5 rounded-control border border-input bg-background px-3.5">
             <span aria-hidden="true">{'⌕'}</span>
             {/* The field keeps the shared Input look inside the box, as the
                 site has always shown it. */}

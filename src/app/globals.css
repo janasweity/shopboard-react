@@ -8,8 +8,10 @@
 @source '../features';
 @source '../app';
 
-/* RAHA has no dark theme: dark: classes apply only inside a .dark element,
-   which the site never uses, so the OS dark mode cannot restyle components. */
+/* Dark mode follows the device through the colour roles (see the end of the
+   file), so components need no dark: classes. dark: applies only inside a
+   .dark element, which the site never uses, so a dark: class in shadcn/ui
+   code cannot restyle a component behind the roles' back. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Design tokens. Tailwind's default colours, fonts and radii are removed, so
@@ -33,7 +35,8 @@
   --color-warm-ivory: #eee5d5;
   --color-soft-white: #faf8f1;
 
-  /* Colour roles. */
+  /* Colour roles. Components use these, so they switch in dark mode; a
+     palette name stays the same colour in both modes. */
   --color-bg: var(--color-soft-white);
   --color-ink: var(--color-charcoal-brown);
   --color-muted: var(--color-warm-slate);
@@ -42,6 +45,12 @@
   --color-panel: var(--color-silver-mist);
   --color-line: var(--color-stone-grey);
   --color-sand: var(--color-warm-ivory);
+  --color-feature: var(--color-warm-greige); /* the registration block */
+  --color-accent: var(
+    --color-taupe-brown
+  ); /* active link, tag and intro lines */
+  --color-disabled: var(--color-graphite-grey); /* disabled buttons */
+  --color-disabled-foreground: var(--color-soft-white);
 
   /* shadcn/ui colour names, mapped to RAHA colours. */
   --color-background: var(--color-bg);
@@ -218,7 +227,7 @@
    inherited form fonts and link colours, block images and [hidden]. */
 @layer base {
   :root {
-    color-scheme: light;
+    color-scheme: light dark;
   }
   html {
     scroll-behavior: smooth;
@@ -259,7 +268,7 @@
   h1,
   h2,
   h3 {
-    color: var(--color-soft-black);
+    color: var(--color-primary-dark);
     font-family: var(--font-heading);
     font-weight: 400;
     line-height: 1.12;
@@ -290,7 +299,7 @@
   /* In the base layer, so a Tailwind class can change its colour (the
      footer uses soft white). */
   :focus-visible {
-    outline: 3px solid var(--color-charcoal-brown);
+    outline: 3px solid var(--color-ring);
     outline-offset: 5px;
   }
 }
@@ -305,6 +314,35 @@
 @media (min-width: 1280px) {
   :root {
     --spacing-gutter: 5rem;
+  }
+}
+
+/* Dark mode, when the device asks for it. Only the roles change, all to
+   RAHA shades; sand and feature mix two shades, because no single shade sits
+   between the page and the panels. The light values above stay the design.
+   Outside a layer, so it overrides the tokens on :root. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: var(--color-soft-black);
+    --color-ink: var(--color-silver-mist);
+    --color-muted: var(--color-warm-greige);
+    --color-primary: var(--color-silver-mist);
+    --color-primary-dark: var(--color-soft-white);
+    --color-panel: var(--color-charcoal-brown);
+    --color-sand: color-mix(
+      in srgb,
+      var(--color-charcoal-brown) 50%,
+      var(--color-soft-black)
+    );
+    --color-feature: color-mix(
+      in srgb,
+      var(--color-warm-slate) 50%,
+      var(--color-charcoal-brown)
+    );
+    --color-disabled: var(--color-warm-slate);
+    --color-disabled-foreground: var(--color-silver-mist);
+    --color-primary-foreground: var(--color-soft-black);
+    --color-ring: var(--color-soft-white);
   }
 }
 

@@ -27,7 +27,7 @@ export default function SiteHeader({ onOpenCart }: Props) {
   const { quantity } = useCartContext()
   const pathname = usePathname()
   return (
-    <header className="flex flex-wrap items-center gap-x-4 gap-y-2.5 bg-warm-ivory px-gutter py-4 md:gap-5 md:py-5.5 xl:min-h-24">
+    <header className="flex flex-wrap items-center gap-x-4 gap-y-2.5 bg-sand px-gutter py-4 md:gap-5 md:py-5.5 xl:min-h-24">
       <Link className={brandClass} href="/">
         <span>
           RAHA <small className={brandTagClass}>HOME &amp; LIVING</small>
@@ -48,7 +48,7 @@ export default function SiteHeader({ onOpenCart }: Props) {
                   className={cn(
                     'flex min-h-11 items-center border-b text-2xs hover:border-primary hover:text-primary-dark',
                     active
-                      ? 'border-taupe-brown font-semibold text-primary-dark'
+                      ? 'border-accent font-semibold text-primary-dark'
                       : 'border-transparent',
                   )}
                   aria-current={active ? 'page' : undefined}
@@ -66,11 +66,7 @@ export default function SiteHeader({ onOpenCart }: Props) {
               aria-controls="cart-dialog"
               onClick={onOpenCart}
             >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                className="text-stone-grey"
-              >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="text-line">
                 <path d="m2 3 3 1 3 12h11l3-9H6M10 21h.01M18 21h.01" />
               </svg>
               Cart{' '}

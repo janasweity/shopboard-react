@@ -29,7 +29,7 @@ interface Props {
 // The room choices are toggle chips (aria-pressed), not call-to-action
 // buttons, so they are not the shared Button.
 const roomChipClass =
-  'inline-flex min-h-11 items-center justify-center rounded-chip border border-stone-grey bg-soft-white px-3.5 py-2.25 text-xs text-charcoal-brown hover:border-soft-black aria-pressed:border-charcoal-brown aria-pressed:bg-charcoal-brown aria-pressed:text-soft-white'
+  'inline-flex min-h-11 items-center justify-center rounded-chip border border-line bg-bg px-3.5 py-2.25 text-xs text-ink hover:border-primary-dark aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-bg'
 
 export default function RoomSlider({ slides }: Props) {
   const [activeId, setActiveId] = useState(slides[0]?.id || '')

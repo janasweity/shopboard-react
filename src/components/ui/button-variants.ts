@@ -12,10 +12,10 @@ export const buttonVariants = cva(
       variant: {
         // The RAHA call to action (.button).
         primary:
-          'border-transparent bg-primary text-primary-foreground not-disabled:hover:bg-primary-dark disabled:bg-graphite-grey',
+          'border-transparent bg-primary text-primary-foreground not-disabled:hover:bg-primary-dark disabled:bg-disabled disabled:text-disabled-foreground',
         // The quieter ivory button (.button-secondary).
         secondary:
-          'border-line bg-sand text-ink not-disabled:hover:bg-panel disabled:bg-graphite-grey disabled:text-primary-foreground',
+          'border-line bg-sand text-ink not-disabled:hover:bg-panel disabled:bg-disabled disabled:text-disabled-foreground',
         // A transparent outlined button, based on .text-button.
         ghost:
           'border-line bg-transparent font-normal text-ink not-disabled:hover:bg-sand disabled:opacity-50',

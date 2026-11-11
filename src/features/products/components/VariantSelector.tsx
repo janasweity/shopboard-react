@@ -18,7 +18,7 @@ function swatchStyle(
 // padding is 1px smaller and the swatch keeps its size. The buttons keep
 // their keys, so keyboard focus stays on the chosen swatch.
 const swatchClass =
-  'flex min-h-12 flex-wrap items-center gap-2 rounded-control border border-stone-grey bg-soft-white px-3 py-2.5 text-xs leading-body text-charcoal-brown hover:bg-warm-ivory aria-pressed:border-2 aria-pressed:border-charcoal-brown aria-pressed:bg-silver-mist aria-pressed:px-2.75 aria-pressed:py-2.25'
+  'flex min-h-12 flex-wrap items-center gap-2 rounded-control border border-line bg-bg px-3 py-2.5 text-xs leading-body text-ink hover:bg-sand aria-pressed:border-2 aria-pressed:border-ink aria-pressed:bg-panel aria-pressed:px-2.75 aria-pressed:py-2.25'
 
 export default function VariantSelector({
   variants,
@@ -27,7 +27,7 @@ export default function VariantSelector({
 }: Props) {
   return (
     <fieldset className="mt-4 min-w-0 py-5">
-      <legend className="text-sm leading-body font-semibold text-charcoal-brown">
+      <legend className="text-sm leading-body font-semibold text-ink">
         Color / finish
       </legend>
       <p
@@ -49,7 +49,7 @@ export default function VariantSelector({
               onClick={() => onSelect(variant.id)}
             >
               <span
-                className="size-6 flex-none rounded-circle border border-stone-grey bg-(--swatch-color)"
+                className="size-6 flex-none rounded-circle border border-line bg-(--swatch-color)"
                 style={swatchStyle(variant.hex)}
                 aria-hidden="true"
               />

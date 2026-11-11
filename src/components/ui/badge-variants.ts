@@ -7,7 +7,7 @@ export const badgeVariants = cva('inline-flex items-center', {
   variants: {
     variant: {
       // Product tag on a product image (.product-tag): an outlined pill.
-      tag: 'rounded-chip border border-taupe-brown bg-background px-2.5 py-1 text-2xs tracking-wider text-primary-dark',
+      tag: 'rounded-chip border border-accent bg-background px-2.5 py-1 text-2xs tracking-wider text-primary-dark',
       // Availability note inside a finish swatch (.swatch-stock): small text
       // in the surrounding colour, without a frame.
       status: 'text-2xs',

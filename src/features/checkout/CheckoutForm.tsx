@@ -129,7 +129,7 @@ export default function CheckoutForm({ onConfirmed }: Props) {
           <input
             id="checkout-demo-confirmed"
             type="checkbox"
-            className="size-5 flex-none rounded-field border border-stone-grey bg-soft-white text-ink accent-charcoal-brown aria-invalid:border-2 aria-invalid:border-charcoal-brown"
+            className="size-5 flex-none rounded-field border border-input bg-background text-ink accent-ink aria-invalid:border-2 aria-invalid:border-ink"
             aria-invalid={confirmError ? true : undefined}
             aria-describedby={
               confirmError ? 'checkout-demo-confirmed-error' : undefined

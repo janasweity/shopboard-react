@@ -9,16 +9,14 @@ interface Props {
 
 const serviceLinkClass = 'hover:underline hover:underline-offset-4'
 
-// The footer is dark, so its focus ring is soft white.
+// The footer is a dark band in both colour modes, so it uses fixed palette
+// colours instead of roles, and its focus ring is soft white.
 export default function SiteFooter({ year }: Props) {
   return (
-    <footer className="mt-8 border-t-4 border-taupe-brown bg-charcoal-brown px-gutter pt-10 pb-4 text-soft-white **:focus-visible:outline-soft-white">
+    <footer className="mt-8 border-t-4 border-accent bg-charcoal-brown px-gutter pt-10 pb-4 text-soft-white **:focus-visible:outline-soft-white">
       <div className="grid grid-cols-2 gap-x-4.75 gap-y-8 md:grid-cols-footer xl:grid-cols-footer-wide xl:gap-12">
         <div className="col-span-full md:col-auto">
-          <Link
-            className={cn(brandClass, 'bg-warm-ivory px-4 py-3.25')}
-            href="/"
-          >
+          <Link className={cn(brandClass, 'bg-sand px-4 py-3.25')} href="/">
             <span>
               RAHA <small className={brandTagClass}>HOME &amp; LIVING</small>
             </span>

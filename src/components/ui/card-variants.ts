@@ -11,7 +11,7 @@ export const cardVariants = cva('min-w-0 text-foreground', {
       // product gallery frame.
       panel: 'rounded-panel bg-panel',
       // Greige feature block with a line: Home registration section.
-      feature: 'rounded-panel border border-line bg-warm-greige',
+      feature: 'rounded-panel border border-line bg-feature',
       // Page-coloured card with a line: the registration form.
       surface: 'rounded-card border border-line bg-background',
     },
