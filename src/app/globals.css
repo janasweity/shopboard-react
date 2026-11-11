@@ -1,5 +1,5 @@
 /* RAHA global styles: Tailwind, the design tokens, base element styles and
-   the component rules that are still waiting to be converted to Tailwind. */
+   the motion rules. Components are styled with Tailwind classes. */
 
 /* Tailwind with its preflight reset. Classes are generated only from the
    project's component, feature and route files. */
@@ -15,7 +15,7 @@
 /* Design tokens. Tailwind's default colours, fonts and radii are removed, so
    only RAHA values exist as utilities (bg-soft-white, font-heading,
    rounded-panel and so on). `static` keeps every token as a CSS variable,
-   because the component rules below read them with var(). */
+   because the base styles below read them with var(). */
 @theme static {
   --color-*: initial;
   --font-*: initial;
@@ -126,6 +126,16 @@
   --grid-template-columns-checkout: minmax(0, 1.3fr) minmax(0, 1fr);
   --grid-template-columns-line: minmax(0, 1fr) auto;
 
+  /* Shared text styles: eyebrow labels, text links and text buttons, form
+     labels and collection footnotes. Without a line-height token, the last
+     three keep the line height they inherit, as before. */
+  --text-eyebrow: 0.62rem;
+  --text-eyebrow--line-height: 1.6;
+  --tracking-eyebrow: 0.18em;
+  --text-action: 0.77rem;
+  --text-field-label: 0.8rem;
+  --text-footnote: 0.7rem;
+
   /* The store intro: its lettering, the botanical illustration and its
      motions, and the arrival of page content behind it. The global
      reduced-motion rule turns every animation off. */
@@ -180,13 +190,12 @@
   }
 
   /* Corner radii used by RAHA. */
-  --radius-thumb: 4px; /* gallery thumbnails, quantity controls, hotspot labels */
+  --radius-thumb: 4px; /* gallery thumbnails, quantity controls */
   --radius-field: 5px; /* form fields, small cart and room images */
-  --radius-md: 6px; /* room list images; also shadcn/ui's rounded-md */
+  --radius-md: 6px; /* shadcn/ui's rounded-md (field groups) */
   --radius-control: 8px; /* search box, selects, finish swatches */
   --radius-card: 10px; /* product images, registration form, room panel */
   --radius-panel: 12px; /* panels, galleries, section cards */
-  --radius-photo: 14px; /* shop-the-room photo */
   --radius-dialog: 15px; /* cart dialog */
   --radius-feature: 18px; /* story images */
   --radius-chip: 30px; /* tags, filter and slide buttons */
@@ -226,6 +235,9 @@
   }
   button {
     cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
   }
   /* Browser defaults that preflight removes but RAHA's layout relies on:
      centred modal dialogs, button and legend padding, option spacing, bold
@@ -283,303 +295,22 @@
   }
 }
 
-/* Shared rules that converted and unconverted pages both use: text links,
-   form fields and eyebrow labels. In a layer, Tailwind classes can adjust
-   them, for example a label margin in the catalogue or a colour in the
-   footer. */
-@layer components {
-  .text-link {
-    display: inline-block;
-    padding-block: 0.55rem;
-    color: var(--color-primary-dark);
-    font-size: 0.77rem;
-    border-bottom: 1px solid var(--color-line);
-  }
-  .text-link:hover {
-    border-color: currentColor;
-  }
-  .form-field {
-    margin-bottom: 1.15rem;
-  }
-  .form-field label {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-size: 0.8rem;
-  }
-  .eyebrow {
-    color: var(--color-muted);
-    font-size: 0.62rem;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    line-height: 1.6;
-  }
-}
-
-/* Component rules from the former main.css. They stay outside the layers, so
-   they win over Tailwind classes until each feature is converted. */
-
-.page-content {
-  width: 100%;
-  max-width: 1600px;
-  margin-inline: auto;
-}
-main {
-  padding-inline: var(--spacing-gutter);
-}
-main:focus {
-  outline: none;
-}
-#page-view > * {
-  min-width: 0;
-}
-.skip-link {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 200;
-  padding: 0.8rem 1rem;
-  background: var(--color-bg);
-  color: var(--color-ink);
-  transform: translateY(-200%);
-}
-.skip-link:focus {
-  transform: translateY(0);
-}
-.collection-footnote {
-  color: var(--color-muted);
-  font-size: 0.7rem;
-  margin-top: 1.5rem;
-}
-/* Home: light, natural photography and gently curved silhouettes. */
-.page-section {
-  padding-block: 3.5rem;
-}
-/* Catalogue, detail, inspiration and contact pages share the same palette. */
-.page-intro {
-  padding-block: 3rem 2rem;
-  max-width: 800px;
-}
-.page-intro h1 {
-  margin-block: 1rem;
-}
-.page-intro > p:not(.eyebrow) {
-  color: var(--color-muted);
-  max-width: 600px;
-}
+/* The page gutter grows at the tablet and desktop breakpoints (px-gutter,
+   -mx-gutter). Outside a layer, so it overrides the token on :root. */
 @media (min-width: 768px) {
-}
-/* Local demo registration and cart retain native form behavior. */
-
-/* The optional introduction never hides the underlying page. */
-/* RAHA: the ten-shade interface palette. Product color dots keep their own values. */
-
-/* A catalogue-matched room with a non-modal, single-product panel. */
-.shop-the-room {
-  padding-block: 2.5rem 4rem;
-}
-.shop-room-scene {
-  position: relative;
-  isolation: isolate;
-}
-.shop-room-photo {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-photo);
-}
-.room-hotspot {
-  display: none;
-  position: absolute;
-  left: var(--hotspot-x);
-  top: var(--hotspot-y);
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  place-items: center;
-  border: 2px solid var(--color-soft-white);
-  border-radius: var(--radius-circle);
-  background: var(--color-charcoal-brown);
-  color: var(--color-soft-white);
-  box-shadow: 0 2px 10px
-    color-mix(in srgb, var(--color-soft-black) 25%, transparent);
-  font-size: 0.85rem;
-}
-.room-hotspot::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border: 1px solid var(--color-soft-white);
-  border-radius: var(--radius-circle);
-  pointer-events: none;
-  animation: room-beacon 3s ease-in-out infinite;
-}
-html[data-entrance='playing'] .room-hotspot::before {
-  animation: none;
-}
-.room-hotspot:hover,
-.room-hotspot[aria-expanded='true'] {
-  background: var(--color-soft-white);
-  color: var(--color-charcoal-brown);
-  border-color: var(--color-charcoal-brown);
-}
-.room-hotspot:focus-visible {
-  outline: 3px solid var(--color-soft-black);
-  outline-offset: 5px;
-  box-shadow: 0 0 0 5px var(--color-soft-white);
-}
-.room-hotspot-label {
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--radius-thumb);
-  white-space: nowrap;
-  font-size: 0.65rem;
-  background: var(--color-soft-white);
-  color: var(--color-charcoal-brown);
-  visibility: hidden;
-}
-.room-hotspot:hover .room-hotspot-label,
-.room-hotspot:focus-visible .room-hotspot-label {
-  visibility: visible;
-}
-.room-hotspot[data-room-hotspot='fern-lamp'] .room-hotspot-label {
-  left: 0;
-  transform: none;
-}
-.room-hotspot[data-room-hotspot='moss-chair'] .room-hotspot-label {
-  left: auto;
-  right: 0;
-  transform: none;
-}
-.room-product-panel {
-  display: none;
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  z-index: 2;
-  grid-template-columns: 84px minmax(0, 1fr);
-  align-items: center;
-  gap: 1rem;
-  width: 310px;
-  max-width: calc(100% - 2.5rem);
-  padding: 1.5rem 1rem 1rem;
-  border: 1px solid var(--color-stone-grey);
-  border-radius: var(--radius-card);
-  background: var(--color-soft-white);
-  color: var(--color-charcoal-brown);
-  box-shadow: 0 8px 24px
-    color-mix(in srgb, var(--color-soft-black) 15%, transparent);
-}
-.room-product-panel > img {
-  width: 84px;
-  height: 94px;
-  object-fit: contain;
-  border-radius: var(--radius-field);
-  background: var(--color-silver-mist);
-}
-.room-product-panel h3 {
-  font-size: 1.15rem;
-  padding-right: 0.8rem;
-}
-.room-panel-color {
-  font-size: 0.68rem;
-  color: var(--color-warm-slate);
-  margin-block: 0.35rem;
-}
-.room-panel-price {
-  font-size: 0.8rem;
-}
-.room-product-panel .text-link {
-  font-size: 0.73rem;
-}
-.room-panel-close {
-  position: absolute;
-  top: 0.2rem;
-  right: 0.2rem;
-  width: 36px;
-  min-height: 36px;
-  border: 0;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--color-charcoal-brown);
-  font-size: 1.4rem;
-}
-.room-panel-close:hover {
-  background: var(--color-silver-mist);
-}
-.room-mobile-list {
-  display: grid;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0 0;
-}
-.room-mobile-list li {
-  display: grid;
-  grid-template-columns: 80px minmax(0, 1fr);
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--color-line);
-}
-.room-mobile-list img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  background: var(--color-silver-mist);
-  border-radius: var(--radius-md);
-}
-.room-mobile-list h3 {
-  font-size: 1.15rem;
-}
-.room-mobile-list p {
-  font-size: 0.75rem;
-  margin-top: 0.4rem;
-}
-@keyframes room-beacon {
-  0%,
-  100% {
-    opacity: 0.25;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.15);
-  }
-}
-
-@media (min-width: 768px) {
-  .room-hotspot {
-    display: grid;
-  }
-  .room-product-panel {
-    display: grid;
-  }
-  .room-mobile-list {
-    display: none;
-  }
   :root {
     --spacing-gutter: 2.5rem;
-  }
-  .page-section {
-    padding-block: 4.5rem;
   }
 }
 @media (min-width: 1280px) {
   :root {
     --spacing-gutter: 5rem;
   }
-  .page-section {
-    padding-block: 5rem;
-  }
 }
+
+/* Reduced motion: no smooth scrolling, and no animation or transition on any
+   element. Outside a layer, so it also stops Tailwind's animate-* classes. */
 @media (prefers-reduced-motion: reduce) {
-  .room-hotspot::before {
-    animation: none;
-  }
   html {
     scroll-behavior: auto;
   }
@@ -589,19 +320,4 @@ html[data-entrance='playing'] .room-hotspot::before {
     animation: none;
     transition: none;
   }
-}
-
-/* Catalogue controls share the existing RAHA form styling. */
-@media (min-width: 768px) {
-}
-
-/* React foundation additions; original RAHA styles above are preserved. */
-button:disabled {
-  cursor: not-allowed;
-}
-
-/* React catalogue feedback sits outside the busy grid for immediate announcements. */
-
-/* The native confirmation checkbox is not an Input yet. */
-@media (min-width: 768px) {
 }

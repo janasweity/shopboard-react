@@ -3,6 +3,7 @@ import { money, products } from '../../data.ts'
 import { productPath } from '../../lib/routes.ts'
 import Link from 'next/link'
 import { cn } from '../../lib/utils.ts'
+import { eyebrowClass, textLinkClass } from '../../components/shared-classes.ts'
 
 interface Props {
   readonly room: InspirationRoom
@@ -44,7 +45,7 @@ export default function RoomSection({ room, position }: Props) {
           </figcaption>
         </figure>
         <div>
-          <p className="eyebrow">
+          <p className={eyebrowClass}>
             0{position} / {room.name.toUpperCase()}
           </p>
           <h2 id={room.id + '-title'} className="my-4">
@@ -94,7 +95,7 @@ export default function RoomSection({ room, position }: Props) {
               <p className={cn(productTextClass, 'text-ink')}>
                 {money(variant.price)}
               </p>
-              <Link href={href} className="text-link">
+              <Link href={href} className={textLinkClass}>
                 View product {'↗'}
               </Link>
             </div>

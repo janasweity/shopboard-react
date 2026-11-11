@@ -5,6 +5,7 @@ import {
   pageIntroClass,
   pageIntroTitleClass,
 } from '../components/page-intro-classes.ts'
+import { eyebrowClass } from '../components/shared-classes.ts'
 
 interface Props {
   readonly error: unknown
@@ -23,7 +24,7 @@ export default function PageError({ retry }: Props) {
 
   return (
     <section className={pageIntroClass}>
-      <p className="eyebrow">RAHA / PAGE</p>
+      <p className={eyebrowClass}>RAHA / PAGE</p>
       <h1 className={pageIntroTitleClass}>This page could not be loaded.</h1>
       <StatusMessage
         kind="error"

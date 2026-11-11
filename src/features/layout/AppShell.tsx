@@ -29,13 +29,25 @@ export default function AppShell({ children }: Props) {
   return (
     <EntranceContext value={entrance.startedAt}>
       <CartProvider page={pathname}>
-        <a className="skip-link" href="#main-content">
+        {/* Above the viewport (twice its own height) until it has focus. */}
+        <a
+          className="fixed top-4 left-4 z-200 -translate-y-2/1 bg-bg px-4 py-3.25 text-ink focus:translate-y-0"
+          href="#main-content"
+        >
           Skip to main content
         </a>
-        <div className="page-content" id="top">
+        <div className="mx-auto w-full max-w-400" id="top">
           <SiteHeader onOpenCart={() => setCartOpen(true)} />
-          <main id="main-content" tabIndex={-1}>
-            <div id="page-view">{children}</div>
+          {/* Focused by the skip link and after a route change, without a
+              ring: the focus moves to the page, not to a control. */}
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="px-gutter focus:outline-none"
+          >
+            <div id="page-view" className="*:min-w-0">
+              {children}
+            </div>
             <CartStatus />
           </main>
           <SiteFooter year={2026} />

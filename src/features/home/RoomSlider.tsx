@@ -17,6 +17,10 @@ import {
   heroImageClass,
   heroShellClass,
 } from './hero-classes.ts'
+import {
+  eyebrowClass,
+  pageSectionClass,
+} from '../../components/shared-classes.ts'
 
 interface Props {
   readonly slides: readonly (typeof heroSlides)[number][]
@@ -34,13 +38,13 @@ export default function RoomSlider({ slides }: Props) {
   const titleLines = slideTitleLines[slide.id]
   return (
     <section
-      className={cn(heroShellClass, 'page-section')}
+      className={cn(heroShellClass, pageSectionClass)}
       id="room-inspiration"
       data-slide={slide.id}
       aria-labelledby="room-slider-title"
     >
       <div className={heroCopyClass}>
-        <p className="eyebrow">{slide.eyebrow}</p>
+        <p className={eyebrowClass}>{slide.eyebrow}</p>
         <h2 id="room-slider-title" className="text-slide-title">
           {titleLines
             ? titleLines.map((line) => (

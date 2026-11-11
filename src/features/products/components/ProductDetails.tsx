@@ -19,6 +19,10 @@ import {
 } from '../../entrance/entrance-motion.ts'
 import ProductGallery from './ProductGallery.tsx'
 import VariantSelector from './VariantSelector.tsx'
+import {
+  eyebrowClass,
+  textLinkClass,
+} from '../../../components/shared-classes.ts'
 
 interface Props {
   // Loaded by the products/[id] Server Component from the products API.
@@ -73,7 +77,7 @@ export default function ProductDetails({ product }: Props) {
           />
         </ProductGallery>
         <div className="min-w-0">
-          <p className="eyebrow">
+          <p className={eyebrowClass}>
             {categoryName(product.category).toUpperCase()} / RAHA
           </p>
           <h1
@@ -86,7 +90,7 @@ export default function ProductDetails({ product }: Props) {
             {product.name}
           </h1>
           <Link
-            className="text-link mb-4"
+            className={cn(textLinkClass, 'mb-4')}
             href={'/products?collection=' + product.collection}
           >
             {collectionName(product.collection)}
@@ -134,7 +138,7 @@ export default function ProductDetails({ product }: Props) {
             Illustrative product specifications. Local demo cart only; the demo
             checkout creates no order and takes no payment.
           </p>
-          <Link href="/products" className="text-link">
+          <Link href="/products" className={textLinkClass}>
             {'←'} Back to all products
           </Link>
         </div>

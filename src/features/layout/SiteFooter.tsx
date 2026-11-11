@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { cn } from '../../lib/utils.ts'
 import { brandClass, brandTagClass } from './brand-classes.ts'
+import { eyebrowClass, textLinkClass } from '../../components/shared-classes.ts'
 
 interface Props {
   readonly year: number
@@ -31,7 +32,9 @@ export default function SiteFooter({ year }: Props) {
           aria-label="Store services"
           className="flex flex-col items-start gap-2 text-xs leading-body"
         >
-          <p className="eyebrow mb-2.5 text-silver-mist">A HELPING HAND</p>
+          <p className={cn(eyebrowClass, 'mb-2.5 text-silver-mist')}>
+            A HELPING HAND
+          </p>
           <Link className={serviceLinkClass} href="/inspiration#planning">
             Planning tools
           </Link>
@@ -43,14 +46,17 @@ export default function SiteFooter({ year }: Props) {
           </Link>
         </nav>
         <div className="col-span-full xl:col-auto">
-          <p className="eyebrow mb-2.5 text-silver-mist">
+          <p className={cn(eyebrowClass, 'mb-2.5 text-silver-mist')}>
             MAKE YOURSELF AT HOME
           </p>
           <p className="max-w-70 text-xs leading-body text-silver-mist">
             A furniture store demo for exploring, imagining, and finding your
             favourites.
           </p>
-          <Link href="/#registration" className="text-link text-soft-white">
+          <Link
+            href="/#registration"
+            className={cn(textLinkClass, 'text-soft-white')}
+          >
             Explore the registration demo {'↗'}
           </Link>
         </div>

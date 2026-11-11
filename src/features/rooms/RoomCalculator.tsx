@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button.tsx'
 import { cardVariants } from '../../components/ui/card-variants.ts'
 import { Input } from '../../components/ui/input.tsx'
 import { cn } from '../../lib/utils.ts'
+import { eyebrowClass } from '../../components/shared-classes.ts'
 
 // Each field grows from a 140px basis, so the two fields and the button sit
 // on one row when there is room and wrap below it otherwise.
@@ -29,7 +30,7 @@ export default function RoomCalculator() {
     // The panel's 1.5rem padding, with the page sections' taller vertical
     // padding from 768px (4.5rem, then 5rem), as before.
     <section id="planning" className={cn(cardVariants(), 'md:py-18 xl:py-20')}>
-      <p className="eyebrow">A GOOD PLACE TO START</p>
+      <p className={eyebrowClass}>A GOOD PLACE TO START</p>
       <h2 className="my-4">Plan your room.</h2>
       <p>
         Measure your room to estimate its floor area. Check furniture dimensions

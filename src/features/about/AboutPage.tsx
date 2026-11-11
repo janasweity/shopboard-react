@@ -8,6 +8,12 @@ import {
   entranceDelay,
   useEntranceMotion,
 } from '../entrance/entrance-motion.ts'
+import { eyebrowClass } from '../../components/shared-classes.ts'
+import {
+  pageIntroClass,
+  pageIntroTextClass,
+  pageIntroTitleClass,
+} from '../../components/page-intro-classes.ts'
 
 const storyTextClass = 'mb-5.25 text-muted'
 const contactTextClass = 'text-sm leading-body text-muted'
@@ -16,14 +22,17 @@ export default function AboutPage() {
   const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
   return (
     <>
-      <section className="page-intro">
-        <p className="eyebrow">HELLO, WE'RE RAHA.</p>
-        <h1 className={titleMotion.className} style={titleMotion.style}>
+      <section className={pageIntroClass}>
+        <p className={eyebrowClass}>HELLO, WE'RE RAHA.</p>
+        <h1
+          className={cn(pageIntroTitleClass, titleMotion.className)}
+          style={titleMotion.style}
+        >
           Thoughtful design.
           <br />
           Everyday possibilities.
         </h1>
-        <p>
+        <p className={pageIntroTextClass}>
           An independent concept store for people making a place of their own.
         </p>
       </section>
@@ -70,7 +79,7 @@ export default function AboutPage() {
         aria-labelledby="contact-title"
       >
         <div>
-          <p className="eyebrow">LET'S START A CONVERSATION</p>
+          <p className={eyebrowClass}>LET'S START A CONVERSATION</p>
           <h2 id="contact-title" className="mt-3.25 mb-4">
             About your next idea.
           </h2>

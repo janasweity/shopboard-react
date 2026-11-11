@@ -15,6 +15,16 @@ import {
   entranceDelay,
   useEntranceMotion,
 } from '../../entrance/entrance-motion.ts'
+import {
+  eyebrowClass,
+  footnoteClass,
+} from '../../../components/shared-classes.ts'
+import {
+  pageIntroClass,
+  pageIntroTextClass,
+  pageIntroTitleClass,
+} from '../../../components/page-intro-classes.ts'
+import { cn } from '../../../lib/utils.ts'
 
 interface Props {
   // Started by the products Server Component and not awaited, so the page
@@ -27,7 +37,9 @@ interface Props {
 }
 
 const summaryFallback = (
-  <p id="catalogue-summary">Explore our considered collection.</p>
+  <p id="catalogue-summary" className={pageIntroTextClass}>
+    Explore our considered collection.
+  </p>
 )
 
 export default function ProductsPage({
@@ -57,9 +69,12 @@ export default function ProductsPage({
 
   return (
     <>
-      <section className="page-intro">
-        <p className="eyebrow">FIVE ROOMS / ONE CONSIDERED HOME</p>
-        <h1 className={titleMotion.className} style={titleMotion.style}>
+      <section className={pageIntroClass}>
+        <p className={eyebrowClass}>FIVE ROOMS / ONE CONSIDERED HOME</p>
+        <h1
+          className={cn(pageIntroTitleClass, titleMotion.className)}
+          style={titleMotion.style}
+        >
           Find your everyday favourites.
         </h1>
         <ErrorBoundary resetKey={requestId} fallback={() => summaryFallback}>
@@ -120,7 +135,7 @@ export default function ProductsPage({
             </Suspense>
           </ErrorBoundary>
         </div>
-        <p className="collection-footnote">
+        <p className={footnoteClass}>
           A concept furniture store. Product photos illustrate the collection;
           names, specifications and prices are concept content.
         </p>

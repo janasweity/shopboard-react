@@ -7,8 +7,8 @@ interface Props {
   readonly hint?: string
   readonly error?: string
   readonly className?: string
-  // Tailwind classes for the label, for example a different margin. The
-  // shared .form-field rules are in a cascade layer, so these win.
+  // Tailwind classes for the label, for example a different margin. cn()
+  // lets them replace the default label classes.
   readonly labelClassName?: string
   // Tailwind classes for the hint paragraph.
   readonly hintClassName?: string
@@ -26,8 +26,11 @@ export default function FormField({
   children,
 }: Props) {
   return (
-    <div className={cn('form-field', className)}>
-      <label htmlFor={id} className={labelClassName}>
+    <div className={cn('mb-4.5', className)}>
+      <label
+        htmlFor={id}
+        className={cn('mb-1.5 block text-field-label', labelClassName)}
+      >
         {label}
       </label>
       {children}

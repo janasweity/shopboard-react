@@ -8,6 +8,7 @@ import { getProductGallery } from '../../../product-gallery.ts'
 import Link from 'next/link'
 import { productPath } from '../../../lib/routes.ts'
 import { cardVariants } from '../../../components/ui/card-variants.ts'
+import { textLinkClass } from '../../../components/shared-classes.ts'
 
 interface Props {
   readonly product: Product
@@ -79,7 +80,7 @@ export default function ProductGallery({ product, variant, children }: Props) {
           <p className={galleryNoteClass}>
             Additional photographs are available in {original.name}.{' '}
             <Link
-              className="text-link"
+              className={textLinkClass}
               href={productPath(product.id, original.id)}
             >
               View those photographs

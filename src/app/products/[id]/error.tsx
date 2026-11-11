@@ -5,6 +5,7 @@ import {
   pageIntroClass,
   pageIntroTitleClass,
 } from '../../../components/page-intro-classes.ts'
+import { eyebrowClass } from '../../../components/shared-classes.ts'
 
 interface Props {
   readonly error: unknown
@@ -23,7 +24,7 @@ export default function ProductError({ retry }: Props) {
 
   return (
     <section className={pageIntroClass}>
-      <p className="eyebrow">RAHA / PRODUCT DETAILS</p>
+      <p className={eyebrowClass}>RAHA / PRODUCT DETAILS</p>
       <h1 className={pageIntroTitleClass}>We could not load this product.</h1>
       <StatusMessage
         kind="error"

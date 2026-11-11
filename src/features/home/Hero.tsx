@@ -16,6 +16,7 @@ import {
   heroImageClass,
   heroShellClass,
 } from './hero-classes.ts'
+import { eyebrowClass } from '../../components/shared-classes.ts'
 
 interface Props {
   readonly image: string
@@ -28,7 +29,7 @@ export default function Hero({ image, alt }: Props) {
   return (
     <section className={heroShellClass} id="hero" aria-labelledby="hero-title">
       <div className={heroCopyClass}>
-        <p className="eyebrow">RAHA / THE CONSIDERED HOME</p>
+        <p className={eyebrowClass}>RAHA / THE CONSIDERED HOME</p>
         <h1
           id="hero-title"
           className={cn('my-4.5 xl:text-hero', titleMotion.className)}

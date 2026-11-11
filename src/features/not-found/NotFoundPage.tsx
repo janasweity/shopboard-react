@@ -11,6 +11,7 @@ import {
   entranceDelay,
   useEntranceMotion,
 } from '../entrance/entrance-motion.ts'
+import { eyebrowClass, textLinkClass } from '../../components/shared-classes.ts'
 
 interface Props {
   readonly heading?: string
@@ -22,7 +23,7 @@ export default function NotFoundPage({
   const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
   return (
     <section className={pageIntroClass}>
-      <p className="eyebrow">RAHA / HOME &amp; LIVING</p>
+      <p className={eyebrowClass}>RAHA / HOME &amp; LIVING</p>
       <h1
         className={cn(pageIntroTitleClass, titleMotion.className)}
         style={titleMotion.style}
@@ -33,7 +34,7 @@ export default function NotFoundPage({
         kind="empty"
         message="We could not find that page. Make yourself at home and explore our featured pieces."
       />
-      <Link href="/" className="text-link">
+      <Link href="/" className={textLinkClass}>
         Back to Home {'\u2197'}
       </Link>
     </section>

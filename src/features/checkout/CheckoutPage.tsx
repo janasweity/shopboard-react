@@ -12,6 +12,13 @@ import {
 } from '../entrance/entrance-motion.ts'
 import CheckoutForm, { firstCheckoutFieldId } from './CheckoutForm.tsx'
 import OrderSummary from './OrderSummary.tsx'
+import { eyebrowClass, textLinkClass } from '../../components/shared-classes.ts'
+import {
+  pageIntroClass,
+  pageIntroTextClass,
+  pageIntroTitleClass,
+} from '../../components/page-intro-classes.ts'
+import { cn } from '../../lib/utils.ts'
 
 // A stable ref callback runs once when the confirmation heading appears. An
 // inline one would run again on every render and pull focus back.
@@ -34,12 +41,15 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <section className="page-intro">
-        <p className="eyebrow">RAHA / DEMO CHECKOUT</p>
-        <h1 className={titleMotion.className} style={titleMotion.style}>
+      <section className={pageIntroClass}>
+        <p className={eyebrowClass}>RAHA / DEMO CHECKOUT</p>
+        <h1
+          className={cn(pageIntroTitleClass, titleMotion.className)}
+          style={titleMotion.style}
+        >
           Review your demo order.
         </h1>
-        <p>
+        <p className={pageIntroTextClass}>
           A practice checkout for this local demo. It takes no payment, and
           nothing you enter is sent or saved.
         </p>
@@ -50,7 +60,7 @@ export default function CheckoutPage() {
             kind="empty"
             message="Your cart is empty, so there is nothing to review yet."
           />
-          <Link href="/products" className="text-link">
+          <Link href="/products" className={textLinkClass}>
             Browse products {'↗'}
           </Link>
         </section>

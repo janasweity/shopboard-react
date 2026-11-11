@@ -1,3 +1,5 @@
+import { textLinkClass } from './shared-classes.ts'
+
 interface Props {
   readonly kind: 'loading' | 'error' | 'empty' | 'no-match' | 'success'
   readonly message: string
@@ -21,12 +23,12 @@ export default function StatusMessage({
     >
       <p>{message}</p>
       {onRetry ? (
-        <button className="text-link" type="button" onClick={onRetry}>
+        <button className={textLinkClass} type="button" onClick={onRetry}>
           Try again
         </button>
       ) : null}
       {onReset ? (
-        <button className="text-link" type="button" onClick={onReset}>
+        <button className={textLinkClass} type="button" onClick={onReset}>
           Reset selections
         </button>
       ) : null}

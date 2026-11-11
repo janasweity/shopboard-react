@@ -2,6 +2,7 @@ import { money } from '../../data.ts'
 import { cn } from '../../lib/utils.ts'
 import { cardVariants } from '../../components/ui/card-variants.ts'
 import { useCartContext } from '../cart/cart-context.ts'
+import { footnoteClass } from '../../components/shared-classes.ts'
 
 const summaryTextClass = 'text-sm leading-body text-muted'
 
@@ -34,7 +35,7 @@ export default function OrderSummary() {
         <span>Subtotal</span>
         <strong>{money(subtotal)}</strong>
       </p>
-      <p className="collection-footnote">
+      <p className={footnoteClass}>
         Illustrative prices. This demo adds no delivery, fees or taxes and takes
         no payment.
       </p>

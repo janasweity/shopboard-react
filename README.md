@@ -95,14 +95,14 @@ shadcn/ui files:
 
 ## Styles and design tokens
 
-All CSS is in `src/app/globals.css`, which the root layout imports once. RAHA is moving to Tailwind step by step: Tailwind is set up for the whole project, and the existing component rules stay in the same file until each feature is converted.
+All CSS is in `src/app/globals.css`, which the root layout imports once. Every component is styled with Tailwind classes. `globals.css` holds only Tailwind, the tokens, the base element styles, the gutter breakpoints and the reduced-motion rule.
 
 - **Tailwind:** `@import 'tailwindcss' source(none)`, with `@source` for `src/components`, `src/features` and `src/app`. Preflight, Tailwind's reset, is included.
-- **Tokens** (`@theme static`). Tailwind's default colours, fonts and radii are removed, so only RAHA values exist as utilities. `static` keeps every token as a CSS variable, because the component rules read them with `var()`.
+- **Tokens** (`@theme static`). Tailwind's default colours, fonts and radii are removed, so only RAHA values exist as utilities. `static` keeps every token as a CSS variable, because the base styles read them with `var()`.
   - Colours: the ten-shade palette (`soft-black`, `charcoal-brown`, `warm-slate`, `graphite-grey`, `stone-grey`, `warm-greige`, `taupe-brown`, `silver-mist`, `warm-ivory`, `soft-white`), the roles (`bg`, `ink`, `muted`, `primary`, `primary-dark`, `panel`, `line`, `sand`) and the shadcn names (`background`, `foreground`, `primary-foreground`, `muted-foreground`, `border`, `input`, `ring`, `destructive`), which point to RAHA colours. No new colours were added. `destructive` uses the RAHA ink colour.
   - Fonts: `font-body` and `font-heading`. Preflight gives `html` the body font through `--default-font-family`.
   - Text: `text-2xs` (11px), RAHA's compact control text. The small buttons and chips used 0.68rem to 0.72rem, below Tailwind's smallest step, `text-xs` (12px). Tailwind's own text scale is kept.
-  - Radii: `thumb` 4px, `field` 5px, `md` 6px (also shadcn's `rounded-md`), `control` 8px, `card` 10px, `panel` 12px, `photo` 14px, `dialog` 15px, `feature` 18px, `chip` 30px, `pill` 100px and `circle` 50%. The intro's Skip button used 50px; it now uses `pill`, which looks the same because both are more than half its height. The two curved hero shapes keep their own values.
+  - Radii: `thumb` 4px, `field` 5px, `md` 6px (also shadcn's `rounded-md`), `control` 8px, `card` 10px, `panel` 12px, `dialog` 15px, `feature` 18px, `chip` 30px, `pill` 100px and `circle` 50%. The intro's Skip button used 50px; it now uses `pill`, which looks the same because both are more than half its height. The two curved hero shapes keep their own values.
   - Intro: `text-intro-kicker`, `tracking-intro-kicker`, `text-intro-title` (`clamp(4.5rem, 13vw, 10rem)`), `tracking-intro-title`, `tracking-intro-tag`, `bg-botanical` (`/botanical.svg`), and the animations `animate-intro-curtain`, `animate-intro-kicker`, `animate-intro-title` and `animate-intro-underline`, with their keyframes in `@theme`. `animate-content-arrive` (page content arriving behind the intro) is in a separate `@theme inline` block, because it reads `var(--entrance-delay)` from each element; defined on `:root` it would be empty.
   - Brand and rhythm, which the scale cannot express: `text-brand-tag` (0.45rem, the logo's HOME & LIVING line), `tracking-brand` (0.16em) and `tracking-brand-tag` (0.23em) for the logo's wide lettering, and `leading-body` (1.7, the body line height, for text that sets its own size).
   - Footer columns: `grid-cols-footer` (1.1fr 1fr 1fr) from 768px and `grid-cols-footer-wide` (1.1fr 1fr 1.2fr) from 1280px.
@@ -111,11 +111,12 @@ All CSS is in `src/app/globals.css`, which the root layout imports once. RAHA is
   - Room Inspiration and About: `grid-cols-story` (1.1fr 1fr, the photo and copy columns from 768px), `text-figcaption` (0.62rem, the photo captions) and `leading-heading` (1.12, the heading line height, for a heading that sets its own size).
   - Product page: `text-detail-title` (`clamp(2.3rem, 4vw, 3.8rem)`, the product title) and `grid-cols-product` (1.05fr 1fr, the gallery and copy columns from 768px).
   - Product cards: `text-label` with `tracking-label` (0.56rem spaced 0.13em, the collection and category line), `text-card-title` (1.32rem) and `scale-card-hover` (103.5%, the photo's zoom on hover).
+  - Shared text: `text-eyebrow` with `tracking-eyebrow` (0.62rem, line height 1.6, spaced 0.18em: the small label above a heading), `text-action` (0.77rem, text links and text buttons), `text-field-label` (0.8rem, form labels) and `text-footnote` (0.7rem, collection footnotes). The last three have no line-height token, so they keep the line height they inherit, as the old rules did.
   - Spacing: `gutter`, 1.25rem, then 2.5rem from 768px and 5rem from 1280px.
-- **Base layer** (`@layer base`): the page colour and font, headings, links, `em`, the button cursor and icon SVGs. Preflight already supplies box-sizing, zero margins, inherited form fonts and link colours, block images and `[hidden]`, so those RAHA rules were removed. The base layer also restores, with `revert`, browser defaults that preflight removes but RAHA relies on: the dialog margin (which centres the cart modal), button, legend and option padding, bold option-group labels and the browser's placeholder grey.
+- **Base layer** (`@layer base`): the page colour and font, headings, links, `em`, the button cursor (`not-allowed` when disabled) and icon SVGs. Preflight already supplies box-sizing, zero margins, inherited form fonts and link colours, block images and `[hidden]`, so those RAHA rules were removed. The base layer also restores, with `revert`, browser defaults that preflight removes but RAHA relies on: the dialog margin (which centres the cart modal), button, legend and option padding, bold option-group labels and the browser's placeholder grey.
 - **Focus ring:** the global `:focus-visible` outline is in the base layer, so a Tailwind class can change its colour; the footer uses `**:focus-visible:outline-soft-white`. No shared component removes the outline.
-- **Components layer** (`@layer components`): `.eyebrow` and `.text-link`, which converted and unconverted pages share. Tailwind classes can adjust them, for example their colour in the footer.
-- **Outside the layers:** the component rules of features not yet converted. They win over Tailwind classes, so the current look stays until a feature is converted; converting a feature removes its old rules.
+- **Shared classes:** `src/components/shared-classes.ts` (`eyebrowClass`, `textLinkClass`, `footnoteClass` and `pageSectionClass`, Home's section padding) and `src/components/page-intro-classes.ts` (`pageIntroClass`, `pageIntroTitleClass` and `pageIntroTextClass`, the introduction of every page except Home). FormField holds the field and label classes. A component that changes one of them combines it with `cn()`, for example the footer's soft-white eyebrows and link. There is no components layer.
+- **Outside the layers:** only the gutter values at 768px and 1280px, which override the token on `:root`, and the reduced-motion rule, which must also stop Tailwind's `animate-*` classes.
 - `dark:` classes apply only inside a `.dark` element, which RAHA never uses. There is no dark mode yet.
 - Tailwind's `md` (768px) and `xl` (1280px) match RAHA's breakpoints. Do not use `max-*` variants or `!` (important) utilities.
 
@@ -423,6 +424,18 @@ Hosting limitations:
 - The test switches are off in production unless `RAHA_TEST_SWITCHES=1` is set.
 
 ## Verification status
+
+### Final Tailwind step: layout, shared classes and globals (2026-11-11)
+
+- AppShell: the skip link, the 1600px page frame, `main` (the page gutter, and no focus ring when the skip link or a route change focuses it) and the page view (`*:min-w-0` on its children) use Tailwind classes. The skip link sits twice its own height above the viewport (`-translate-y-2/1`) until it has focus.
+- `.page-intro` was replaced by `page-intro-classes.ts` on Products (including the catalogue summary), About, Room Inspiration and the checkout, so every page introduction uses the same classes. `pageIntroTextClass` replaces the old `.page-intro > p:not(.eyebrow)` rule.
+- `.eyebrow`, `.text-link`, `.collection-footnote` and `.page-section` became the constants in `src/components/shared-classes.ts`, with four new text tokens; FormField took over the `.form-field` rules. The `@layer components` block is gone, and `button:disabled` moved into the base layer.
+- The Shop the Room rules were removed after a search found no user in `src`: no component, route, class string or copied Day 3 file refers to them. Their only users, `shop-room.ts` and `rooms.ui.ts`, are in the read-only Day 3 project. The `--radius-photo` token, used only by that photo, was removed with them. The 23 Day 3 files are unchanged.
+- 48 rules were removed from `globals.css` (the gutter values, the reduced-motion block and `button:disabled` stayed or moved), and the file went from 607 to 323 lines.
+- `npm run typecheck`, `npm run lint` (0 warnings), `npm run format:check` and `npm run build` pass.
+- Look comparison of the whole site at 360, 768 and 1280px (126 snapshots, 35,499 elements, the skip link focused and used, and the earlier page and interaction states; two baseline runs matched): no element moved sideways or changed width, and nothing overflows. The differences come from Tailwind's scale, not from a lost style: text-link padding 9px (was 8.8px), the field margin 18px (was 18.4px), the label margin 6px (was 6.4px) and the skip link padding 13px (was 12.8px). Together they move later content down by at most 4px. The skip link's `transform` now reads `none`, because Tailwind moves it with the separate `translate` property; it is in the same place. A first run also found the zero-width top border of text links taking the line colour; `border-b-line` restored the old value.
+- A layout and skip link run (30 checks) passed on the production and dev servers: at each width the skip link is above the viewport, the first Tab shows it at 16px with the focus ring above the header, Enter moves focus to `main` without a ring and hides the link, the next Tab lands inside `main`, `main` has the 20, 40 or 80px gutter, and seven pages have no horizontal overflow; the frame is 1600px and centred at 1920px; a text link's line takes the text colour on hover; and the Console has no warnings or errors (besides the 404 response of the not-found page).
+- On the production server the intro and status (20/20), Home (31/31), product (37/37), Room Inspiration (14/14), About (15/15), cart (21/21), cart dialog (25/25), focus (17/17), checkout (50/50) and site (110/110) runs passed.
 
 ### Intro and status screens on Tailwind (2026-11-11)
 
@@ -766,22 +779,18 @@ Last run on 2026-11-06:
 
 ## Known gaps
 
-- The dormant room-hotspot feature from Day 3 (`shop-room.ts`, `room-beacon` CSS) was not active in the original UI and is not migrated. Its rules (`.shop-the-room`, `.shop-room-*`, `.room-hotspot*`, `.room-product-panel*`, `.room-panel-*`, `.room-mobile-list*` and the `room-beacon` keyframes) are still in `globals.css` and no page uses them; they were kept for the user to decide on.
+- The dormant room-hotspot feature from Day 3 (`shop-room.ts` and its Shop the Room CSS, in the Day 3 project) was not active in the original UI and is not migrated. Its copied rules, which no page used, were removed from `globals.css` in the final Tailwind step.
 - The user's React DevTools inspections were made on the Vite version and cover only the components listed above. They have not been repeated on Next.js.
 - The unknown-product view (`/products/[id]`) is sent with HTTP status 200 and a `noindex` robots tag, because the page streams before `notFound()` runs. Other unknown paths return 404.
 - The cart count shows 0 for a moment after a refresh, until the browser cart is read after hydration.
 - On Node.js 26, the server logs an experimental-feature warning when the Day 3 `state.ts` touches `localStorage` during the server render.
 - The products API and the app are not deployed.
-- The header, the footer, Home's own sections (Hero, the featured section heading, RoomSlider and RegistrationSection) the Products catalogue with its product cards (CatalogueControls, the catalogue status line, ProductGrid and ProductCard) the product page (ProductDetails, ProductGallery and VariantSelector) Room Inspiration (InspirationPage, RoomSection and RoomCalculator) About & Contact (AboutPage and ContactForm) and the checkout (CheckoutPage, CheckoutForm and OrderSummary) are converted to Tailwind. The cart dialog is converted too (CartDialog on the shared Modal, CartLineItem, QuantityControl and CartStatus). The intro (EntranceOverlay and the arrival motion), StatusMessage and the error, loading and not-found screens (`src/app/error.tsx`, the product page's `loading.tsx`, `error.tsx` and `not-found.tsx`, and NotFoundPage) are converted too. There is no dark mode.
-- Old rules still in `globals.css`, and why:
-  - `@layer components`: `.text-link`, `.form-field` (with its label) and `.eyebrow`, shared by converted components that still use these classes.
-  - The AppShell layout (`.page-content`, `main`, `main:focus`, `#page-view > *`, `.skip-link`), which no step has converted yet.
-  - `.page-intro` (with its h1 and paragraph): the Products, About, Room Inspiration and checkout introductions still use it; the status screens use `src/components/page-intro-classes.ts`, with the same values.
-  - `.page-section` (Home's featured section and room slider) and `.collection-footnote` (Home, Products, the order summary).
-  - The `:root` gutter values at 768px and 1280px, which change the `gutter` token per breakpoint.
+- Every component is styled with Tailwind classes; no component rules are left in `globals.css`. There is no dark mode yet.
+- What stays in `globals.css`, and why:
+  - Tailwind with its preflight, and the tokens in `@theme static` (plus `animate-content-arrive` in `@theme inline`).
+  - The base layer: element styles, the browser defaults that preflight removes, the disabled button cursor and the focus ring.
+  - The gutter values at 768px and 1280px, which change the `gutter` token per breakpoint.
   - The reduced-motion block (`scroll-behavior: auto`, and no animation or transition on any element), which also stops every Tailwind animation.
-  - `button:disabled { cursor: not-allowed }`, a guard for native buttons.
-  - The dormant Day 3 room-hotspot rules (see the first item), which no page uses.
 - The catalogue search field shows the shared Input, with its own border, inside the bordered search box. That is how the site has always rendered it: the old `.search-input input` rule meant to remove the inner border never applied, because the shared field rule came later with the same specificity. The conversion kept the rendered look; removing the inner border would be a design change.
 
 ## Project documents

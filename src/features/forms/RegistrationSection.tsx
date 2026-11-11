@@ -8,6 +8,7 @@ import { cardVariants } from '../../components/ui/card-variants.ts'
 import { InlineDialog } from '../../components/ui/inline-dialog.tsx'
 import { Input } from '../../components/ui/input.tsx'
 import { cn } from '../../lib/utils.ts'
+import { eyebrowClass } from '../../components/shared-classes.ts'
 
 export default function RegistrationSection() {
   const [open, setOpen] = useState(true)
@@ -44,7 +45,9 @@ export default function RegistrationSection() {
       aria-labelledby="registration-title"
     >
       <div className="self-center">
-        <p className="eyebrow text-charcoal-brown">THERE'S ROOM FOR YOU HERE</p>
+        <p className={cn(eyebrowClass, 'text-charcoal-brown')}>
+          THERE'S ROOM FOR YOU HERE
+        </p>
         <h2 id="registration-title" className="mt-3.25 mb-4">
           Make yourself
           <br />
