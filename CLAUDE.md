@@ -88,7 +88,7 @@ The app uses the Next.js 16 App Router (`src/app/`). Next.js 16 changed APIs and
 - `@layer base` holds element styles and the browser defaults that preflight removes but RAHA needs (dialog margin, button, legend and option padding, option-group weight, placeholder colour). Do not repeat what preflight already sets.
 - Gradual conversion to Tailwind:
   - Convert one feature at a time, only when the user asks. Features not yet converted keep their component rules in globals.css.
-  - The component rules and the focus ring stay unlayered, so they beat Tailwind classes. When a feature is converted, remove its old rules in the same step, so no element is styled by both.
+  - The component rules of unconverted features stay unlayered, so they beat Tailwind classes. When a feature is converted, remove its old rules in the same step, so no element is styled by both. Shared rules that converted and unconverted features both use (`.eyebrow`, `.text-link`) live in `@layer components`, and the focus ring in `@layer base`.
   - Keep each converted feature's look, responsive behavior, focus, motion and accessibility. Compare computed styles of the affected pages with a baseline at 360, 768 and 1280px, before and after.
 - shadcn/ui files in src/components/ui (field, input, label, separator) are project code and follow every rule.
   - Add only components a feature uses, and review all CLI output before keeping it.

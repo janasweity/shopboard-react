@@ -19,6 +19,10 @@ export const buttonVariants = cva(
         // A transparent outlined button, based on .text-button.
         ghost:
           'border-line bg-transparent font-normal text-ink not-disabled:hover:bg-sand disabled:opacity-50',
+        // No box at all, like the header's cart button: no border, background
+        // or hover background; the focus ring follows the text.
+        plain:
+          'rounded-none border-0 bg-transparent font-normal text-ink disabled:opacity-50',
       },
       // Tailwind's spacing and text scale. text-2xs is RAHA's compact control
       // text (globals.css). Every size keeps at least a 40px target.
