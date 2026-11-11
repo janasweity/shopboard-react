@@ -7,6 +7,7 @@ import type {
 import { getProductGallery } from '../../../product-gallery.ts'
 import Link from 'next/link'
 import { productPath } from '../../../lib/routes.ts'
+import { cardVariants } from '../../../components/ui/card-variants.ts'
 
 interface Props {
   readonly product: Product
@@ -14,6 +15,8 @@ interface Props {
   // The finish selector sits between the main photo and the thumbnails.
   readonly children: ReactNode
 }
+
+const galleryNoteClass = 'mt-6 text-2xs leading-body text-muted'
 
 export default function ProductGallery({ product, variant, children }: Props) {
   const views = getProductGallery(product, variant)
@@ -31,8 +34,8 @@ export default function ProductGallery({ product, variant, children }: Props) {
   const hasAdditionalViews = getProductGallery(product, original).length > 1
 
   return (
-    <div className="product-gallery">
-      <figure>
+    <div className="min-w-0">
+      <figure className={cardVariants({ padding: 'sm' })}>
         <img
           id="gallery-image"
           src={view.image}
@@ -40,13 +43,16 @@ export default function ProductGallery({ product, variant, children }: Props) {
           width={1400}
           height={1000}
           fetchPriority="high"
+          className="aspect-13/10 w-full object-contain"
         />
-        <figcaption id="gallery-caption">{view.caption}</figcaption>
+        <figcaption id="gallery-caption" className="mt-4 text-hint text-muted">
+          {view.caption}
+        </figcaption>
       </figure>
       {children}
       <div id="gallery-options">
         <div
-          className="gallery-thumbnails"
+          className="mt-4 flex gap-2.75"
           role="group"
           aria-label="Product image gallery"
         >
@@ -55,16 +61,22 @@ export default function ProductGallery({ product, variant, children }: Props) {
               key={item.id}
               type="button"
               aria-pressed={item.id === view.id}
+              className="w-27.5 rounded-control border border-line p-1.5 text-2xs leading-body text-ink aria-pressed:border-2 aria-pressed:border-primary"
               aria-label={`Show ${product.name} ${item.id === 'product' ? 'product photo' : item.label.toLowerCase()}`}
               onClick={() => setChosen({ finishKey, viewId: item.id })}
             >
-              <img src={item.image} alt="" loading="lazy" />
+              <img
+                src={item.image}
+                alt=""
+                loading="lazy"
+                className="aspect-3/2 w-full rounded-thumb object-cover"
+              />
               <span>{item.label}</span>
             </button>
           ))}
         </div>
         {hasAdditionalViews && variant.id !== original.id ? (
-          <p className="gallery-note">
+          <p className={galleryNoteClass}>
             Additional photographs are available in {original.name}.{' '}
             <Link
               className="text-link"
@@ -74,7 +86,7 @@ export default function ProductGallery({ product, variant, children }: Props) {
             </Link>
           </p>
         ) : (
-          <p className="gallery-note">
+          <p className={galleryNoteClass}>
             {hasAdditionalViews
               ? 'Additional views show this product in the photographed finish.'
               : 'Only the product photograph is available for this finish.'}

@@ -94,7 +94,8 @@
   --text-caption--line-height: 1.7;
   --tracking-caption: 0.15em;
 
-  /* Form help text, shared with the contact form's #contact-help. */
+  /* Small help text: form hints (shared with the contact form's
+     #contact-help) and the product photo caption. */
   --text-hint: 0.66rem;
   --text-hint--line-height: 1.7;
 
@@ -106,6 +107,11 @@
   --text-card-title: 1.32rem;
   --text-card-title--line-height: 1.12;
   --scale-card-hover: 103.5%; /* the card photo's gentle zoom on hover */
+
+  /* Product page: the fluid product title and the gallery and copy columns. */
+  --text-detail-title: clamp(2.3rem, 4vw, 3.8rem);
+  --text-detail-title--line-height: 1.12;
+  --grid-template-columns-product: 1.05fr 1fr;
 
   /* Corner radii used by RAHA. */
   --radius-thumb: 4px; /* gallery thumbnails, quantity controls, hotspot labels */
@@ -283,8 +289,7 @@ main:focus {
 .button:hover {
   background: var(--color-primary-dark);
 }
-.collection-footnote,
-.gallery-note {
+.collection-footnote {
   color: var(--color-muted);
   font-size: 0.7rem;
   margin-top: 1.5rem;
@@ -313,94 +318,6 @@ main:focus {
   color: var(--color-ink);
   background: transparent;
   font-size: 0.7rem;
-}
-.breadcrumbs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  padding-block: 2rem;
-  font-size: 0.7rem;
-  color: var(--color-muted);
-}
-.breadcrumbs a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.product-layout {
-  display: grid;
-  gap: 2rem;
-}
-.product-gallery,
-.detail-copy {
-  min-width: 0;
-}
-.product-gallery > figure {
-  padding: 1rem;
-  border-radius: var(--radius-panel);
-  background: var(--color-panel);
-}
-#gallery-image {
-  width: 100%;
-  aspect-ratio: 1.3;
-  object-fit: contain;
-}
-#gallery-caption {
-  margin-top: 1rem;
-  color: var(--color-muted);
-  font-size: 0.65rem;
-}
-.gallery-thumbnails {
-  display: flex;
-  gap: 0.7rem;
-  margin-top: 1rem;
-}
-.gallery-thumbnails button {
-  width: 110px;
-  padding: 0.4rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--color-ink);
-  font-size: 0.65rem;
-}
-.gallery-thumbnails button[aria-pressed='true'] {
-  border: 2px solid var(--color-primary);
-}
-.gallery-thumbnails img {
-  width: 100%;
-  aspect-ratio: 1.5;
-  object-fit: cover;
-  border-radius: var(--radius-thumb);
-}
-.detail-copy h1 {
-  font-size: clamp(2.3rem, 4vw, 3.8rem);
-  margin-block: 0.8rem 1rem;
-}
-.detail-price {
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-}
-.detail-copy > p:not(.eyebrow, .detail-price) {
-  color: var(--color-muted);
-  font-size: 0.9rem;
-}
-.detail-add {
-  margin-block: 1.5rem;
-}
-.specifications {
-  margin-block: 1rem 1.5rem;
-  font-size: 0.8rem;
-}
-.specifications > div {
-  padding-block: 1rem;
-  border-top: 1px solid var(--color-line);
-}
-.specifications dt {
-  font-weight: 600;
-}
-.specifications dd {
-  margin: 0.4rem 0 0;
-  color: var(--color-muted);
 }
 .room-nav {
   display: flex;
@@ -774,9 +691,6 @@ textarea {
     transform: translateY(0);
   }
 }
-.detail-collection {
-  margin-bottom: 1rem;
-}
 /* RAHA: the ten-shade interface palette. Product color dots keep their own values. */
 .store-intro {
   background: var(--color-warm-ivory);
@@ -801,77 +715,6 @@ textarea {
 }
 .skip-intro:focus-visible {
   outline-color: var(--color-soft-black);
-}
-.color-options {
-  padding: 1.25rem 0;
-  margin: 1rem 0 0;
-  border: 0;
-  min-width: 0;
-}
-.color-options legend {
-  color: var(--color-charcoal-brown);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-#selected-color {
-  font-size: 0.8rem;
-  margin-bottom: 0.8rem;
-}
-.color-swatches {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-.color-swatch {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 48px;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--color-stone-grey);
-  border-radius: var(--radius-control);
-  color: var(--color-charcoal-brown);
-  background: var(--color-soft-white);
-  font-size: 0.75rem;
-}
-.color-swatch:hover {
-  background: var(--color-warm-ivory);
-}
-.color-swatch[aria-pressed='true'] {
-  border: 2px solid var(--color-charcoal-brown);
-  padding: calc(0.6rem - 1px) calc(0.75rem - 1px);
-  background: var(--color-silver-mist);
-}
-.swatch-dot {
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  border-radius: var(--radius-circle);
-  background: var(--swatch-color);
-  border: 1px solid var(--color-stone-grey);
-}
-.swatch-check {
-  font-weight: 600;
-  font-size: 0.6rem;
-}
-.swatch-stock {
-  font-size: 0.65rem;
-}
-.variant-summary {
-  margin-block: 1rem;
-}
-.variant-summary .detail-price {
-  margin-bottom: 0.3rem;
-}
-#variant-availability {
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-.variant-demo-note {
-  font-size: 0.7rem;
-  margin-bottom: 1rem;
-  color: var(--color-warm-slate);
 }
 .button:disabled {
   cursor: not-allowed;
@@ -1077,9 +920,6 @@ html[data-entrance='playing'] .room-hotspot::before {
   .page-section {
     padding-block: 4.5rem;
   }
-  .product-layout {
-    grid-template-columns: 1.05fr 1fr;
-  }
   .room-story,
   .about-story {
     grid-template-columns: 1.1fr 1fr;
@@ -1099,9 +939,6 @@ html[data-entrance='playing'] .room-hotspot::before {
   }
   .page-section {
     padding-block: 5rem;
-  }
-  .product-layout {
-    gap: 4rem;
   }
   .contact-section {
     padding: 3rem;

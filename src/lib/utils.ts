@@ -33,6 +33,7 @@ const twMerge = extendTailwindMerge({
         'hint',
         'label',
         'card-title',
+        'detail-title',
       ],
       tracking: ['brand', 'brand-tag', 'caption', 'label'],
       leading: ['body'],
