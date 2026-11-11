@@ -94,8 +94,8 @@
   --text-caption--line-height: 1.7;
   --tracking-caption: 0.15em;
 
-  /* Small help text: form hints (shared with the contact form's
-     #contact-help) and the product photo caption. */
+  /* Small help text: the registration form note and the product photo
+     caption. */
   --text-hint: 0.66rem;
   --text-hint--line-height: 1.7;
 
@@ -327,53 +327,13 @@ main:focus {
   background: transparent;
   font-size: 0.7rem;
 }
-.about-story {
-  display: grid;
-  gap: 1.5rem;
-  margin-block: 2rem 4rem;
-  align-items: center;
-}
-.about-story > img {
-  width: 100%;
-  aspect-ratio: 1.2;
-  object-fit: cover;
-  border-radius: var(--radius-feature);
-}
-.about-story h2 {
-  margin-block: 1rem;
-}
-.about-story p {
-  margin-bottom: 1.3rem;
-  color: var(--color-muted);
-}
-.contact-section {
-  padding: 1.5rem;
-  background: var(--color-panel);
-  border-radius: var(--radius-panel);
-}
 @media (min-width: 768px) {
 }
-.contact-section {
-  display: grid;
-  gap: 2rem;
-}
-.contact-section h2 {
-  margin-block: 0.8rem 1rem;
-}
-.contact-section h3 {
-  margin-block: 1.5rem 0.6rem;
-}
-.contact-section p:not(.eyebrow) {
-  color: var(--color-muted);
-  font-size: 0.85rem;
-}
 /* Local demo registration and cart retain native form behavior. */
-/* Form fields not yet converted. The shared Input (data-slot="input") is
-   left out, so its own classes style it; :where() keeps this rule's
-   specificity unchanged for the old fields. */
-input:not([type='submit']):where(:not([data-slot='input'])),
-select:where(:not([data-slot='select'])),
-textarea {
+/* Native inputs not yet converted; today only the checkout's confirmation
+   checkbox. The shared Input (data-slot="input") is left out, so its own
+   classes style it; :where() keeps this rule's specificity unchanged. */
+input:not([type='submit']):where(:not([data-slot='input'])) {
   width: 100%;
   min-height: 44px;
   padding: 0.75rem;
@@ -381,11 +341,6 @@ textarea {
   border: 1px solid var(--color-stone-grey);
   border-radius: var(--radius-field);
   background: var(--color-soft-white);
-}
-#contact-help {
-  color: var(--color-muted);
-  margin-top: 0.45rem;
-  font-size: 0.66rem;
 }
 .cart-status {
   font-size: 0.8rem;
@@ -837,14 +792,6 @@ html[data-entrance='playing'] .room-hotspot::before {
   .page-section {
     padding-block: 4.5rem;
   }
-  .about-story {
-    grid-template-columns: 1.1fr 1fr;
-    gap: 2.5rem;
-  }
-  .contact-section {
-    grid-template-columns: 1fr 1fr;
-    padding: 2rem;
-  }
 }
 @media (min-width: 1280px) {
   :root {
@@ -852,10 +799,6 @@ html[data-entrance='playing'] .room-hotspot::before {
   }
   .page-section {
     padding-block: 5rem;
-  }
-  .contact-section {
-    padding: 3rem;
-    gap: 4rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -878,16 +821,6 @@ html[data-entrance='playing'] .room-hotspot::before {
 
 /* Catalogue controls share the existing RAHA form styling. */
 @media (min-width: 768px) {
-}
-
-.contact-detail-image img {
-  width: 100%;
-  border-radius: var(--radius-panel);
-}
-.contact-detail-image figcaption {
-  margin-top: 0.7rem;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
 }
 
 /* React foundation additions; original RAHA styles above are preserved. */

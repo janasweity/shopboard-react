@@ -10,6 +10,8 @@ interface Props {
   // Tailwind classes for the label, for example a different margin. The
   // shared .form-field rules are in a cascade layer, so these win.
   readonly labelClassName?: string
+  // Tailwind classes for the hint paragraph.
+  readonly hintClassName?: string
   readonly children: ReactNode
 }
 
@@ -20,6 +22,7 @@ export default function FormField({
   error,
   className,
   labelClassName,
+  hintClassName,
   children,
 }: Props) {
   return (
@@ -28,7 +31,11 @@ export default function FormField({
         {label}
       </label>
       {children}
-      {hint ? <p id={id + '-hint'}>{hint}</p> : null}
+      {hint ? (
+        <p id={id + '-hint'} className={hintClassName}>
+          {hint}
+        </p>
+      ) : null}
       {error ? (
         <p id={id + '-error'} role="alert">
           {error}
