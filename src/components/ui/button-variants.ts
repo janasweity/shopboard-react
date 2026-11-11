@@ -29,6 +29,9 @@ export const buttonVariants = cva(
         md: 'min-h-11 px-6 py-3 text-xs',
         // A larger call to action: 48px high.
         lg: 'min-h-12 px-8 py-3 text-sm',
+        // A 44px round button for one symbol, such as a close ×. Button
+        // requires an aria-label with this size.
+        icon: 'size-11 shrink-0 p-0 text-2xl',
       },
     },
     defaultVariants: { variant: 'primary', size: 'md' },

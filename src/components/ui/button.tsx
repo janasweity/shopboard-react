@@ -6,10 +6,14 @@ import type {
   ButtonVariant,
 } from '@/components/ui/button-variants.ts'
 
-export interface ButtonProps extends ComponentProps<'button'> {
+// An icon button shows only a symbol, so it must be named with aria-label.
+type ButtonSizeProps =
+  | { readonly size?: Exclude<ButtonSize, 'icon'> }
+  | { readonly size: 'icon'; readonly 'aria-label': string }
+
+export type ButtonProps = ComponentProps<'button'> & {
   readonly variant?: ButtonVariant
-  readonly size?: ButtonSize
-}
+} & ButtonSizeProps
 
 // A native button with RAHA's variants. `type` defaults to "button", so a
 // button inside a form submits only when it asks for type="submit".
