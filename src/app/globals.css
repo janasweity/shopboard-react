@@ -98,6 +98,15 @@
   --text-hint: 0.66rem;
   --text-hint--line-height: 1.7;
 
+  /* Product cards: the small spaced collection / category label and the
+     card title. */
+  --text-label: 0.56rem;
+  --text-label--line-height: 1.7;
+  --tracking-label: 0.13em;
+  --text-card-title: 1.32rem;
+  --text-card-title--line-height: 1.12;
+  --scale-card-hover: 103.5%; /* the card photo's gentle zoom on hover */
+
   /* Corner radii used by RAHA. */
   --radius-thumb: 4px; /* gallery thumbnails, quantity controls, hotspot labels */
   --radius-field: 5px; /* form fields, small cart and room images */
@@ -194,8 +203,9 @@
   }
 }
 
-/* Shared text styles still used by pages that are not converted. In a
-   layer, Tailwind classes can adjust them, for example their colour in the
+/* Shared rules that converted and unconverted pages both use: text links,
+   form fields and eyebrow labels. In a layer, Tailwind classes can adjust
+   them, for example a label margin in the catalogue or a colour in the
    footer. */
 @layer components {
   .text-link {
@@ -207,6 +217,14 @@
   }
   .text-link:hover {
     border-color: currentColor;
+  }
+  .form-field {
+    margin-bottom: 1.15rem;
+  }
+  .form-field label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
   }
   .eyebrow {
     color: var(--color-muted);
@@ -247,8 +265,7 @@ main:focus {
 .skip-link:focus {
   transform: translateY(0);
 }
-.button,
-.add-to-cart {
+.button {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -263,8 +280,7 @@ main:focus {
   font-weight: 500;
   line-height: 1.4;
 }
-.button:hover,
-.add-to-cart:hover {
+.button:hover {
   background: var(--color-primary-dark);
 }
 .collection-footnote,
@@ -276,82 +292,6 @@ main:focus {
 /* Home: light, natural photography and gently curved silhouettes. */
 .page-section {
   padding-block: 3.5rem;
-}
-.product-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 2.25rem 1.3rem;
-}
-.product-card {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.product-image {
-  display: block;
-  position: relative;
-  aspect-ratio: 1.3;
-  background: var(--color-silver-mist);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-}
-.product-image img {
-  width: 100%;
-  height: 100%;
-  padding: 0.7rem;
-  object-fit: contain;
-  transition: transform 400ms;
-}
-.product-card:hover .product-image img {
-  transform: scale(1.035);
-}
-.product-tag {
-  position: absolute;
-  top: 0.7rem;
-  left: 0.7rem;
-  z-index: 1;
-  border-radius: var(--radius-chip);
-  padding: 0.25rem 0.6rem;
-  background: var(--color-bg);
-  color: var(--color-primary-dark);
-  font-size: 0.52rem;
-  letter-spacing: 0.06em;
-}
-.product-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: 1rem 0.15rem 0;
-}
-.product-type {
-  font-size: 0.56rem;
-  letter-spacing: 0.13em;
-  color: var(--color-muted);
-}
-.product-info h3 {
-  font-size: 1.32rem;
-  margin-block: 0.4rem 0.5rem;
-  min-height: 2.25em;
-}
-.product-info h3 a:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.product-detail {
-  color: var(--color-muted);
-  font-size: 0.76rem;
-  margin-bottom: 0.8rem;
-}
-.product-price {
-  margin-top: auto;
-  font-size: 0.91rem;
-}
-.add-to-cart {
-  align-self: start;
-  margin-top: 0.7rem;
-  padding: 0.5rem 1rem;
-  min-height: 40px;
-  font-size: 0.68rem;
 }
 /* Catalogue, detail, inspiration and contact pages share the same palette. */
 .page-intro {
@@ -365,53 +305,6 @@ main:focus {
   color: var(--color-muted);
   max-width: 600px;
 }
-.search-field {
-  max-width: 680px;
-  margin-block: 1rem 1.4rem;
-}
-.search-field label {
-  display: block;
-  margin-bottom: 0.6rem;
-  font-size: 0.8rem;
-}
-.search-input {
-  display: flex;
-  align-items: center;
-  background: var(--color-soft-white);
-  border: 1px solid var(--color-stone-grey);
-  border-radius: var(--radius-control);
-  padding-inline: 0.9rem;
-  gap: 0.6rem;
-}
-.search-input input {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  padding: 0.8rem 0;
-  color: var(--color-ink);
-}
-.search-input button {
-  background: none;
-  color: var(--color-ink);
-  border: 0;
-  font-size: 1.5rem;
-  min-width: 40px;
-  min-height: 44px;
-}
-.product-tools {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
 .text-button {
   min-height: 44px;
   padding: 0.55rem 0.9rem;
@@ -420,16 +313,6 @@ main:focus {
   color: var(--color-ink);
   background: transparent;
   font-size: 0.7rem;
-}
-#product-count {
-  color: var(--color-muted);
-  font-size: 0.72rem;
-}
-.empty-state {
-  padding: 3rem 0;
-}
-#reset-filters {
-  margin-top: 2rem;
 }
 .breadcrumbs {
   display: flex;
@@ -651,19 +534,11 @@ main:focus {
   font-size: 0.85rem;
 }
 /* Local demo registration and cart retain native form behavior. */
-.form-field {
-  margin-bottom: 1.15rem;
-}
-.form-field label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.8rem;
-}
 /* Form fields not yet converted. The shared Input (data-slot="input") is
    left out, so its own classes style it; :where() keeps this rule's
    specificity unchanged for the old fields. */
 input:not([type='submit']):where(:not([data-slot='input'])),
-select,
+select:where(:not([data-slot='select'])),
 textarea {
   width: 100%;
   min-height: 44px;
@@ -902,13 +777,7 @@ textarea {
 .detail-collection {
   margin-bottom: 1rem;
 }
-.product-type {
-  min-height: 3.4em;
-}
 /* RAHA: the ten-shade interface palette. Product color dots keep their own values. */
-.product-tag {
-  border: 1px solid var(--color-taupe-brown);
-}
 .store-intro {
   background: var(--color-warm-ivory);
   color: var(--color-charcoal-brown);
@@ -932,11 +801,6 @@ textarea {
 }
 .skip-intro:focus-visible {
   outline-color: var(--color-soft-black);
-}
-.color-option-count {
-  font-size: 0.68rem;
-  color: var(--color-warm-slate);
-  margin-top: 0.3rem;
 }
 .color-options {
   padding: 1.25rem 0;
@@ -1213,10 +1077,6 @@ html[data-entrance='playing'] .room-hotspot::before {
   .page-section {
     padding-block: 4.5rem;
   }
-  .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2.5rem 1.5rem;
-  }
   .product-layout {
     grid-template-columns: 1.05fr 1fr;
   }
@@ -1239,13 +1099,6 @@ html[data-entrance='playing'] .room-hotspot::before {
   }
   .page-section {
     padding-block: 5rem;
-  }
-  .product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.75rem 1.75rem;
-  }
-  .product-image {
-    aspect-ratio: 1.45;
   }
   .product-layout {
     gap: 4rem;
@@ -1274,37 +1127,7 @@ html[data-entrance='playing'] .room-hotspot::before {
 }
 
 /* Catalogue controls share the existing RAHA form styling. */
-.catalogue-selects {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 1rem;
-  width: 100%;
-}
-.catalogue-control {
-  min-width: 0;
-}
-.catalogue-control label {
-  display: block;
-  font-size: 0.8rem;
-  margin-bottom: 0.6rem;
-}
-.catalogue-control select {
-  width: 100%;
-  min-width: 0;
-  min-height: 48px;
-  padding: 0.65rem 2rem 0.65rem 0.8rem;
-  border: 1px solid var(--color-stone-grey);
-  border-radius: var(--radius-control);
-  background: var(--color-soft-white);
-  color: var(--color-ink);
-  font: inherit;
-  font-size: 0.8rem;
-}
 @media (min-width: 768px) {
-  .catalogue-selects {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: min(100%, 560px);
-  }
 }
 
 .contact-detail-image img {
@@ -1320,9 +1143,6 @@ html[data-entrance='playing'] .room-hotspot::before {
 /* React foundation additions; original RAHA styles above are preserved. */
 button:disabled {
   cursor: not-allowed;
-}
-.add-to-cart:disabled {
-  opacity: 0.65;
 }
 .status-action {
   background: transparent;
@@ -1340,15 +1160,6 @@ button:disabled {
 }
 
 /* React catalogue feedback sits outside the busy grid for immediate announcements. */
-#catalogue-status {
-  margin-block: 0 1.5rem;
-  color: var(--color-muted);
-  font-size: 0.85rem;
-}
-
-.catalogue-reset {
-  align-self: end;
-}
 
 /* Demo checkout. RAHA rules stay unlayered, so they win over the shadcn
    Tailwind classes in the form and keep the site's form look. */

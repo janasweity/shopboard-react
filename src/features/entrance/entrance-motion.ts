@@ -52,6 +52,3 @@ export function useEntranceMotion(
     style: { '--entrance-delay': delayMs + 'ms' },
   }
 }
-
-export const joinClasses = (...names: (string | undefined)[]): string =>
-  names.filter(Boolean).join(' ')

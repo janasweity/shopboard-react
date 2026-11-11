@@ -25,8 +25,16 @@ const twMerge = extendTailwindMerge({
         'hero',
         'hero-md',
       ],
-      text: ['brand-tag', 'hero', 'slide-title', 'caption', 'hint'],
-      tracking: ['brand', 'brand-tag', 'caption'],
+      text: [
+        'brand-tag',
+        'hero',
+        'slide-title',
+        'caption',
+        'hint',
+        'label',
+        'card-title',
+      ],
+      tracking: ['brand', 'brand-tag', 'caption', 'label'],
       leading: ['body'],
     },
     classGroups: {

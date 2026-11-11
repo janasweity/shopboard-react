@@ -76,17 +76,17 @@ shadcn/ui files:
   - An unused `"use client"` line was removed. They are imported only by Client Components.
   - Prettier formatted the files.
 - `@/` points to `src/` (`paths` in `tsconfig.json` and `tsconfig.app.json`). The shadcn files use it; RAHA files keep relative imports.
-- `src/components/ui/button.tsx` and `button-variants.ts`: the RAHA Button written with Tailwind and `cva` (not shadcn CLI output). `variant` is `primary` (default), `secondary`, `ghost` or `plain` (no border, background or hover background, normal weight, square corners, for a button that looks like text, such as the header's cart button); `size` is `sm` (40px high, `text-2xs`), `md` (default, 44px, `text-xs`), `lg` (48px, `text-sm`) or `icon` (a 44px round button for one symbol, `text-2xl`). With `size="icon"` the type requires `aria-label`, so an icon button always has a name. It uses only Tailwind's scale and RAHA tokens, with no arbitrary values. Compared with the old `.button`, `md` is 2px lower (44px instead of 46px), 3.2px wider in padding and uses 12px text instead of 11.5px; `sm` matches Add to cart except 11px text instead of 10.9px. All other native button props pass through, and `type` defaults to `"button"`. `buttonVariants()` gives the same classes to a link. The header's cart button (`variant="plain"`), the registration demo's submit and Reopen buttons, and the Home hero and room slider links (`buttonVariants()`) use it. ContactForm, CartDialog, CheckoutForm, CheckoutPage, CatalogueControls, ProductCard, ProductDetails and RoomCalculator still use `src/components/Button.tsx` (`tone`) and the `.button` rules in `globals.css`.
+- `src/components/ui/button.tsx` and `button-variants.ts`: the RAHA Button written with Tailwind and `cva` (not shadcn CLI output). `variant` is `primary` (default), `secondary`, `ghost` or `plain` (no border, background or hover background, normal weight, square corners, for a button that looks like text, such as the header's cart button); `size` is `sm` (40px high, `text-2xs`), `md` (default, 44px, `text-xs`), `lg` (48px, `text-sm`) or `icon` (a 44px round button for one symbol, `text-2xl`). With `size="icon"` the type requires `aria-label`, so an icon button always has a name. It uses only Tailwind's scale and RAHA tokens, with no arbitrary values. Compared with the old `.button`, `md` is 2px lower (44px instead of 46px), 3.2px wider in padding and uses 12px text instead of 11.5px; `sm` matches Add to cart except 11px text instead of 10.9px. All other native button props pass through, and `type` defaults to `"button"`. `buttonVariants()` gives the same classes to a link. The header's cart button (`variant="plain"`), the registration demo's submit and Reopen buttons, the Home hero and room slider links (`buttonVariants()`), the product card's Add to cart (`size="sm"`), and the catalogue's Reset (`variant="secondary"`) and clear-search (`variant="plain"`, `size="icon"`) buttons use it. ContactForm, CartDialog, CheckoutForm, CheckoutPage, ProductDetails and RoomCalculator still use `src/components/Button.tsx` (`tone`) and the `.button` rules in `globals.css`.
 - `cn()` knows RAHA's radius names, so a `className` such as `rounded-panel` replaces the default radius.
 - `src/components/ui/modal.tsx` (`'use client'`), `inline-dialog.tsx` and `modal-variants.ts`: two native `<dialog>` components with separate behaviour, in separate files. `modal-variants.ts` holds the Modal sizes and the title class both use. Neither holds cart or registration logic. The registration demo uses `InlineDialog`. `Modal` is not used by any page yet: the cart still uses its own dialog.
   - `Modal` (`ModalProps`: `open`, `onClose`, `title`, `closeLabel`, `size`, `id`, `aria-describedby`, `className`, `children`). The parent owns `open`, and `onClose` must set it to false. `showModal()` makes the rest of the page inert, so Tab and Shift+Tab stay in the dialog; the title is an `h2` linked with `aria-labelledby`. The close button is the shared `Button` (`variant="ghost"`, `size="icon"`) named by `closeLabel`, with the × hidden from screen readers. Escape and the close button close the native dialog at once and call `onClose`. When `open` turns false, or the Modal is removed while open, the effect's cleanup closes the dialog if needed and returns focus to the element that opened it, if that element still exists; `onClose` is not called on removal. The browser's own `close` event arrives about 200ms later in Chromium, so it is reported only if the parent still has `open` and the dialog has not been reopened. The effect has no listeners or timers; StrictMode's extra cleanup and second run close and reopen the dialog with the same opener, so it ends open.
   - `size`: `sm` `max-w-sm` (24rem), `md` (default) `max-w-xl` (36rem, the cart is 580px) and `lg` `max-w-3xl` (48rem). The dialog fills the viewport with a `p-4` gutter, so the panel is never wider than the screen; the panel is the `surface` Card with `rounded-dialog` and scrolls when it is taller than the screen. The backdrop is `soft-black` at 45% with a 4px blur (the cart uses 3px).
   - `InlineDialog` (`inline-dialog.tsx`, `InlineDialogProps`: the native dialog props plus `open`, and either `title` or `aria-labelledby` for a heading outside it). A non-modal dialog in the page flow, styled as the `surface` Card: it does not trap focus, close on Escape or move focus, so a form like the registration demo stays part of the page.
-- `src/components/ui/badge.tsx` and `badge-variants.ts`: RAHA's short label, a `span` with `BadgeProps` (every native span prop plus `variant`). The text and the decision to show it come from the page; the badge holds no product logic and no placement. The Home registration section uses it as a class (`cardVariants({ variant: 'feature', padding: 'xl' })`); no page renders `Card` itself yet.
+- `src/components/ui/badge.tsx` and `badge-variants.ts`: RAHA's short label, a `span` with `BadgeProps` (every native span prop plus `variant`). The text and the decision to show it come from the page; the badge holds no product logic and no placement. The product card uses it (`variant="tag"`) for a product tag, placed in the image corner by the card; no product in the current data has a tag, so it is not visible today. `status` is not used yet.
   - `variant`: `tag` (default; the product tag, `.product-tag`): `rounded-chip`, a `taupe-brown` border, `bg-background`, `text-primary-dark`, `px-2.5 py-1`, `text-2xs` and `tracking-wider`. `status` (the finish availability note, `.swatch-stock`): `text-2xs` in the surrounding colour. RAHA gives availability no colours, so the badge has none.
   - Compared with the current CSS: the tag text is 11px instead of 8.3px (0.52rem is below the scale, and 11px is easier to read), so the tag is about 9px wider and 2px taller (26px); its padding is 10px instead of 9.6px. The status text is 11px instead of 10.4px, with a 16px line instead of 17.7px.
   - No product in the current data has a `tag`, so the tag is not visible on the site today. The product page's availability line (`#variant-availability`) is a sentence that the Add button points to with `aria-describedby`, so it stays text, not a badge.
-- `src/components/ui/card.tsx` and `card-variants.ts`: RAHA's shared surface, taken from the panels the site already uses. `Card` renders a `div` with `CardProps` (every native div prop, plus `variant` and `padding`); a `section`, `figure` or `dialog` keeps its element and uses `className={cardVariants(...)}`. It holds no layout, headings or product and cart logic. It is not used by any page yet.
+- `src/components/ui/card.tsx` and `card-variants.ts`: RAHA's shared surface, taken from the panels the site already uses. `Card` renders a `div` with `CardProps` (every native div prop, plus `variant` and `padding`); a `section`, `figure` or `dialog` keeps its element and uses `className={cardVariants(...)}`. It holds no layout, headings or product and cart logic. The Home registration section uses it as a class (`cardVariants({ variant: 'feature', padding: 'xl' })`); no page renders `Card` itself yet.
   - `variant`: `panel` (default; `bg-panel`, `rounded-panel`), used by the room planner, contact section, checkout form, order summary and gallery frame; `feature` (`bg-warm-greige`, a `line` border, `rounded-panel`), used by the Home registration section; `surface` (`bg-background`, a `line` border, `rounded-card`), used by the registration form.
   - `padding` (Tailwind's scale): `sm` `p-4`, `md` (default) `p-6`, `lg` `p-6 md:p-8 xl:p-12` and `xl` `px-5 py-8 md:p-10 xl:p-14`.
   - Compared with the current CSS at 360, 768 and 1280px, every one of these matches in padding, background, border, radius and colour, except the registration form below 768px: 24px padding instead of 20.8px (1.3rem is not on the scale).
@@ -107,6 +107,7 @@ All CSS is in `src/app/globals.css`, which the root layout imports once. RAHA is
   - Footer columns: `grid-cols-footer` (1.1fr 1fr 1fr) from 768px and `grid-cols-footer-wide` (1.1fr 1fr 1.2fr) from 1280px.
   - Home art direction: `rounded-hero` and `rounded-hero-md` (the curved photo band), `object-hero`, `object-hero-md` and `object-kitchen` (the photos' focal points: 63%, 60% and 57%), `text-hero` (4.1rem, the hero title from 1280px), `text-slide-title` (`clamp(2rem, 4vw, 4rem)`) and `text-caption` with `tracking-caption` (the 0.5rem photo caption, spaced 0.15em).
   - `text-hint` (0.66rem): form help text, shared by the registration demo and the contact form.
+  - Product cards: `text-label` with `tracking-label` (0.56rem spaced 0.13em, the collection and category line), `text-card-title` (1.32rem) and `scale-card-hover` (103.5%, the photo's zoom on hover).
   - Spacing: `gutter`, 1.25rem, then 2.5rem from 768px and 5rem from 1280px.
 - **Base layer** (`@layer base`): the page colour and font, headings, links, `em`, the button cursor and icon SVGs. Preflight already supplies box-sizing, zero margins, inherited form fonts and link colours, block images and `[hidden]`, so those RAHA rules were removed. The base layer also restores, with `revert`, browser defaults that preflight removes but RAHA relies on: the dialog margin (which centres the cart modal), button, legend and option padding, bold option-group labels and the browser's placeholder grey.
 - **Focus ring:** the global `:focus-visible` outline is in the base layer, so a Tailwind class can change its colour; the footer uses `**:focus-visible:outline-soft-white`. No shared component removes the outline.
@@ -182,7 +183,8 @@ RootLayout                                 src/app/layout.tsx  (html, body, glob
     ├── FeaturedProducts                   src/features/home/FeaturedProducts.tsx
     │   └── ProductGrid                    src/features/products/components/ProductGrid.tsx
     │       └── ProductCard (client)       src/features/products/components/ProductCard.tsx
-    │           └── Button                 src/components/Button.tsx
+    │           ├── Badge (ui)             src/components/ui/badge.tsx
+    │           └── Button (ui)            src/components/ui/button.tsx
     ├── RoomSlider (client)                src/features/home/RoomSlider.tsx
     │   └── StatusMessage                  src/components/StatusMessage.tsx
     └── RegistrationSection (client)       src/features/forms/RegistrationSection.tsx
@@ -197,13 +199,14 @@ RootLayout                                 src/app/layout.tsx  (html, body, glob
     ├── ErrorBoundary → Suspense ("Explore our considered collection.")
     │   └── CatalogueSummary               src/features/products/components/CatalogueSummary.tsx
     ├── CatalogueControls                  src/features/products/components/CatalogueControls.tsx
-    │   ├── FormField
-    │   └── Button
+    │   ├── FormField → Input (ui), Button (ui, clear search)
+    │   ├── FormField (two selects)
+    │   └── Button (ui, Reset)
     └── ErrorBoundary (error: StatusMessage with Try again)   src/components/ErrorBoundary.tsx
         └── Suspense (StatusMessage "Loading products...")
             └── CatalogueResults           src/features/products/components/CatalogueResults.tsx
                 ├── StatusMessage (empty, no-match or result count)
-                └── EntranceContext (null) → ProductGrid → ProductCard → Button
+                └── EntranceContext (null) → ProductGrid → ProductCard → Badge, Button (ui)
 
 /products/[id]   src/app/products/[id]/page.tsx  (awaits getProduct(id))
 ├── loading.tsx: StatusMessage "Loading product..."
@@ -366,7 +369,7 @@ The switches from the course API, `/delay/<ms>`, `/fail/<400-599>` and `/empty`,
 | QuantityControl                       | `quantity: number`, `itemLabel: string`, `finishName: string`, `cartKey: string`, `onDecrease: () => void`, `onIncrease: () => void`                        |
 | EntranceOverlay                       | `overlayRef: RefObject<HTMLElement \| null>`, `skipRef: RefObject<HTMLButtonElement \| null>`, `onSkip: () => void`                                         |
 | Button                                | all native `ButtonHTMLAttributes<HTMLButtonElement>` plus `tone?: 'primary' \| 'secondary'`; `type` defaults to `button`                                    |
-| FormField                             | `id: string`, `label: string`, `hint?: string`, `error?: string`, `className?: string`, `children: ReactNode`                                               |
+| FormField                             | `id: string`, `label: string`, `hint?: string`, `error?: string`, `className?: string`, `labelClassName?: string`, `children: ReactNode`                    |
 | StatusMessage                         | `kind: 'loading' \| 'error' \| 'empty' \| 'no-match' \| 'success'`, `message: string`, `className?: string`, `onRetry?: () => void`, `onReset?: () => void` |
 
 Reusable components with more than one call site or many data-driven instances: Button, FormField, StatusMessage, ErrorBoundary, ProductGrid, ProductCard, CartLineItem, QuantityControl, RoomSection and NotFoundPage.
@@ -414,6 +417,23 @@ Hosting limitations:
 - The test switches are off in production unless `RAHA_TEST_SWITCHES=1` is set.
 
 ## Verification status
+
+### Products catalogue and product cards on Tailwind (2026-11-11)
+
+- CatalogueControls, the catalogue status line, ProductGrid and ProductCard (shared by Home and Products) use Tailwind classes, RAHA tokens and the shared `components/ui`:
+  - The card uses `Badge` for a product tag and `Button` (`size="sm"`) for Add to cart, with `disabled:opacity-65` as before.
+  - The search uses `Input`; clear search is `Button` (`variant="plain"`, `size="icon"`); Reset is `Button` (`variant="secondary"`).
+  - The two selects keep their own classes and carry `data-slot="select"`, so the shared field rule (still used by the contact form's select) leaves them alone.
+  - FormField gained an optional `labelClassName`, and the shared `.form-field` rules moved into `@layer components`, so the selects' 0.6rem label margin is a class.
+  - `joinClasses` in `entrance-motion.ts` was removed; `cn` replaced it and nothing else used it.
+- 37 catalogue and card rules were removed from `globals.css`, and `.add-to-cart` was taken out of the two shared `.button` lists. Four of them were already unused: `.filters`, `#product-count`, `.empty-state` and `#reset-filters`. `.button-secondary` stays, because the old Button builds it from `tone` and the checkout still uses it.
+- `npm run typecheck`, `npm run lint` (0 warnings), `npm run format:check` and `npm run build` pass.
+- A computed-style snapshot of 29 states at 360, 768 and 1280px (87 snapshots, 25,830 elements; it adds search, no match, a category filter, a price sort, a hovered card on Home and on Products, and the loading state) was compared with the build before. Two snapshots of that build matched exactly.
+  - Only states that show the catalogue or product cards changed. No line breaks changed and nothing overflows. Colours, borders, radii, the card image ratio (1.3, and 1.45 from 1280px), the grid columns and the hover zoom are unchanged.
+  - Size differences from the nearest scale step: the selects 12px text (was 12.8px), the status line 14px (was 13.6px), the card description 12px (was 12.16px), the price 14px (was 14.56px), Add to cart 11px (was 10.88px), the Reset button 44px high (the shared Button), the clear-search button 44px wide (was 40px), and spacing within 1px. The hover zoom now uses Tailwind's default easing instead of `ease`.
+- On the production server the site (110/110, one check added for a price on every card), cart (21/21), focus (17/17), checkout (50/50) and Home (31/31) runs passed. They cover search with no lost characters and focus kept, no match with Reset, the category filter and price sort without a server request, `/delay`, `/fail/500` with Try again, `/empty`, a real API outage, and adding to the cart. The test selectors now use `article[data-id]`, the Add button's `aria-label` and `#product-search` instead of the removed class names.
+- In development, fast typing "Lamp" kept every character, the URL became `?q=Lamp` with 3 cards, focus stayed in the field and clear search restored 60 cards, in two runs; the pages logged no Console warnings or errors. A first run of that check typed before the page had hydrated, with the intro playing, and saw an empty field: a test setup problem, which waiting for the page fixed.
+- README fix: the previous update had put the Card sentence on the Badge entry; both entries are now correct.
 
 ### Home on Tailwind (2026-11-11)
 
@@ -670,7 +690,8 @@ Last run on 2026-11-06:
 - The cart count shows 0 for a moment after a refresh, until the browser cart is read after hydration.
 - On Node.js 26, the server logs an experimental-feature warning when the Day 3 `state.ts` touches `localStorage` during the server render.
 - The products API and the app are not deployed.
-- The header, the footer and Home's own sections (Hero, the featured section heading, RoomSlider and RegistrationSection) are converted to Tailwind. The product cards on Home are ProductGrid and ProductCard, which the Products page shares, so they keep their component rules; so do the shared FormField and `.page-section`. The other pages are still styled by the component rules in `globals.css`. There is no dark mode. Badge and Modal are not used by any page yet.
+- The header, the footer, Home's own sections (Hero, the featured section heading, RoomSlider and RegistrationSection) and the Products catalogue with its product cards (CatalogueControls, the catalogue status line, ProductGrid and ProductCard) are converted to Tailwind. `.page-intro`, `.collection-footnote`, StatusMessage and the shared form field rules are still used by unconverted pages, so they stay. The product page, Room Inspiration, About, checkout, cart and the error and not-found pages are still styled by the component rules in `globals.css`. There is no dark mode. Modal is not used by any page yet.
+- The catalogue search field shows the shared Input, with its own border, inside the bordered search box. That is how the site has always rendered it: the old `.search-input input` rule meant to remove the inner border never applied, because the shared field rule came later with the same specificity. The conversion kept the rendered look; removing the inner border would be a design change.
 
 ## Project documents
 

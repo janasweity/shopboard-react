@@ -7,6 +7,7 @@ import type {
 import StatusMessage from '../../../components/StatusMessage.tsx'
 import { EntranceContext } from '../../entrance/entrance-motion.ts'
 import ProductGrid from './ProductGrid.tsx'
+import { catalogueStatusClass } from './catalogue-classes.ts'
 
 interface Props {
   // The list request started by the products Server Component.
@@ -28,7 +29,7 @@ export default function CatalogueResults({
 
   return (
     <>
-      <div id="catalogue-status">
+      <div id="catalogue-status" className={catalogueStatusClass}>
         {products.length === 0 ? (
           <StatusMessage
             kind="empty"

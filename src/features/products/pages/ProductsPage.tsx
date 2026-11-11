@@ -10,6 +10,7 @@ import CatalogueControls from '../components/CatalogueControls.tsx'
 import CatalogueResults from '../components/CatalogueResults.tsx'
 import CatalogueSummary from '../components/CatalogueSummary.tsx'
 import { useProductSelection } from '../useProductSelection.ts'
+import { catalogueStatusClass } from '../components/catalogue-classes.ts'
 import {
   entranceDelay,
   useEntranceMotion,
@@ -80,7 +81,7 @@ export default function ProductsPage({
             resetKey={requestId}
             fallback={() => (
               <>
-                <div id="catalogue-status">
+                <div id="catalogue-status" className={catalogueStatusClass}>
                   {retrying ? (
                     <StatusMessage
                       kind="loading"
@@ -101,7 +102,7 @@ export default function ProductsPage({
             <Suspense
               fallback={
                 <>
-                  <div id="catalogue-status">
+                  <div id="catalogue-status" className={catalogueStatusClass}>
                     <StatusMessage
                       kind="loading"
                       message="Loading products..."

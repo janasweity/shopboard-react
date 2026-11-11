@@ -9,11 +9,12 @@ import {
 } from '../../../data.ts'
 import Link from 'next/link'
 import { productPath } from '../../../lib/routes.ts'
-import Button from '../../../components/Button.tsx'
+import { cn } from '../../../lib/utils.ts'
+import { Badge } from '../../../components/ui/badge.tsx'
+import { Button } from '../../../components/ui/button.tsx'
 import { useCartContext } from '../../cart/cart-context.ts'
 import {
   entranceDelay,
-  joinClasses,
   useEntranceMotion,
 } from '../../entrance/entrance-motion.ts'
 
@@ -29,19 +30,21 @@ export default function ProductCard({ product, position }: Props) {
   const motion = useEntranceMotion('card', entranceDelay.card(position))
   return (
     <article
-      className={joinClasses('product-card', motion.className)}
+      className={cn('group flex min-w-0 flex-col', motion.className)}
       style={motion.style}
       data-id={product.id}
       data-category={product.category}
       data-collection={product.collection}
     >
       <Link
-        className="product-image"
+        className="relative block aspect-13/10 overflow-hidden rounded-card bg-silver-mist xl:aspect-29/20"
         href={href}
         aria-label={'View ' + product.name}
       >
         {product.tag ? (
-          <span className="product-tag">{product.tag}</span>
+          <Badge className="absolute top-2.75 left-2.75 z-1">
+            {product.tag}
+          </Badge>
         ) : null}
         <img
           src={product.image}
@@ -50,26 +53,35 @@ export default function ProductCard({ product, position }: Props) {
           height={1000}
           loading="lazy"
           decoding="async"
+          className="size-full object-contain p-2.75 transition-transform duration-400 group-hover:scale-card-hover"
         />
       </Link>
-      <div className="product-info">
-        <p className="product-type">
+      <div className="flex flex-1 flex-col px-0.5 pt-4">
+        <p className="min-h-7.5 text-label tracking-label text-muted">
           {collectionName(product.collection)} /{' '}
           {categoryName(product.category)}
         </p>
-        <h3>
-          <Link href={href}>{product.name}</Link>
+        <h3 className="mt-1.5 mb-2 min-h-12 text-card-title">
+          <Link
+            href={href}
+            className="hover:underline hover:underline-offset-4"
+          >
+            {product.name}
+          </Link>
         </h3>
-        <p className="product-detail">{product.description.split('. ')[0]}.</p>
-        <p className="product-price">{money(product.price)}</p>
-        <p className="color-option-count">
+        <p className="mb-3.25 text-xs leading-body text-muted">
+          {product.description.split('. ')[0]}.
+        </p>
+        <p className="mt-auto text-sm leading-body">{money(product.price)}</p>
+        <p className="mt-1.25 text-2xs leading-body text-warm-slate">
           {product.variants.length}{' '}
           {product.variants.length === 1
             ? 'color / finish'
             : 'colors & finishes'}
         </p>
         <Button
-          className="add-to-cart"
+          size="sm"
+          className="mt-2.75 self-start disabled:opacity-65"
           disabled={!variant.available}
           aria-label={'Add ' + product.name + ' to cart'}
           onClick={() => add(product.id, variant.id)}
