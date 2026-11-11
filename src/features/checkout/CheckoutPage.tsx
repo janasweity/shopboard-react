@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Button from '../../components/Button.tsx'
+import { Button } from '../../components/ui/button.tsx'
+import { cardVariants } from '../../components/ui/card-variants.ts'
 import StatusMessage from '../../components/StatusMessage.tsx'
 import { useCartContext } from '../cart/cart-context.ts'
 import {
@@ -44,7 +45,7 @@ export default function CheckoutPage() {
         </p>
       </section>
       {!confirmed && quantity === 0 ? (
-        <section className="checkout-empty" aria-label="Empty cart">
+        <section className="mb-16" aria-label="Empty cart">
           <StatusMessage
             kind="empty"
             message="Your cart is empty, so there is nothing to review yet."
@@ -54,27 +55,38 @@ export default function CheckoutPage() {
           </Link>
         </section>
       ) : (
-        <div className="checkout-layout">
+        <div className="mb-16 grid gap-8 md:grid-cols-checkout md:items-start">
           <section
-            className="checkout-panel"
+            className={cardVariants()}
             aria-labelledby="checkout-panel-title"
           >
             {confirmed ? (
               <>
                 {/* Focus moves here so the confirmation is announced. */}
-                <h2 id="checkout-panel-title" tabIndex={-1} ref={focusOnMount}>
+                <h2
+                  id="checkout-panel-title"
+                  tabIndex={-1}
+                  ref={focusOnMount}
+                  className="mb-4 focus:outline-none"
+                >
                   Demo order confirmed.
                 </h2>
-                <p role="status">
+                <p role="status" className="text-sm leading-body text-muted">
                   Nothing was sent, saved or charged. Your cart is unchanged.
                 </p>
-                <Button tone="secondary" onClick={startAgain}>
+                <Button
+                  variant="secondary"
+                  className="mt-2"
+                  onClick={startAgain}
+                >
                   Start a new demo order
                 </Button>
               </>
             ) : (
               <>
-                <h2 id="checkout-panel-title">Your details</h2>
+                <h2 id="checkout-panel-title" className="mb-4">
+                  Your details
+                </h2>
                 <CheckoutForm onConfirmed={() => setConfirmed(true)} />
               </>
             )}

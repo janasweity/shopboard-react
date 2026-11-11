@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Button from '../../components/Button.tsx'
+import { Button } from '../../components/ui/button.tsx'
 import {
   Field,
   FieldDescription,
@@ -63,6 +63,10 @@ const textFields: readonly TextField[] = [
   },
 ]
 
+// RAHA's sizes over the shadcn Field defaults (text-sm, the destructive colour).
+const labelClass = 'text-xs'
+const errorClass = 'text-xs font-medium text-ink'
+
 export const firstCheckoutFieldId = 'checkout-full-name'
 
 export default function CheckoutForm({ onConfirmed }: Props) {
@@ -88,20 +92,22 @@ export default function CheckoutForm({ onConfirmed }: Props) {
 
   return (
     <form
-      className="checkout-form"
+      id="checkout-form"
       // Zod checks every field, so the browser's own messages are turned off.
       noValidate
       onSubmit={(event) => void handleSubmit(() => onConfirmed())(event)}
     >
       <FieldGroup>
-        <FieldDescription id="checkout-required">
+        <FieldDescription id="checkout-required" className="text-xs">
           All fields are required. This demo does not send or save them.
         </FieldDescription>
         {textFields.map((field) => {
           const error = errors[field.name]?.message
           return (
             <Field key={field.name} data-invalid={error ? true : undefined}>
-              <FieldLabel htmlFor={field.id}>{field.label}</FieldLabel>
+              <FieldLabel htmlFor={field.id} className={labelClass}>
+                {field.label}
+              </FieldLabel>
               <Input
                 id={field.id}
                 type={field.type}
@@ -110,7 +116,9 @@ export default function CheckoutForm({ onConfirmed }: Props) {
                 aria-describedby={error ? field.id + '-error' : undefined}
                 {...register(field.name)}
               />
-              <FieldError id={field.id + '-error'}>{error}</FieldError>
+              <FieldError id={field.id + '-error'} className={errorClass}>
+                {error}
+              </FieldError>
             </Field>
           )
         })}
@@ -121,21 +129,24 @@ export default function CheckoutForm({ onConfirmed }: Props) {
           <input
             id="checkout-demo-confirmed"
             type="checkbox"
+            className="size-5 flex-none rounded-field border border-stone-grey bg-soft-white text-ink accent-charcoal-brown aria-invalid:border-2 aria-invalid:border-charcoal-brown"
             aria-invalid={confirmError ? true : undefined}
             aria-describedby={
               confirmError ? 'checkout-demo-confirmed-error' : undefined
             }
             {...register('demoConfirmed')}
           />
-          <FieldLabel htmlFor="checkout-demo-confirmed">
+          <FieldLabel htmlFor="checkout-demo-confirmed" className={labelClass}>
             I understand this is a demo. No order is placed, no payment is taken
             and nothing I enter is sent.
           </FieldLabel>
         </Field>
-        <FieldError id="checkout-demo-confirmed-error">
+        <FieldError id="checkout-demo-confirmed-error" className={errorClass}>
           {confirmError}
         </FieldError>
-        <Button type="submit">Confirm demo order</Button>
+        <Button type="submit" className="mt-2">
+          Confirm demo order
+        </Button>
       </FieldGroup>
     </form>
   )

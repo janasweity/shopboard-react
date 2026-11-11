@@ -121,6 +121,11 @@
   --text-figcaption--line-height: 1.7;
   --leading-heading: 1.12;
 
+  /* Checkout: the form and summary columns from 768px, and a summary line
+     (the name takes the space, the total its own width). */
+  --grid-template-columns-checkout: minmax(0, 1.3fr) minmax(0, 1fr);
+  --grid-template-columns-line: minmax(0, 1fr) auto;
+
   /* Corner radii used by RAHA. */
   --radius-thumb: 4px; /* gallery thumbnails, quantity controls, hotspot labels */
   --radius-field: 5px; /* form fields, small cart and room images */
@@ -330,18 +335,6 @@ main:focus {
 @media (min-width: 768px) {
 }
 /* Local demo registration and cart retain native form behavior. */
-/* Native inputs not yet converted; today only the checkout's confirmation
-   checkbox. The shared Input (data-slot="input") is left out, so its own
-   classes style it; :where() keeps this rule's specificity unchanged. */
-input:not([type='submit']):where(:not([data-slot='input'])) {
-  width: 100%;
-  min-height: 44px;
-  padding: 0.75rem;
-  color: var(--color-ink);
-  border: 1px solid var(--color-stone-grey);
-  border-radius: var(--radius-field);
-  background: var(--color-soft-white);
-}
 .cart-status {
   font-size: 0.8rem;
   color: var(--color-primary-dark);
@@ -833,105 +826,13 @@ button:disabled {
   border-top: 0;
   cursor: pointer;
 }
-.button-secondary {
-  color: var(--color-ink);
-  background: var(--color-warm-ivory);
-  border-color: var(--color-line);
-}
-.button-secondary:hover {
-  background: var(--color-silver-mist);
-}
 
 /* React catalogue feedback sits outside the busy grid for immediate announcements. */
 
-/* Demo checkout. RAHA rules stay unlayered, so they win over the shadcn
-   Tailwind classes in the form and keep the site's form look. */
 #review-order {
   display: flex;
   margin-bottom: 1rem;
 }
-.checkout-layout {
-  display: grid;
-  gap: 2rem;
-  margin-bottom: 4rem;
-}
-.checkout-panel,
-.checkout-summary {
-  min-width: 0;
-  padding: 1.5rem;
-  background: var(--color-panel);
-  border-radius: var(--radius-panel);
-}
-.checkout-panel h2,
-.checkout-summary h2 {
-  margin-block: 0 1rem;
-}
-.checkout-panel h2:focus {
-  outline: none;
-}
-.checkout-panel p,
-.checkout-summary > p:not(.collection-footnote) {
-  color: var(--color-muted);
-  font-size: 0.85rem;
-}
-.checkout-panel .button {
-  margin-top: 0.5rem;
-}
-.checkout-form [data-slot='field-label'] {
-  font-size: 0.8rem;
-  line-height: 1.4;
-}
-.checkout-form [data-slot='field-description'] {
-  color: var(--color-muted);
-  font-size: 0.75rem;
-}
-.checkout-form [data-slot='field-error'] {
-  color: var(--color-ink);
-  font-size: 0.75rem;
-  font-weight: 500;
-}
 /* The native confirmation checkbox is not an Input yet. */
-.checkout-form input[type='checkbox'][aria-invalid='true'] {
-  border: 2px solid var(--color-charcoal-brown);
-}
-.checkout-form input[type='checkbox'] {
-  flex: none;
-  width: 1.25rem;
-  height: 1.25rem;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  accent-color: var(--color-charcoal-brown);
-}
-.checkout-summary ul {
-  margin: 1rem 0;
-  padding: 0;
-  list-style: none;
-}
-.checkout-summary li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.2rem 1rem;
-  padding-block: 0.8rem;
-  border-bottom: 1px solid var(--color-line);
-  font-size: 0.85rem;
-}
-.checkout-line-detail {
-  grid-column: 1 / -1;
-  color: var(--color-muted);
-  font-size: 0.75rem;
-}
-.checkout-subtotal {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.checkout-empty {
-  margin-bottom: 4rem;
-}
 @media (min-width: 768px) {
-  .checkout-layout {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    align-items: start;
-  }
 }
