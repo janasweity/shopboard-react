@@ -9,6 +9,8 @@
     /* Node runs these files directly with type stripping */
     "module": "nodenext",
     "allowImportingTsExtensions": true,
+    /* Vercel compiles these files to .js: keep the imports working there */
+    "rewriteRelativeImportExtensions": true,
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
     "moduleDetection": "force",
