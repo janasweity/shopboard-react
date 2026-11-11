@@ -284,24 +284,6 @@ main:focus {
 .skip-link:focus {
   transform: translateY(0);
 }
-.button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.25rem;
-  min-height: 46px;
-  padding: 0.85rem 1.4rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  background: var(--color-primary);
-  color: var(--color-soft-white);
-  font-size: 0.72rem;
-  font-weight: 500;
-  line-height: 1.4;
-}
-.button:hover {
-  background: var(--color-primary-dark);
-}
 .collection-footnote {
   color: var(--color-muted);
   font-size: 0.7rem;
@@ -323,123 +305,9 @@ main:focus {
   color: var(--color-muted);
   max-width: 600px;
 }
-.text-button {
-  min-height: 44px;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid var(--color-stone-grey);
-  border-radius: var(--radius-chip);
-  color: var(--color-ink);
-  background: transparent;
-  font-size: 0.7rem;
-}
 @media (min-width: 768px) {
 }
 /* Local demo registration and cart retain native form behavior. */
-.cart-status {
-  font-size: 0.8rem;
-  color: var(--color-primary-dark);
-}
-.cart-status:not(:empty) {
-  padding-block: 1rem;
-}
-.cart-dialog {
-  width: min(580px, calc(100% - 2rem));
-  max-height: 85vh;
-  padding: 1.5rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-dialog);
-  color: var(--color-ink);
-  background: var(--color-bg);
-}
-.cart-dialog::backdrop {
-  background: color-mix(in srgb, var(--color-soft-black) 45%, transparent);
-  backdrop-filter: blur(3px);
-}
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-.cart-header h2 {
-  font-size: 2rem;
-}
-.close-cart {
-  border: 0;
-  background: var(--color-panel);
-  color: var(--color-ink);
-  border-radius: var(--radius-circle);
-  width: 44px;
-  height: 44px;
-  font-size: 1.6rem;
-}
-#cart-note,
-#cart-empty {
-  margin-top: 1rem;
-  color: var(--color-muted);
-  font-size: 0.78rem;
-}
-#cart-items {
-  list-style: none;
-  margin: 1.5rem 0;
-  padding: 0;
-}
-#cart-items li {
-  display: flex;
-  gap: 1rem;
-  padding-block: 1rem;
-  border-bottom: 1px solid var(--color-line);
-}
-#cart-items li > div {
-  min-width: 0;
-}
-#cart-items img {
-  width: 72px;
-  height: 80px;
-  object-fit: contain;
-  border-radius: var(--radius-field);
-  background: var(--color-panel);
-}
-#cart-items h3 {
-  font-size: 1.15rem;
-}
-#cart-items p {
-  font-size: 0.75rem;
-}
-.quantity-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  align-items: center;
-  margin-top: 0.6rem;
-}
-.quantity-controls button,
-.quantity-controls span {
-  display: inline-grid;
-  place-items: center;
-  min-width: 32px;
-  min-height: 36px;
-  padding-inline: 0.4rem;
-  font-size: 0.72rem;
-  color: var(--color-ink);
-  background: transparent;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-thumb);
-}
-.cart-summary {
-  display: flex;
-  justify-content: space-between;
-  margin-block: 1.5rem;
-}
-#clear-cart {
-  display: block;
-  min-height: 44px;
-  margin-bottom: 1rem;
-}
-#clear-cart:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* The optional introduction never hides the underlying page. */
 .store-intro {
@@ -580,15 +448,6 @@ main:focus {
 }
 .skip-intro:focus-visible {
   outline-color: var(--color-soft-black);
-}
-.button:disabled {
-  cursor: not-allowed;
-  background: var(--color-graphite-grey);
-  color: var(--color-soft-white);
-}
-.cart-color {
-  margin-block: 0.3rem;
-  font-weight: 600;
 }
 
 /* A catalogue-matched room with a non-modal, single-product panel. */
@@ -829,10 +688,6 @@ button:disabled {
 
 /* React catalogue feedback sits outside the busy grid for immediate announcements. */
 
-#review-order {
-  display: flex;
-  margin-bottom: 1rem;
-}
 /* The native confirmation checkbox is not an Input yet. */
 @media (min-width: 768px) {
 }

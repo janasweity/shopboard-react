@@ -1,3 +1,6 @@
+import { Button } from '../../components/ui/button.tsx'
+import { quantityBoxClass, quantityButtonClass } from './quantity-classes.ts'
+
 interface Props {
   readonly quantity: number
   readonly itemLabel: string
@@ -17,27 +20,32 @@ export default function QuantityControl({
 }: Props) {
   return (
     <>
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        className={quantityButtonClass}
         data-key={cartKey}
         data-action="decrease"
         aria-label={`Decrease ${itemLabel} quantity | ${finishName}`}
         onClick={onDecrease}
       >
         -
-      </button>
-      <span aria-label={`Quantity: ${quantity} | ${finishName}`}>
+      </Button>
+      <span
+        className={quantityBoxClass}
+        aria-label={`Quantity: ${quantity} | ${finishName}`}
+      >
         {quantity}
       </span>
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        className={quantityButtonClass}
         data-key={cartKey}
         data-action="increase"
         aria-label={`Increase ${itemLabel} quantity | ${finishName}`}
         onClick={onIncrease}
       >
         +
-      </button>
+      </Button>
     </>
   )
 }

@@ -48,6 +48,8 @@ function Modal({
 }: ModalProps) {
   const dialog = useRef<HTMLDialogElement>(null)
   const returnFocus = useRef<HTMLElement | null>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  const closeButton = useRef<HTMLButtonElement>(null)
   const titleId = useId()
 
   useEffect(() => {
@@ -57,6 +59,9 @@ function Modal({
       const active = document.activeElement
       returnFocus.current = active instanceof HTMLElement ? active : null
       element.showModal()
+      // A panel taller than the screen scrolls, and Chromium then focuses the
+      // panel itself. Start on the close button instead, as when it fits.
+      if (document.activeElement === panel.current) closeButton.current?.focus()
     }
     // Runs when `open` turns false, when the Modal is removed while open, and
     // in StrictMode's extra unmount check, which then runs the effect again
@@ -102,6 +107,7 @@ function Modal({
       className="m-0 size-full max-h-none max-w-none place-items-center bg-transparent p-4 open:grid backdrop:bg-soft-black/45 backdrop:backdrop-blur-xs"
     >
       <div
+        ref={panel}
         className={cn(
           cardVariants({ variant: 'surface' }),
           'rounded-dialog',
@@ -114,6 +120,7 @@ function Modal({
             {title}
           </h2>
           <Button
+            ref={closeButton}
             variant="ghost"
             size="icon"
             aria-label={closeLabel}

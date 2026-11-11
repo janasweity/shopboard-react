@@ -92,7 +92,7 @@ The app uses the Next.js 16 App Router (`src/app/`). Next.js 16 changed APIs and
   - Keep each converted feature's look, responsive behavior, focus, motion and accessibility. Compare computed styles of the affected pages with a baseline at 360, 768 and 1280px, before and after.
 - shadcn/ui files in src/components/ui (field, input, label, separator) are project code and follow every rule.
   - Add only components a feature uses, and review all CLI output before keeping it.
-  - Use the RAHA Button. shadcn files import with `@/` and explicit extensions; RAHA files keep relative imports.
+  - Use the shared RAHA Button (`src/components/ui/button.tsx`, with `buttonVariants()` for links); there is no other Button. shadcn files import with `@/` and explicit extensions; RAHA files keep relative imports.
 
 ## RAHA behavior and accessibility
 
@@ -127,7 +127,7 @@ Keep these four kinds of evidence separate, and never claim more than the eviden
    - Catalogue cards animating on a fast API response.
    - The blank app on a failed page file download.
    - The shadcn CLI installing an unrelated `cn` package and writing an index key.
-   - During the Tailwind conversion: the Home room buttons turning soft-black with charcoal text on hover (the old `.button:hover` rule), and tailwind-merge dropping RAHA custom text sizes next to a text colour.
+   - During the Tailwind conversion: the Home room buttons turning soft-black with charcoal text on hover (the old `.button:hover` rule), tailwind-merge dropping RAHA custom text sizes next to a text colour, and the shared Modal's first focus landing on its scrolling panel instead of the close button.
    - During the Next.js migration: `useSearchParams` dropping typed search characters, the intro missing server-rendered content, a hash link losing its target while the page loaded, and a root `loading.tsx` hiding static pages behind a hidden copy.
 3. **The user's own manual verification after fixes.** This is not observation of the bugs before they were fixed.
    - React DevTools inspections, as recorded in README.
