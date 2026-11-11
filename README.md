@@ -428,7 +428,7 @@ List keys always come from data: `product.id`, `line.key` (product + finish), `v
 
 ## Products API (`products-api/`)
 
-A separate API for RAHA products. The Next.js app reads it through `RAHA_API_URL`. It is ready for Vercel but not deployed.
+A separate API for RAHA products. The Next.js app reads it through `RAHA_API_URL`. On Vercel it is the internal `products-api` service of the same project (see Hosting); it is not deployed yet.
 
 - It has its own `package.json` and lockfile. It has no runtime dependencies; `@types/node` (the root project's version) is its only dev dependency, so Vercel's TypeScript check knows Node's types. `engines.node` is `26.x`, the version every check ran on and Vercel's default. Node.js 22.18 or newer runs its TypeScript files directly with type stripping.
 - `npm run api:build` runs `scripts/generate-products.ts`, which reads `src/data.ts` with the unchanged Day 3 `serializeProducts` (prices in cents) and writes `products-api/generated/products.json`. That file is generated on every build and ignored by Git, so `src/data.ts` stays the only product source. It cannot import `products.client.ts`, because that file imports `api-client.ts`, whose `ApiError` uses a parameter property that type stripping does not support.
@@ -436,19 +436,35 @@ A separate API for RAHA products. The Next.js app reads it through `RAHA_API_URL
 - `src/catalogue.ts` reads and checks `generated/products.json` (path relative to its own file). The local server and the Vercel function both use it.
 - `npm run api:start` runs `server.ts`, which serves it on `http://127.0.0.1:4000` (`PORT` changes the port). Without the generated file, it stops with a message to run the build first.
 - `api/handler.ts` is the Vercel function (`export default { fetch }`, Web `Request` and `Response`). It answers with `handleRequest`, the same `Content-Type`, `Cache-Control: no-store` and `Allow` headers as the local server, waits for `/delay` and stops waiting when the client cancels.
-- `vercel.json`: no framework, `npm run build` as the build command, `includeFiles: "generated/products.json"` for the function, and one rewrite that sends every path to `/api/handler?path=/…`. The function uses its request path when it sees the original address, and `?path=` when it sees its own, so the routes work either way.
+- `products-api/vercel.json` holds the same function settings for a standalone Vercel project with Root Directory `products-api`, and one rewrite that sends every path to `/api/handler?path=/…`. In the services setup the root `vercel.json` carries these settings. The function uses its request path when it sees the original address, and `?path=` when it sees its own, so it works in both setups.
 - `tsconfig.json` sets `rewriteRelativeImportExtensions`: Vercel compiles the TypeScript files to `.js`, and without it the compiled function still imported `../src/catalogue.ts`, which is not in the package.
 - `products-api/tsconfig.json` is referenced from the root `tsconfig.json`, so `npm run typecheck` checks it.
 
 Hosting limitations:
 
-- Neither the app nor the API is deployed. The API is ready for a separate Vercel project with Root Directory `products-api`; the app then needs `RAHA_API_URL` set to the API's address.
-- Vercel settings for the API project: Root Directory `products-api`, Framework Preset Other (vercel.json sets `framework: null`), Build Command `npm run build` (from vercel.json), Install Command the default (`npm install`, which installs `@types/node`), Output Directory empty, Node.js 26.x (from `engines`), "Include files outside the root directory in the Build Step" on (the default; the build reads `src/data.ts`). The API needs no environment variables.
+- Neither the app nor the API is deployed. The root `vercel.json` deploys both as one Vercel project with Services (Beta on all plans):
+  - `app` (root `.`, Next.js) is public: the only top-level rewrite sends every path to it.
+  - `products-api` (root `products-api`, Node runtime, entrypoint `api/handler.ts`) is internal: no public rewrite targets it. Its build command `npm run build` writes `generated/products.json`, and `functions.includeFiles` puts that file in the function.
+  - `app` has a binding to `products-api` with `env: "RAHA_API_URL"`, so Vercel injects the service's internal base URL at runtime. Do not set `RAHA_API_URL` in the Vercel project: a value already set is not overwritten by the binding.
+- The binding resolves at runtime in functions only, not during `next build` and not in `src/proxy.ts`. Only `/products` (`force-dynamic`) and `/products/[id]` (rendered on request) call the API, both at request time, and `npm run build` passes without `RAHA_API_URL`.
+- The bound URL may contain a path prefix and has no trailing slash. `src/lib/api/products.ts` joins it as text (base + optional test switches + `/api/products`), so the prefix is kept; `new URL('api/products', base)` would drop it.
+- Node.js 26.x (from `products-api` `engines`). "Include files outside the root directory in the Build Step" must stay on (the default): the API build reads `src/data.ts`.
 - The test switches (`/delay`, `/fail`, `/empty`) also work on the deployed API, as they do locally; the app sends them only when its own switches are on. The root path `/` is not an API route: locally it answers a JSON 404, and on Vercel no rewrite matches it, so Vercel shows its own 404 page.
 - Vercel's documentation says a build can read files outside the Root Directory by default, and the default function limit with Fluid compute is 300 s, which covers the 8000 ms delay cap. Preview deployments behind Deployment Protection need a bypass for server-to-server requests.
 - The test switches are off in production unless `RAHA_TEST_SWITCHES=1` is set.
 
 ## Verification status
+
+### Vercel Services setup (2026-11-11)
+
+- Added the root `vercel.json` with the `app` and `products-api` services, one public catch-all rewrite to `app`, and the `RAHA_API_URL` binding from `app` to `products-api`. No application code changed: the API client already reads `RAHA_API_URL` at request time and keeps a path prefix.
+- `vercel dev --local` (CLI 65.14.0) read the file and detected both services (`app [Next.js]`, `products-api [Node]`), then stopped on this Windows machine: it installs its builders with symbolic links, which Windows allows only with Developer Mode or administrator rights. `/products` could not be opened through `vercel dev`.
+- Checked instead, without Vercel's routing:
+  - Vercel's Node builder packaged `products-api` with the settings read from the root `vercel.json` (entrypoint, build command, `includeFiles`): the function holds `generated/products.json` (60 products) and has no type errors.
+  - `next dev` ran with `RAHA_API_URL` in the binding's shape, `http://127.0.0.1:4192/_svc/products-api` (a path prefix, no trailing slash), served by a local stand-in that runs the packaged function only under that prefix. `/products` showed the 60 products, `/products/arc-sofa` the product, an unknown product the not-found view, `/delay/2000/products` the loading message and then the catalogue, and `/fail/500/products` the error with Try again; all 16 API requests kept the prefix, and the Console had no unexpected messages (8/8). React's development report of the deliberate `/fail/500` error was excluded as expected.
+  - Two setup mistakes in the test were fixed on the way: Git Bash turned the `/_svc/products-api` argument into a Windows path, and the first stand-in port, 4190, is on the Fetch standard's blocked-port list (`bad port`).
+- `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm run build` (without `RAHA_API_URL`) pass.
+- Not checked: Vercel's own service routing, the injected URL's exact form, and `vercel dev`. They are checked on this machine with Developer Mode on, or on the first preview deployment.
 
 ### Products API ready for Vercel (2026-11-11)
 
