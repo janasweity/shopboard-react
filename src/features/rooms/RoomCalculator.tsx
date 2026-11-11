@@ -1,8 +1,15 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { calculateRoomArea } from '../../modules/rooms/rooms.logic.ts'
-import Button from '../../components/Button.tsx'
 import FormField from '../../components/FormField.tsx'
+import { Button } from '../../components/ui/button.tsx'
+import { cardVariants } from '../../components/ui/card-variants.ts'
+import { Input } from '../../components/ui/input.tsx'
+import { cn } from '../../lib/utils.ts'
+
+// Each field grows from a 140px basis, so the two fields and the button sit
+// on one row when there is room and wrap below it otherwise.
+const fieldClass = 'grow basis-35'
 
 export default function RoomCalculator() {
   const [width, setWidth] = useState('')
@@ -19,16 +26,26 @@ export default function RoomCalculator() {
   }
 
   return (
-    <section id="planning" className="planner page-section">
+    // The panel's 1.5rem padding, with the page sections' taller vertical
+    // padding from 768px (4.5rem, then 5rem), as before.
+    <section id="planning" className={cn(cardVariants(), 'md:py-18 xl:py-20')}>
       <p className="eyebrow">A GOOD PLACE TO START</p>
-      <h2>Plan your room.</h2>
+      <h2 className="my-4">Plan your room.</h2>
       <p>
         Measure your room to estimate its floor area. Check furniture dimensions
         and leave space for walkways before choosing your layout.
       </p>
-      <form id="room-planner" onSubmit={handleSubmit}>
-        <FormField id="room-width" label="Width (metres)">
-          <input
+      <form
+        id="room-planner"
+        className="my-6 flex flex-wrap items-end gap-4"
+        onSubmit={handleSubmit}
+      >
+        <FormField
+          id="room-width"
+          label="Width (metres)"
+          className={fieldClass}
+        >
+          <Input
             id="room-width"
             type="number"
             min="0.5"
@@ -40,8 +57,12 @@ export default function RoomCalculator() {
             onChange={(event) => setWidth(event.currentTarget.value)}
           />
         </FormField>
-        <FormField id="room-length" label="Length (metres)">
-          <input
+        <FormField
+          id="room-length"
+          label="Length (metres)"
+          className={fieldClass}
+        >
+          <Input
             id="room-length"
             type="number"
             min="0.5"
@@ -59,6 +80,7 @@ export default function RoomCalculator() {
         id="room-area"
         htmlFor="room-width room-length"
         aria-live="polite"
+        className="block py-4"
       >
         {area === null
           ? 'Enter your measurements to get started.'

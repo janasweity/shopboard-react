@@ -34,9 +34,10 @@ const twMerge = extendTailwindMerge({
         'label',
         'card-title',
         'detail-title',
+        'figcaption',
       ],
       tracking: ['brand', 'brand-tag', 'caption', 'label'],
-      leading: ['body'],
+      leading: ['body', 'heading'],
     },
     classGroups: {
       'object-position': [{ object: ['hero', 'hero-md', 'kitchen'] }],

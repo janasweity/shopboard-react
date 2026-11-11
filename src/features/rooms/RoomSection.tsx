@@ -2,11 +2,14 @@ import type { InspirationRoom } from '../../modules/products/products.types.ts'
 import { money, products } from '../../data.ts'
 import { productPath } from '../../lib/routes.ts'
 import Link from 'next/link'
+import { cn } from '../../lib/utils.ts'
 
 interface Props {
   readonly room: InspirationRoom
   readonly position: number
 }
+
+const productTextClass = 'mb-2 text-xs leading-body'
 
 export default function RoomSection({ room, position }: Props) {
   const items = room.items.flatMap((item) => {
@@ -19,12 +22,14 @@ export default function RoomSection({ room, position }: Props) {
 
   return (
     <section
-      className="inspiration-room"
+      className="mt-8 mb-16 border-b border-line pb-8"
       id={room.id}
       aria-labelledby={room.id + '-title'}
     >
-      <div className="room-story">
-        <figure>
+      <div className="mb-8 grid items-center gap-6 md:grid-cols-story md:gap-10">
+        {/* From 768px the photo alternates: left for the first and third
+            rooms, right for the second. */}
+        <figure className={cn(position % 2 === 0 && 'md:order-2')}>
           <img
             src={room.image}
             alt={room.alt}
@@ -32,30 +37,37 @@ export default function RoomSection({ room, position }: Props) {
             height={1000}
             loading={position === 1 ? undefined : 'lazy'}
             decoding="async"
+            className="aspect-3/2 w-full rounded-feature object-contain"
           />
-          <figcaption>RAHA / {room.name.toUpperCase()} INSPIRATION</figcaption>
+          <figcaption className="mt-2.75 text-figcaption tracking-widest text-muted">
+            RAHA / {room.name.toUpperCase()} INSPIRATION
+          </figcaption>
         </figure>
         <div>
           <p className="eyebrow">
             0{position} / {room.name.toUpperCase()}
           </p>
-          <h2 id={room.id + '-title'}>{room.title}</h2>
-          <p>{room.description}</p>
-          <p className="inspiration-note">
+          <h2 id={room.id + '-title'} className="my-4">
+            {room.title}
+          </h2>
+          <p className="mb-5.25 text-muted">{room.description}</p>
+          <p className="mb-5.25 text-muted">
             Explore the featured pieces below in their photographed finishes.
             Room setting shown for styling inspiration.
           </p>
         </div>
       </div>
-      <h3 className="inspiration-products-title">Bring the look home.</h3>
+      <h3 className="mb-4 font-heading text-2xl leading-tight">
+        Bring the look home.
+      </h3>
       <div
-        className="inspiration-products"
+        className="grid gap-6 md:grid-cols-3"
         aria-label={'Products in this ' + room.name.toLowerCase()}
       >
         {items.map(({ product, variant, href }) => (
           <article
             key={product.id + '::' + variant.id}
-            className="inspiration-product"
+            className="min-w-0"
             data-inspiration-product={product.id}
           >
             <Link
@@ -69,14 +81,19 @@ export default function RoomSection({ room, position }: Props) {
                 height={1000}
                 loading="lazy"
                 decoding="async"
+                className="aspect-3/2 w-full rounded-panel bg-panel object-contain"
               />
             </Link>
             <div>
-              <h3>
+              <h3 className="mt-3.25 mb-1.5 text-base leading-heading">
                 <Link href={href}>{product.name}</Link>
               </h3>
-              <p>{variant.name}</p>
-              <p className="inspiration-price">{money(variant.price)}</p>
+              <p className={cn(productTextClass, 'text-muted')}>
+                {variant.name}
+              </p>
+              <p className={cn(productTextClass, 'text-ink')}>
+                {money(variant.price)}
+              </p>
               <Link href={href} className="text-link">
                 View product {'↗'}
               </Link>

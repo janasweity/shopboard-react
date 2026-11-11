@@ -21,7 +21,10 @@ export default function InspirationPage() {
           Three simple spaces, built around pieces from our catalogue. Find your
           room, then explore the exact colours and finishes below.
         </p>
-        <nav className="room-nav" aria-label="Room sections">
+        <nav
+          className="mt-6 flex flex-wrap gap-4 text-xs leading-body"
+          aria-label="Room sections"
+        >
           {inspirationRooms.map((room) => (
             <a key={room.id} href={'#' + room.id}>
               {room.name} {'↓'}

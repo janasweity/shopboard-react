@@ -113,6 +113,14 @@
   --text-detail-title--line-height: 1.12;
   --grid-template-columns-product: 1.05fr 1fr;
 
+  /* The photo and copy columns of the Room Inspiration and About stories,
+     the 0.62rem photo caption they share, and the heading line height for
+     a heading that sets its own size. */
+  --grid-template-columns-story: 1.1fr 1fr;
+  --text-figcaption: 0.62rem;
+  --text-figcaption--line-height: 1.7;
+  --leading-heading: 1.12;
+
   /* Corner radii used by RAHA. */
   --radius-thumb: 4px; /* gallery thumbnails, quantity controls, hotspot labels */
   --radius-field: 5px; /* form fields, small cart and room images */
@@ -319,122 +327,31 @@ main:focus {
   background: transparent;
   font-size: 0.7rem;
 }
-.room-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  font-size: 0.8rem;
-}
-.room-story,
 .about-story {
   display: grid;
   gap: 1.5rem;
   margin-block: 2rem 4rem;
   align-items: center;
 }
-.room-story img,
 .about-story > img {
   width: 100%;
   aspect-ratio: 1.2;
   object-fit: cover;
   border-radius: var(--radius-feature);
 }
-.room-story figcaption {
-  margin-top: 0.7rem;
-  color: var(--color-muted);
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-}
-.room-story h2,
 .about-story h2 {
   margin-block: 1rem;
 }
-.room-story p:not(.eyebrow),
 .about-story p {
   margin-bottom: 1.3rem;
   color: var(--color-muted);
 }
-.planner,
 .contact-section {
   padding: 1.5rem;
   background: var(--color-panel);
   border-radius: var(--radius-panel);
 }
-.inspiration-room {
-  margin-block: 2rem 4rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid var(--color-line);
-}
-.inspiration-room .room-story {
-  margin-block: 0 2rem;
-}
-.inspiration-room .room-story img {
-  aspect-ratio: 3 / 2;
-  object-fit: contain;
-}
-.inspiration-products-title {
-  margin-bottom: 1rem;
-  font: 1.5rem/1.2 var(--font-heading);
-}
-.inspiration-products {
-  display: grid;
-  gap: 1.5rem;
-}
-.inspiration-product {
-  min-width: 0;
-}
-.inspiration-product img {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: contain;
-  border-radius: var(--radius-panel);
-  background: var(--color-panel);
-}
-.inspiration-product h3 {
-  margin-block: 0.8rem 0.4rem;
-  font-size: 1rem;
-}
-.inspiration-product p {
-  color: var(--color-muted);
-  font-size: 0.8rem;
-  margin-bottom: 0.5rem;
-}
-.inspiration-product .inspiration-price {
-  color: var(--color-ink);
-}
 @media (min-width: 768px) {
-  .inspiration-products {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .inspiration-room:nth-of-type(even) .room-story figure {
-    order: 0;
-  }
-  .inspiration-room:nth-of-type(odd) .room-story figure {
-    order: 2;
-  }
-}
-.planner h2 {
-  margin-block: 1rem;
-}
-#room-planner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 1rem;
-  margin-block: 1.5rem;
-}
-#room-planner > div {
-  flex: 1 1 140px;
-}
-#room-planner label {
-  display: block;
-  font-size: 0.8rem;
-  margin-bottom: 0.4rem;
-}
-#room-area {
-  display: block;
-  padding: 1rem 0;
 }
 .contact-section {
   display: grid;
@@ -920,13 +837,9 @@ html[data-entrance='playing'] .room-hotspot::before {
   .page-section {
     padding-block: 4.5rem;
   }
-  .room-story,
   .about-story {
     grid-template-columns: 1.1fr 1fr;
     gap: 2.5rem;
-  }
-  .room-story:nth-of-type(odd) figure {
-    order: 2;
   }
   .contact-section {
     grid-template-columns: 1fr 1fr;
