@@ -126,6 +126,59 @@
   --grid-template-columns-checkout: minmax(0, 1.3fr) minmax(0, 1fr);
   --grid-template-columns-line: minmax(0, 1fr) auto;
 
+  /* The store intro: its lettering, the botanical illustration and its
+     motions, and the arrival of page content behind it. The global
+     reduced-motion rule turns every animation off. */
+  --text-intro-kicker: 0.6rem;
+  --text-intro-kicker--line-height: 1.7;
+  --tracking-intro-kicker: 0.22em;
+  --text-intro-title: clamp(4.5rem, 13vw, 10rem);
+  --text-intro-title--line-height: 1;
+  --tracking-intro-title: 0.12em;
+  --tracking-intro-tag: 0.25em;
+  --background-image-botanical: url('/botanical.svg');
+  --animate-intro-curtain: intro-curtain 850ms cubic-bezier(0.76, 0, 0.24, 1)
+    2050ms both;
+  --animate-intro-kicker: intro-name 700ms ease-out 100ms both;
+  --animate-intro-title: intro-name 800ms ease-out 150ms both;
+  --animate-intro-underline: intro-underline 650ms ease-out 650ms both;
+  @keyframes intro-name {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes intro-underline {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes intro-curtain {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-105%);
+    }
+  }
+  @keyframes content-arrive {
+    from {
+      opacity: 0.3;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Corner radii used by RAHA. */
   --radius-thumb: 4px; /* gallery thumbnails, quantity controls, hotspot labels */
   --radius-field: 5px; /* form fields, small cart and room images */
@@ -142,6 +195,14 @@
 
   /* Page gutter: 1.25rem, then 2.5rem from 768px and 5rem from 1280px. */
   --spacing-gutter: 1.25rem;
+}
+
+/* Page content arriving behind the intro. `inline`, so the class carries the
+   whole animation and var(--entrance-delay) is read on each element: on :root
+   the delay is undefined, and the token would become an empty value there. */
+@theme inline {
+  --animate-content-arrive: content-arrive 650ms ease-out var(--entrance-delay)
+    both;
 }
 
 /* Base element styles. Preflight already supplies box-sizing, zero margins,
@@ -310,145 +371,7 @@ main:focus {
 /* Local demo registration and cart retain native form behavior. */
 
 /* The optional introduction never hides the underlying page. */
-.store-intro {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: var(--color-warm-slate);
-  color: var(--color-soft-white);
-}
-.store-intro.is-playing {
-  display: grid;
-  place-items: center;
-  animation: intro-curtain 850ms cubic-bezier(0.76, 0, 0.24, 1) 2050ms both;
-}
-.store-intro::before {
-  content: '';
-  position: absolute;
-  width: 140px;
-  height: 280px;
-  left: 5%;
-  bottom: 7%;
-  background: url('/botanical.svg') center / contain no-repeat;
-  filter: brightness(0) invert(1);
-  opacity: 0.2;
-}
-.intro-brand {
-  width: min(85%, 850px);
-  text-align: center;
-}
-.intro-kicker {
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  animation: intro-name 700ms ease-out 100ms both;
-}
-#intro-title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-block: 0.8rem 1.8rem;
-  font: clamp(4.5rem, 13vw, 10rem)/1 var(--font-heading);
-  letter-spacing: -0.05em;
-  animation: intro-name 800ms ease-out 150ms both;
-}
-#intro-title > span {
-  font: 0.8rem/1.5 var(--font-body);
-  letter-spacing: 0.55em;
-  text-transform: uppercase;
-  margin-top: 1rem;
-}
-.intro-line {
-  display: block;
-  height: 1px;
-  width: min(240px, 60%);
-  margin-inline: auto;
-  background: var(--color-taupe-brown);
-  transform-origin: left;
-  animation: intro-underline 650ms ease-out 650ms both;
-}
-.skip-intro {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  min-height: 48px;
-  padding: 0.7rem 1.2rem;
-  border: 1px solid var(--color-stone-grey);
-  border-radius: var(--radius-pill);
-  color: var(--color-soft-white);
-  background: var(--color-primary-dark);
-  font-size: 0.8rem;
-}
-.skip-intro:focus-visible {
-  outline-color: var(--color-soft-white);
-}
-.entrance-hero,
-.entrance-copy,
-.entrance-search,
-.entrance-card {
-  animation: content-arrive 650ms ease-out var(--entrance-delay) both;
-}
-@keyframes intro-name {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes intro-underline {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-@keyframes intro-curtain {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-105%);
-  }
-}
-@keyframes content-arrive {
-  from {
-    opacity: 0.3;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 /* RAHA: the ten-shade interface palette. Product color dots keep their own values. */
-.store-intro {
-  background: var(--color-warm-ivory);
-  color: var(--color-charcoal-brown);
-}
-.store-intro::before {
-  filter: none;
-  opacity: 0.35;
-}
-#intro-title {
-  font-weight: 400;
-  letter-spacing: 0.12em;
-}
-#intro-title > span {
-  font-size: 0.75rem;
-  letter-spacing: 0.25em;
-}
-.skip-intro {
-  background: var(--color-charcoal-brown);
-  color: var(--color-soft-white);
-  border-color: var(--color-charcoal-brown);
-}
-.skip-intro:focus-visible {
-  outline-color: var(--color-soft-black);
-}
 
 /* A catalogue-matched room with a non-modal, single-product panel. */
 .shop-the-room {
@@ -666,9 +589,6 @@ html[data-entrance='playing'] .room-hotspot::before {
     animation: none;
     transition: none;
   }
-  .store-intro.is-playing {
-    display: none;
-  }
 }
 
 /* Catalogue controls share the existing RAHA form styling. */
@@ -678,12 +598,6 @@ html[data-entrance='playing'] .room-hotspot::before {
 /* React foundation additions; original RAHA styles above are preserved. */
 button:disabled {
   cursor: not-allowed;
-}
-.status-action {
-  background: transparent;
-  border-inline: 0;
-  border-top: 0;
-  cursor: pointer;
 }
 
 /* React catalogue feedback sits outside the busy grid for immediate announcements. */

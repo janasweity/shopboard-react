@@ -21,20 +21,12 @@ export default function StatusMessage({
     >
       <p>{message}</p>
       {onRetry ? (
-        <button
-          className="text-link status-action"
-          type="button"
-          onClick={onRetry}
-        >
+        <button className="text-link" type="button" onClick={onRetry}>
           Try again
         </button>
       ) : null}
       {onReset ? (
-        <button
-          className="text-link status-action"
-          type="button"
-          onClick={onReset}
-        >
+        <button className="text-link" type="button" onClick={onReset}>
           Reset selections
         </button>
       ) : null}

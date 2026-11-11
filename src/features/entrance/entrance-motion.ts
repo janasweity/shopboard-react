@@ -31,8 +31,19 @@ interface EntranceMotion {
   readonly style: EntranceStyle | undefined
 }
 
+type EntranceKind = 'hero' | 'copy' | 'search' | 'card'
+
+// Each kind arrives with the same Tailwind animation today (content-arrive in
+// globals.css); the map keeps the kinds explicit.
+const arrivalClass: Record<EntranceKind, string> = {
+  hero: 'animate-content-arrive',
+  copy: 'animate-content-arrive',
+  search: 'animate-content-arrive',
+  card: 'animate-content-arrive',
+}
+
 export function useEntranceMotion(
-  kind: 'hero' | 'copy' | 'search' | 'card',
+  kind: EntranceKind,
   delayMs: number,
 ): EntranceMotion {
   const startedAt = useContext(EntranceContext)
@@ -48,7 +59,7 @@ export function useEntranceMotion(
   // When the intro stops, startedAt becomes null and the class is removed,
   // so the content is shown at once.
   return {
-    className: 'entrance-' + kind,
+    className: arrivalClass[kind],
     style: { '--entrance-delay': delayMs + 'ms' },
   }
 }

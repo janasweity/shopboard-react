@@ -1,6 +1,10 @@
 'use client'
 
 import StatusMessage from '../../../components/StatusMessage.tsx'
+import {
+  pageIntroClass,
+  pageIntroTitleClass,
+} from '../../../components/page-intro-classes.ts'
 
 interface Props {
   readonly error: unknown
@@ -18,9 +22,9 @@ export default function ProductError({ retry }: Props) {
   }
 
   return (
-    <section className="page-intro">
+    <section className={pageIntroClass}>
       <p className="eyebrow">RAHA / PRODUCT DETAILS</p>
-      <h1>We could not load this product.</h1>
+      <h1 className={pageIntroTitleClass}>We could not load this product.</h1>
       <StatusMessage
         kind="error"
         message="The product details did not load. Please try again."

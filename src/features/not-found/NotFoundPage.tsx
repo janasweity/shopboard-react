@@ -3,6 +3,11 @@
 import Link from 'next/link'
 import StatusMessage from '../../components/StatusMessage.tsx'
 import {
+  pageIntroClass,
+  pageIntroTitleClass,
+} from '../../components/page-intro-classes.ts'
+import { cn } from '../../lib/utils.ts'
+import {
   entranceDelay,
   useEntranceMotion,
 } from '../entrance/entrance-motion.ts'
@@ -16,9 +21,12 @@ export default function NotFoundPage({
 }: Props) {
   const titleMotion = useEntranceMotion('copy', entranceDelay.copy)
   return (
-    <section className="page-intro">
+    <section className={pageIntroClass}>
       <p className="eyebrow">RAHA / HOME &amp; LIVING</p>
-      <h1 className={titleMotion.className} style={titleMotion.style}>
+      <h1
+        className={cn(pageIntroTitleClass, titleMotion.className)}
+        style={titleMotion.style}
+      >
         {heading}
       </h1>
       <StatusMessage

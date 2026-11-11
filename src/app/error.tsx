@@ -1,6 +1,10 @@
 'use client'
 
 import StatusMessage from '../components/StatusMessage.tsx'
+import {
+  pageIntroClass,
+  pageIntroTitleClass,
+} from '../components/page-intro-classes.ts'
 
 interface Props {
   readonly error: unknown
@@ -18,9 +22,9 @@ export default function PageError({ retry }: Props) {
   }
 
   return (
-    <section className="page-intro">
+    <section className={pageIntroClass}>
       <p className="eyebrow">RAHA / PAGE</p>
-      <h1>This page could not be loaded.</h1>
+      <h1 className={pageIntroTitleClass}>This page could not be loaded.</h1>
       <StatusMessage
         kind="error"
         message="Check your connection and try again. The menu, cart and other pages still work."
